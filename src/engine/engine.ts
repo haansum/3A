@@ -14,6 +14,7 @@ import {
 } from './scenes';
 import { STANCE_WEIGHTS, styleMultiplier, SUB_HUNT } from './styleMatrix';
 import { pickStrike, pickSub, pickTakedown } from './techniques';
+import { UsageTracker } from './variety';
 import type {
   FightConfig,
   FightEvent,
@@ -132,6 +133,8 @@ interface Finish {
 
 export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: FightConfig): FightResult {
   const rng = new Rng(config.seed);
+  // Prose-variety tracker: no template repeats until its bank is spent
+  const t = new UsageTracker(rng, config.avoidRecent);
   const events: FightEvent[] = [];
   const A = newState(fighterA, fighterB, rng, config.carryoverA);
   const B = newState(fighterB, fighterA, rng, config.carryoverB);
@@ -174,28 +177,28 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
 
   /** Knockout / stoppage checks after damage lands. Returns true if over. */
   const checkStoppage = (attacker: 0 | 1, wasKnockdown: boolean): boolean => {
-    const t = S[other(attacker)];
+    const victim = S[other(attacker)];
     if (wasKnockdown) {
       const finisherInstinct = eff(S[attacker], 'power') / 500;
-      const pKO = Math.min(0.85, Math.max(0.12, 0.18 + finisherInstinct + (t.damage - 65) / 130));
+      const pKO = Math.min(0.85, Math.max(0.12, 0.18 + finisherInstinct + (victim.damage - 65) / 130));
       if (rng.chance(pKO)) {
         finish = { method: 'KO', winner: attacker, round, time: clock };
         log(
           'ko',
-          narrate.ko(rng, name(attacker), name(other(attacker)), round, clock),
+          narrate.ko(t, name(attacker), name(other(attacker)), round, clock),
           attacker,
-          finishScene(rng, sf(attacker), sf(other(attacker)), 'ko'),
+          finishScene(t, sf(attacker), sf(other(attacker)), 'ko'),
         );
         return true;
       }
     }
-    if (t.damage >= KO_DAMAGE + 5 + t.f.attributes.heart / 10) {
+    if (victim.damage >= KO_DAMAGE + 5 + victim.f.attributes.heart / 10) {
       finish = { method: 'TKO', winner: attacker, round, time: clock };
       log(
         'tko',
-        narrate.tko(rng, name(attacker), name(other(attacker)), round, clock),
+        narrate.tko(t, name(attacker), name(other(attacker)), round, clock),
         attacker,
-        finishScene(rng, sf(attacker), sf(other(attacker)), 'tko'),
+        finishScene(t, sf(attacker), sf(other(attacker)), 'tko'),
       );
       return true;
     }
@@ -232,9 +235,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
             me.round.knockdowns++;
             log(
               'knockdown',
-              narrate.knockdown(rng, name(i), name(other(i)), tech),
+              narrate.knockdown(t, name(i), name(other(i)), tech),
               i,
-              strikeScene(rng, sf(i), sf(other(i)), tech.kind, 'knockdown'),
+              strikeScene(t, sf(i), sf(other(i)), tech.kind, 'knockdown'),
             );
             if (checkStoppage(i, true)) return true;
             continue;
@@ -243,9 +246,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
           dealDamage(op, dmg);
           log(
             'big_strike',
-            narrate.bigStrike(rng, name(i), name(other(i)), tech),
+            narrate.bigStrike(t, name(i), name(other(i)), tech),
             i,
-            strikeScene(rng, sf(i), sf(other(i)), tech.kind, 'rocked'),
+            strikeScene(t, sf(i), sf(other(i)), tech.kind, 'rocked'),
           );
           if (checkStoppage(i, false)) return true;
           continue;
@@ -256,9 +259,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         if (rng.chance(0.22)) {
           log(
             'exchange',
-            narrate.exchange(rng, name(i), name(other(i)), tech),
+            narrate.exchange(t, name(i), name(other(i)), tech),
             i,
-            cleanHitScene(rng, sf(i), sf(other(i)), tech.kind),
+            cleanHitScene(t, sf(i), sf(other(i)), tech.kind),
           );
         }
       }
@@ -290,9 +293,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         d.round.knockdowns++;
         log(
           'knockdown',
-          narrate.knockdown(rng, d.f.name, shooter.f.name, tech),
+          narrate.knockdown(t, d.f.name, shooter.f.name, tech),
           defender,
-          strikeScene(rng, sf(defender), sf(other(defender)), tech.kind, 'knockdown'),
+          strikeScene(t, sf(defender), sf(other(defender)), tech.kind, 'knockdown'),
         );
         return checkStoppage(defender, true) ? 'ended' : 'broken';
       }
@@ -300,9 +303,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
       dealDamage(shooter, dmg);
       log(
         'big_strike',
-        narrate.bigStrike(rng, d.f.name, shooter.f.name, tech),
+        narrate.bigStrike(t, d.f.name, shooter.f.name, tech),
         defender,
-        strikeScene(rng, sf(defender), sf(other(defender)), tech.kind, 'rocked'),
+        strikeScene(t, sf(defender), sf(other(defender)), tech.kind, 'rocked'),
       );
       return checkStoppage(defender, false) ? 'ended' : 'broken';
     }
@@ -333,16 +336,16 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
       ring.controller = i;
       log(
         'takedown',
-        narrate.takedown(rng, name(i), name(other(i)), td),
+        narrate.takedown(t, name(i), name(other(i)), td),
         i,
-        takedownScene(rng, sf(i), sf(other(i)), td.kind, true),
+        takedownScene(t, sf(i), sf(other(i)), td.kind, true),
       );
     } else {
       log(
         'takedown_stuffed',
-        narrate.takedownStuffed(rng, name(i), name(other(i))),
+        narrate.takedownStuffed(t, name(i), name(other(i))),
         other(i),
-        takedownScene(rng, sf(i), sf(other(i)), td.kind, false),
+        takedownScene(t, sf(i), sf(other(i)), td.kind, false),
       );
       // Sprawl-and-brawl: counter shot for the defender
       if (rng.chance(0.25 + eff(op, 'fightIQ') / 400)) {
@@ -375,10 +378,10 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         const topIdx = ring.controller;
         if ((bot.f.style === 'submission' || bot.f.style === 'balanced') && rng.chance(0.3)) {
           ring.controller = botIdx;
-          log('sweep', narrate.sweep(rng, bot.f.name), botIdx, sweepScene(rng, sf(botIdx), sf(topIdx)));
+          log('sweep', narrate.sweep(t, bot.f.name), botIdx, sweepScene(t, sf(botIdx), sf(topIdx)));
         } else {
           ring.position = 'standing';
-          log('standup', narrate.standup(rng, bot.f.name), botIdx, standupScene(rng, sf(botIdx), sf(topIdx)));
+          log('standup', narrate.standup(t, bot.f.name), botIdx, standupScene(t, sf(botIdx), sf(topIdx)));
         }
         return false;
       }
@@ -398,26 +401,26 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         const sub = pickSub(rng);
         log(
           'sub_attempt',
-          narrate.subAttempt(rng, top.f.name, bot.f.name, sub),
+          narrate.subAttempt(t, top.f.name, bot.f.name, sub),
           ci,
-          submissionScene(rng, sf(ci), sf(other(ci)), sub.kind, 'locked'),
+          submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'locked'),
         );
         const pEscape = logistic(eff(bot, 'grapplingDefense') - eff(top, 'submissions'), 30, 0.62) - fatigueBonus;
         if (rng.chance(pEscape)) {
           log(
             'sub_escape',
-            narrate.subEscape(rng, top.f.name, bot.f.name, sub),
+            narrate.subEscape(t, top.f.name, bot.f.name, sub),
             other(ci),
-            submissionScene(rng, sf(ci), sf(other(ci)), sub.kind, 'escape'),
+            submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'escape'),
           );
           if (rng.chance(0.4)) ring.position = 'standing';
         } else {
           finish = { method: 'Submission', winner: ci, round, time: clock };
           log(
             'submission',
-            narrate.submissionWin(top.f.name, bot.f.name, sub, round, clock),
+            narrate.submissionWin(t, top.f.name, bot.f.name, sub, round, clock),
             ci,
-            submissionScene(rng, sf(ci), sf(other(ci)), sub.kind, 'tap'),
+            submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'tap'),
           );
           return true;
         }
@@ -436,9 +439,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
       if (rng.chance(0.35)) {
         log(
           'ground_strikes',
-          narrate.groundStrikes(rng, top.f.name, bot.f.name),
+          narrate.groundStrikes(t, top.f.name, bot.f.name),
           ring.controller,
-          groundStrikesScene(rng, sf(ring.controller), sf(other(ring.controller))),
+          groundStrikesScene(t, sf(ring.controller), sf(other(ring.controller))),
         );
       }
       if (checkStoppage(ring.controller, false)) return true;
@@ -462,9 +465,9 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     if (rng.chance(0.3)) {
       log(
         'clinch_work',
-        narrate.clinchWork(rng, c.f.name, d.f.name),
+        narrate.clinchWork(t, c.f.name, d.f.name),
         ring.controller,
-        clinchScene(rng, sf(ring.controller), sf(other(ring.controller))),
+        clinchScene(t, sf(ring.controller), sf(other(ring.controller))),
       );
     }
     if (checkStoppage(ring.controller, false)) return true;
@@ -639,5 +642,6 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     statsA: A.stats,
     statsB: B.stats,
     scorecards,
+    usage: t.usage(),
   };
 }

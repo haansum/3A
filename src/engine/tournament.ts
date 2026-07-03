@@ -1,6 +1,7 @@
 import { makeId } from './data';
 import { randomSeed } from './rng';
 import { simulateFight } from './engine';
+import { recentFromUsage } from './variety';
 import type { CarryoverState, Fighter, FightResult } from './types';
 
 /**
@@ -103,9 +104,14 @@ export interface RoundSimResults {
 /**
  * Simulate every fight in the next unfought bracket round.
  * Returns the updated tournament (new object) and the fight results,
- * which the caller is responsible for storing.
+ * which the caller is responsible for storing. `avoidRecent` biases the
+ * narration away from prose used in recent fights.
  */
-export function simulateNextRound(t: Tournament, fighters: Record<string, Fighter>): RoundSimResults {
+export function simulateNextRound(
+  t: Tournament,
+  fighters: Record<string, Fighter>,
+  avoidRecent?: Record<string, number[]>,
+): RoundSimResults {
   const idx = nextRoundIndex(t);
   if (idx === -1) return { tournament: t, results: [] };
 
@@ -115,6 +121,9 @@ export function simulateNextRound(t: Tournament, fighters: Record<string, Fighte
     carryStates: { ...t.carryStates },
   };
   const results: FightResult[] = [];
+  // Chain prose avoidance fight-to-fight so a bracket round doesn't
+  // read like the same fight four times
+  let avoid = avoidRecent ?? {};
 
   for (const match of updated.rounds[idx]) {
     if (match.resultId || !match.fighterAId || !match.fighterBId) continue;
@@ -127,7 +136,9 @@ export function simulateNextRound(t: Tournament, fighters: Record<string, Fighte
       seed: randomSeed(),
       carryoverA: updated.carryover ? updated.carryStates[fa.id] : undefined,
       carryoverB: updated.carryover ? updated.carryStates[fb.id] : undefined,
+      avoidRecent: avoid,
     });
+    if (result.usage) avoid = recentFromUsage(avoid, result.usage);
     result.tournamentId = updated.id;
     results.push(result);
 

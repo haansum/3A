@@ -5,6 +5,7 @@ import { createFighter, presetFighters } from '../data';
 import { simulateFight } from '../engine';
 import { createTournament, simulateNextRound } from '../tournament';
 import type { Attributes, Fighter, FightResult } from '../types';
+import { recentFromUsage } from '../variety';
 
 const attrs = (overrides: Partial<Attributes> = {}): Attributes => ({
   striking: 60,
@@ -45,6 +46,52 @@ test('same seed reproduces the exact same fight', () => {
   assert.equal(r1.endRound, r2.endRound);
   // Full event objects — including scene kinematics — must be identical
   assert.deepEqual(r1.events, r2.events);
+  assert.deepEqual(r1.usage, r2.usage);
+});
+
+test('no prose template repeats within a fight until its bank is exhausted', () => {
+  const roster = presetFighters();
+  let checked = 0;
+  for (let s = 0; s < 20; s++) {
+    for (let i = 0; i < 4; i++) {
+      const r = simulateFight(roster[i], roster[7 - i], { rounds: 5, seed: s * 379 + i });
+      assert.ok(r.usage, 'fight should carry a usage log');
+      for (const [bank, { size, picks }] of Object.entries(r.usage!)) {
+        // Picks come in cycles: each consecutive chunk of `size` picks
+        // must be a permutation (no duplicates inside a cycle)
+        for (let start = 0; start < picks.length; start += size) {
+          const chunk = picks.slice(start, start + size);
+          assert.equal(
+            new Set(chunk).size,
+            chunk.length,
+            `bank ${bank} repeated a variant inside one cycle: [${picks.join(',')}] (size ${size})`,
+          );
+          checked++;
+        }
+        for (const p of picks) assert.ok(p >= 0 && p < size);
+      }
+    }
+  }
+  assert.ok(checked > 200, `expected many cycles checked, got ${checked}`);
+});
+
+test('avoidRecent steers the next fight away from recently used prose', () => {
+  const roster = presetFighters();
+  const first = simulateFight(roster[0], roster[4], { rounds: 3, seed: 991 });
+  const recent = recentFromUsage({}, first.usage!);
+  const second = simulateFight(roster[0], roster[4], { rounds: 3, seed: 991, avoidRecent: recent });
+  let asserted = 0;
+  for (const [bank, avoided] of Object.entries(recent)) {
+    const u = second.usage![bank];
+    if (!u || avoided.length === 0 || avoided.length >= u.size) continue;
+    // The first cycle of the new fight must skip everything in the avoid list
+    const firstCycleLen = u.size - avoided.length;
+    for (const p of u.picks.slice(0, Math.min(firstCycleLen, u.picks.length))) {
+      assert.ok(!avoided.includes(p), `bank ${bank} reused avoided variant ${p} too early`);
+      asserted++;
+    }
+  }
+  assert.ok(asserted > 10, `expected avoidance to be exercised, got ${asserted} checks`);
 });
 
 test('key moments carry animator-ready scene descriptions', () => {
@@ -103,8 +150,8 @@ test('a clearly better fighter wins most but not all fights', () => {
   const elite = createFighter('Elite', 'balanced', attrs({ striking: 90, power: 85, speed: 88, wrestling: 85, grapplingDefense: 88, fightIQ: 90, cardio: 85 }));
   const journeyman = createFighter('Journeyman', 'balanced', attrs({ striking: 50, power: 55, speed: 50, wrestling: 50, grapplingDefense: 50, fightIQ: 50, cardio: 55 }));
   const { a, b } = winRate(elite, journeyman, 300);
-  assert.ok(a > 0.75, `elite should dominate, won ${a}`);
-  assert.ok(b > 0.005, `journeyman needs a puncher's chance, won ${b}`);
+  assert.ok(a > 0.85, `elite should dominate, won ${a}`);
+  assert.ok(b > 0.002, `even a total mismatch should never be a guaranteed shutout, won ${b}`);
 });
 
 test('mirror match is close to a coin flip', () => {

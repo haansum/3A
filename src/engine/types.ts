@@ -209,6 +209,12 @@ export interface FightResult {
   scorecards: Scorecard[];
   /** Set when the fight belongs to a tournament */
   tournamentId?: string;
+  /**
+   * Prose-variety log: which variant of each narration/scene template
+   * bank was used, in order. Lets the app show repetition stats and
+   * feeds "recently used" avoidance into subsequent fights.
+   */
+  usage?: Record<string, { size: number; picks: number[] }>;
 }
 
 /** Lingering damage/fatigue carried into a fighter's next tournament fight. */
@@ -223,4 +229,11 @@ export interface FightConfig {
   seed: number;
   carryoverA?: CarryoverState;
   carryoverB?: CarryoverState;
+  /**
+   * Template variants used in recent fights (bank -> variant indices).
+   * The narration engine avoids these early in the fight so back-to-back
+   * simulations don't read the same. Part of the replay input: the same
+   * seed + the same avoid map reproduces the same fight.
+   */
+  avoidRecent?: Record<string, number[]>;
 }

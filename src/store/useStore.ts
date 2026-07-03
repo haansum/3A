@@ -7,6 +7,7 @@ import { simulateFight } from '@/engine/engine';
 import { randomSeed } from '@/engine/rng';
 import { createTournament, simulateNextRound, type Tournament } from '@/engine/tournament';
 import type { Fighter, FightResult } from '@/engine/types';
+import { recentFromUsage } from '@/engine/variety';
 
 const MAX_LOOSE_RESULTS = 50; // quick fights beyond this get pruned (oldest first)
 
@@ -17,6 +18,12 @@ interface AppState {
   resultOrder: string[]; // newest first
   tournaments: Record<string, Tournament>;
   tournamentOrder: string[]; // newest first
+  /**
+   * Rolling map of recently used narration/scene template variants
+   * (bank -> variant indices), fed into each new simulation so
+   * back-to-back fights don't reuse the same prose.
+   */
+  recentVariants: Record<string, number[]>;
 
   addFighter: (fighter: Fighter) => void;
   updateFighter: (fighter: Fighter) => void;
@@ -71,6 +78,7 @@ export const useStore = create<AppState>()(
       resultOrder: [],
       tournaments: {},
       tournamentOrder: [],
+      recentVariants: {},
 
       addFighter: (fighter) =>
         set((s) => ({
@@ -93,7 +101,11 @@ export const useStore = create<AppState>()(
         const a = s.fighters[aId];
         const b = s.fighters[bId];
         if (!a || !b || aId === bId) return null;
-        const result = simulateFight(a, b, { rounds, seed: seed ?? randomSeed() });
+        const result = simulateFight(a, b, {
+          rounds,
+          seed: seed ?? randomSeed(),
+          avoidRecent: s.recentVariants,
+        });
 
         set((state) => {
           const results = { ...state.results, [result.id]: result };
@@ -106,7 +118,14 @@ export const useStore = create<AppState>()(
               resultOrder = resultOrder.filter((r) => r !== id);
             }
           }
-          return { results, resultOrder, fighters: applyRecord(state.fighters, result) };
+          return {
+            results,
+            resultOrder,
+            fighters: applyRecord(state.fighters, result),
+            recentVariants: result.usage
+              ? recentFromUsage(state.recentVariants, result.usage)
+              : state.recentVariants,
+          };
         });
         return result.id;
       },
@@ -131,21 +150,24 @@ export const useStore = create<AppState>()(
         const s = get();
         const t = s.tournaments[tournamentId];
         if (!t) return;
-        const { tournament, results } = simulateNextRound(t, s.fighters);
+        const { tournament, results } = simulateNextRound(t, s.fighters, s.recentVariants);
         set((state) => {
           let fighters = state.fighters;
           const resultsMap = { ...state.results };
           let resultOrder = state.resultOrder;
+          let recentVariants = state.recentVariants;
           for (const r of results) {
             resultsMap[r.id] = r;
             resultOrder = [r.id, ...resultOrder];
             fighters = applyRecord(fighters, r);
+            if (r.usage) recentVariants = recentFromUsage(recentVariants, r.usage);
           }
           return {
             tournaments: { ...state.tournaments, [tournamentId]: tournament },
             results: resultsMap,
             resultOrder,
             fighters,
+            recentVariants,
           };
         });
       },

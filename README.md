@@ -57,6 +57,18 @@ condition-aware (tired fighters gasp, rocked fighters' eyes go glassy).
 Kinematics always match the named technique in the commentary, and all of it is
 deterministic per seed.
 
+### Anti-repetition (variety engine)
+All narration and scene prose is drawn through a usage tracker
+(`src/engine/variety.ts`): within a fight, a template bank never repeats a
+variant until every variant has been used, and a new cycle never opens with the
+line that just closed the previous one. Each fight result stores a **usage
+log** — which variant of which bank was used, in order — which the app rolls
+into a "recently used" map fed into the next simulation, so back-to-back fights
+(and tournament rounds) avoid reusing prose the user just read. The fight
+screen's Variety Log section shows exactly what was drawn and flags any
+cycle-forced reuse. Replay stays exact: same seed + same avoid map reproduces
+the identical fight.
+
 ### Tournaments
 4/8/16-fighter single-elimination brackets with optional **damage carryover**:
 a fighter who survives a war enters the next round compromised while a quick

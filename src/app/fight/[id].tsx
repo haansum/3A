@@ -211,6 +211,44 @@ export default function FightResultScreen() {
           ))}
         </View>
 
+        {result.usage && (
+          <View style={styles.section}>
+            <ThemedText type="smallBold" themeColor="textSecondary" style={styles.sectionLabel}>
+              VARIETY LOG
+            </ThemedText>
+            <ThemedView type="backgroundElement" style={styles.statsCard}>
+              {(() => {
+                const banks = Object.entries(result.usage!);
+                const totalPicks = banks.reduce((n, [, u]) => n + u.picks.length, 0);
+                const repeated = banks
+                  .map(([bank, u]) => {
+                    const counts = new Map<number, number>();
+                    for (const p of u.picks) counts.set(p, (counts.get(p) ?? 0) + 1);
+                    const repeats = [...counts.values()].filter((c) => c > 1).reduce((n, c) => n + c - 1, 0);
+                    return { bank, u, repeats };
+                  })
+                  .filter((r) => r.repeats > 0);
+                return (
+                  <>
+                    <ThemedText type="small" themeColor="textSecondary">
+                      {totalPicks} descriptions drawn from {banks.length} template banks.{' '}
+                      {repeated.length === 0
+                        ? 'No repeated prose in this fight.'
+                        : 'Variants only repeat once a bank is exhausted:'}
+                    </ThemedText>
+                    {repeated.map(({ bank, u, repeats }) => (
+                      <ThemedText key={bank} type="code" themeColor="textSecondary">
+                        {bank}: {u.picks.length} picks / {u.size} variants ({repeats}{' '}
+                        {repeats === 1 ? 'reuse' : 'reuses'})
+                      </ThemedText>
+                    ))}
+                  </>
+                );
+              })()}
+            </ThemedView>
+          </View>
+        )}
+
         <ThemedText type="code" themeColor="textSecondary" style={styles.seed}>
           replay seed: {result.seed}
         </ThemedText>
