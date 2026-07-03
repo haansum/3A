@@ -89,6 +89,8 @@ export interface Fighter {
   name: string;
   nickname?: string;
   style: FightingStyle;
+  /** Pronoun set used by narration and scene prose. Defaults to 'they'. */
+  pronouns?: 'she' | 'he' | 'they';
   attributes: Attributes;
   /** Win/loss record accumulated from simulated fights */
   wins: number;
@@ -100,9 +102,11 @@ export type FightEventType =
   | 'round_start'
   | 'exchange' // notable striking exchange
   | 'big_strike' // a heavy shot that visibly hurts
+  | 'body_fold' // body shot that folds the fighter (conscious agony)
   | 'knockdown'
   | 'takedown'
   | 'takedown_stuffed'
+  | 'slam' // high-amplitude takedown that finishes on impact
   | 'clinch_work'
   | 'ground_strikes'
   | 'sub_attempt' // locked in but escaped
@@ -113,6 +117,8 @@ export type FightEventType =
   | 'ko'
   | 'tko'
   | 'submission'
+  | 'ko_aftermath' // agonal state: fencing response, stiffening, snoring, twitch
+  | 'wakeup' // involuntary recovery and confusion
   | 'decision';
 
 /**
@@ -164,6 +170,18 @@ export type FightMethod =
   | 'Majority Decision'
   | 'Draw';
 
+/**
+ * How deep the finish went (Animation Bible tiers). Drives the
+ * post-finish sequence: fencing response, agonal layers, wake-up.
+ */
+export type FinishTier =
+  | 'flash' // Level 1: the Stumble — jelly legs, ref rescue, no fencing
+  | 'stiff' // Level 2: the Statue — timber fall, strong fencing response
+  | 'deep' // Level 3: the Melt — cascading collapse, instant snore
+  | 'slam' // kinetic shutdown off a high-amplitude takedown
+  | 'sleep' // choked unconscious (refused to tap)
+  | 'tap'; // conscious submission
+
 export interface FighterFightStats {
   sigStrikes: number;
   sigStrikesThrown: number;
@@ -198,6 +216,8 @@ export interface FightResult {
   /** null = draw */
   winnerId: string | null;
   method: FightMethod;
+  /** Finish depth (Animation Bible tier); absent on decisions/draws */
+  finishTier?: FinishTier;
   /** Round the fight ended in (== scheduled rounds for decisions) */
   endRound: number;
   /** Time in seconds within the final round */

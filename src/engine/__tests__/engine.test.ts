@@ -99,9 +99,11 @@ test('key moments carry animator-ready scene descriptions', () => {
   const sceneTypes = new Set([
     'knockdown',
     'big_strike',
+    'body_fold',
     'exchange',
     'takedown',
     'takedown_stuffed',
+    'slam',
     'sub_attempt',
     'sub_escape',
     'submission',
@@ -111,6 +113,8 @@ test('key moments carry animator-ready scene descriptions', () => {
     'clinch_work',
     'ko',
     'tko',
+    'ko_aftermath',
+    'wakeup',
   ]);
   let scenesSeen = 0;
   for (let s = 0; s < 30; s++) {
@@ -203,7 +207,11 @@ test('every fight has a coherent event log', () => {
   assert.ok(r.events.length >= 5, 'expected a populated play-by-play');
   assert.equal(r.events[0].type, 'round_start');
   const last = r.events[r.events.length - 1];
-  assert.ok(['ko', 'tko', 'submission', 'decision'].includes(last.type), `fight should end conclusively, got ${last.type}`);
+  // KOs and sleeps end on the wake-up sequence; taps/TKOs/decisions end on the call
+  assert.ok(
+    ['ko', 'tko', 'submission', 'decision', 'wakeup'].includes(last.type),
+    `fight should end conclusively, got ${last.type}`,
+  );
   if (last.type === 'decision') {
     assert.equal(r.scorecards.length, 3);
     for (const card of r.scorecards) {
@@ -217,8 +225,75 @@ test('every fight has a coherent event log', () => {
   }
 });
 
-test('tournament runs to a champion', () => {
+test('KOs follow the Animation Bible: tier, aftermath, and wake-up', () => {
   const roster = presetFighters();
+  let kos = 0;
+  const tiers = new Set<string>();
+  for (let s = 0; s < 120 && kos < 12; s++) {
+    const r = simulateFight(roster[4], roster[1], { rounds: 3, seed: s * 71 + 3 });
+    if (r.method !== 'KO') continue;
+    kos++;
+    assert.ok(r.finishTier, 'KO should carry a finish tier');
+    tiers.add(r.finishTier!);
+    const types = r.events.map((e) => e.type);
+    const koIdx = Math.max(types.indexOf('ko'), types.indexOf('slam'));
+    assert.ok(koIdx >= 0);
+    // The finish is followed by the agonal state and the wake-up
+    assert.equal(types[koIdx + 1], 'ko_aftermath', `expected aftermath after finish, got ${types[koIdx + 1]}`);
+    assert.equal(types[koIdx + 2], 'wakeup', `expected wakeup after aftermath, got ${types[koIdx + 2]}`);
+  }
+  assert.ok(kos >= 5, `expected several KOs to inspect, got ${kos}`);
+  assert.ok(tiers.size >= 2, `KO tiers should vary, saw: ${[...tiers].join(',')}`);
+});
+
+test('choked-out fighters get the sleep sequence; some fights end in sleeps', () => {
+  const roster = presetFighters();
+  const grappler = roster[3]; // João, submission artist
+  const brave = roster[4]; // Tommy, heart 95 — refuses to tap
+  let sleeps = 0;
+  let taps = 0;
+  for (let s = 0; s < 200 && sleeps < 3; s++) {
+    const r = simulateFight(grappler, brave, { rounds: 3, seed: s * 89 + 11 });
+    if (r.method !== 'Submission') continue;
+    if (r.finishTier === 'sleep') {
+      sleeps++;
+      const types = r.events.map((e) => e.type);
+      const subIdx = types.indexOf('submission');
+      assert.equal(types[subIdx + 1], 'ko_aftermath');
+      assert.equal(types[subIdx + 2], 'wakeup');
+    } else {
+      assert.equal(r.finishTier, 'tap');
+      taps++;
+    }
+  }
+  assert.ok(sleeps >= 1, `expected at least one sleep against a 95-heart fighter, got ${sleeps}`);
+  assert.ok(taps >= 1, 'taps should still happen');
+});
+
+test('pronoun tokens never leak into rendered output', () => {
+  const roster = presetFighters(); // mixed she/he presets
+  const withThey = createFighter('Sam Reyes', 'brawler', attrs({ power: 90, heart: 90 }), 'Storm', 'they');
+  const pairs: [Fighter, Fighter][] = [
+    [roster[9], roster[10]], // she vs she
+    [roster[0], roster[9]], // he vs she
+    [withThey, roster[3]], // they vs he
+  ];
+  for (const [fa, fb] of pairs) {
+    for (let s = 0; s < 15; s++) {
+      const r = simulateFight(fa, fb, { rounds: 3, seed: s * 53 + 7 });
+      for (const e of r.events) {
+        const blobs = [e.text, e.scene?.setting, e.scene?.actor.body, e.scene?.actor.motion, e.scene?.actor.face, e.scene?.target.body, e.scene?.target.motion, e.scene?.target.face];
+        for (const blob of blobs) {
+          if (!blob) continue;
+          assert.ok(!/\[(he|him|his|himself|He|Him|His|he's|He's|was)\]/.test(blob), `unrendered pronoun token in: ${blob}`);
+        }
+      }
+    }
+  }
+});
+
+test('tournament runs to a champion', () => {
+  const roster = presetFighters().slice(0, 8);
   const fighters: Record<string, Fighter> = Object.fromEntries(roster.map((f) => [f.id, f]));
   let t = createTournament('Test GP', roster.map((f) => f.id), { carryover: true, roundsPerFight: 3 });
   assert.equal(t.rounds.length, 3); // quarters, semis, final for 8

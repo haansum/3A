@@ -12,10 +12,14 @@ import { useStore } from '@/store/useStore';
 const HIGHLIGHT_TYPES: FightEvent['type'][] = [
   'knockdown',
   'big_strike',
+  'body_fold',
+  'slam',
   'sub_attempt',
   'ko',
   'tko',
   'submission',
+  'ko_aftermath',
+  'wakeup',
   'decision',
 ];
 

@@ -9,8 +9,9 @@ export function createFighter(
   style: FightingStyle,
   attributes: Attributes,
   nickname?: string,
+  pronouns: Fighter['pronouns'] = 'they',
 ): Fighter {
-  return { id: makeId('f'), name, nickname, style, attributes, wins: 0, losses: 0, draws: 0 };
+  return { id: makeId('f'), name, nickname, style, pronouns, attributes, wins: 0, losses: 0, draws: 0 };
 }
 
 /** Simple average rating for display/seeding purposes. */
@@ -64,13 +65,17 @@ const a = (
 /** Starter roster so the app is usable on first launch. */
 export function presetFighters(): Fighter[] {
   return [
-    createFighter('Marcus Cole', 'pressure', a(88, 78, 82, 75, 90, 55, 45, 70, 80, 85, 82), 'The Machine'),
-    createFighter('Dmitri Volkov', 'counter', a(92, 84, 88, 72, 74, 50, 48, 75, 92, 45, 70), 'The Surgeon'),
-    createFighter('Hank Boulder', 'wrestler', a(58, 72, 65, 82, 84, 94, 62, 88, 78, 70, 88), 'Granite'),
-    createFighter('João Ribeiro', 'submission', a(62, 58, 70, 74, 78, 76, 95, 85, 84, 60, 80), 'Anaconda'),
-    createFighter('Tommy Ruckus', 'brawler', a(70, 95, 72, 90, 60, 40, 30, 45, 50, 95, 95), 'Ruckus'),
-    createFighter('Ken Sato', 'balanced', a(80, 70, 80, 76, 82, 74, 72, 78, 88, 65, 78), 'Zen'),
-    createFighter('Ezekiel Brand', 'pressure', a(76, 88, 74, 68, 72, 60, 50, 65, 68, 88, 75), 'Hellfire'),
-    createFighter('Otis Freeman', 'wrestler', a(64, 76, 70, 78, 76, 88, 74, 82, 74, 72, 84), 'Bulldozer'),
+    createFighter('Marcus Cole', 'pressure', a(88, 78, 82, 75, 90, 55, 45, 70, 80, 85, 82), 'The Machine', 'he'),
+    createFighter('Dmitri Volkov', 'counter', a(92, 84, 88, 72, 74, 50, 48, 75, 92, 45, 70), 'The Surgeon', 'he'),
+    createFighter('Hank Boulder', 'wrestler', a(58, 72, 65, 82, 84, 94, 62, 88, 78, 70, 88), 'Granite', 'he'),
+    createFighter('João Ribeiro', 'submission', a(62, 58, 70, 74, 78, 76, 95, 85, 84, 60, 80), 'Anaconda', 'he'),
+    createFighter('Tommy Ruckus', 'brawler', a(70, 95, 72, 90, 60, 40, 30, 45, 50, 95, 95), 'Ruckus', 'he'),
+    createFighter('Ken Sato', 'balanced', a(80, 70, 80, 76, 82, 74, 72, 78, 88, 65, 78), 'Zen', 'he'),
+    createFighter('Ezekiel Brand', 'pressure', a(76, 88, 74, 68, 72, 60, 50, 65, 68, 88, 75), 'Hellfire', 'he'),
+    createFighter('Otis Freeman', 'wrestler', a(64, 76, 70, 78, 76, 88, 74, 82, 74, 72, 84), 'Bulldozer', 'he'),
+    createFighter('Valentina Cruz', 'counter', a(90, 82, 90, 68, 78, 52, 50, 72, 90, 50, 76), 'La Pantera', 'she'),
+    createFighter('Roxie Steele', 'brawler', a(72, 93, 74, 88, 64, 44, 32, 48, 54, 92, 93), 'Wrecking Ball', 'she'),
+    createFighter('Naomi Kase', 'balanced', a(86, 68, 88, 70, 84, 70, 74, 78, 92, 58, 74), 'The Professor', 'she'),
+    createFighter('Bianca Ferreira', 'submission', a(60, 56, 72, 72, 80, 78, 96, 86, 82, 62, 86), 'Jacaré', 'she'),
   ];
 }

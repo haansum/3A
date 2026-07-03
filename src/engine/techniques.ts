@@ -23,6 +23,45 @@ export interface StrikeTech {
   kind: StrikeKind;
 }
 
+/**
+ * Animation Bible, Part 1: KO comes from ROTATIONAL acceleration.
+ * Strikes that spin the skull knock people out; straight pushes score
+ * but starch less often; body work folds rather than switches off.
+ */
+export interface KOProfile {
+  /** Multiplier on knockdown probability when a heavy version lands */
+  kd: number;
+  /** Bias toward deeper KO tiers (Stiff/Deep vs Flash) */
+  deepBias: number;
+  /** Where the damage goes */
+  target: 'head' | 'body' | 'leg';
+}
+
+export const KO_PROFILE: Record<StrikeKind, KOProfile> = {
+  hook: { kd: 1.25, deepBias: 0.15, target: 'head' },
+  headkick: { kd: 1.35, deepBias: 0.3, target: 'head' },
+  overhand: { kd: 1.3, deepBias: 0.2, target: 'head' },
+  uppercut: { kd: 1.25, deepBias: 0.15, target: 'head' },
+  knee: { kd: 1.2, deepBias: 0.25, target: 'head' },
+  elbow: { kd: 1.1, deepBias: 0.05, target: 'head' },
+  straight: { kd: 1.0, deepBias: 0, target: 'head' },
+  frontkick: { kd: 0.85, deepBias: 0, target: 'body' },
+  bodyshot: { kd: 0.9, deepBias: 0, target: 'body' },
+  legkick: { kd: 0.5, deepBias: 0, target: 'leg' },
+};
+
+export type SlamKind = 'spike' | 'powerbomb' | 'suplex';
+
+/** Takedown kinds capable of a slam KO (Animation Bible, Part 3). */
+export const SLAM_CAPABLE: Record<TakedownKind, SlamKind | null> = {
+  double: 'powerbomb',
+  single: null,
+  trip: null,
+  anklepick: null,
+  bodylock: 'suplex',
+  highcrotch: 'spike',
+};
+
 export type TakedownKind = 'double' | 'single' | 'trip' | 'anklepick' | 'bodylock' | 'highcrotch';
 
 export interface TakedownTech {
@@ -120,6 +159,20 @@ const SUBS: SubTech[] = [
   { phrase: 'arm-triangle choke', kind: 'armtriangle' },
   { phrase: "D'Arce choke", kind: 'darce' },
 ];
+
+/**
+ * Blood chokes can put a fighter to sleep if they refuse to tap
+ * (Animation Bible, Part 2). Joint locks force the tap (or worse).
+ */
+export const IS_BLOOD_CHOKE: Record<SubKind, boolean> = {
+  rnc: true,
+  guillotine: true,
+  triangle: true,
+  armtriangle: true,
+  darce: true,
+  armbar: false,
+  kimura: false,
+};
 
 export function pickStrike(rng: Rng, style: FightingStyle): StrikeTech {
   return rng.pick(STRIKES_BY_STYLE[style]);

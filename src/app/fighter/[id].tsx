@@ -13,6 +13,7 @@ import {
   ATTRIBUTE_LABELS,
   STYLE_LABELS,
   STYLES,
+  type Fighter,
   type FightingStyle,
 } from '@/engine/types';
 import { useTheme } from '@/hooks/use-theme';
@@ -31,6 +32,7 @@ export default function FighterEditScreen() {
   const [name, setName] = useState(existing?.name ?? '');
   const [nickname, setNickname] = useState(existing?.nickname ?? '');
   const [style, setStyle] = useState<FightingStyle>(existing?.style ?? 'balanced');
+  const [pronouns, setPronouns] = useState<NonNullable<Fighter['pronouns']>>(existing?.pronouns ?? 'they');
   const [attributes, setAttributes] = useState(existing?.attributes ?? defaultAttributes());
 
   const canSave = name.trim().length > 0;
@@ -38,9 +40,9 @@ export default function FighterEditScreen() {
   const save = () => {
     if (!canSave) return;
     if (existing) {
-      updateFighter({ ...existing, name: name.trim(), nickname: nickname.trim() || undefined, style, attributes });
+      updateFighter({ ...existing, name: name.trim(), nickname: nickname.trim() || undefined, style, pronouns, attributes });
     } else {
-      addFighter(createFighter(name.trim(), style, attributes, nickname.trim() || undefined));
+      addFighter(createFighter(name.trim(), style, attributes, nickname.trim() || undefined, pronouns));
     }
     router.back();
   };
@@ -87,6 +89,16 @@ export default function FighterEditScreen() {
             value={nickname}
             onChangeText={setNickname}
           />
+          <View style={styles.styleRow}>
+            {(['she', 'he', 'they'] as const).map((p) => (
+              <Chip
+                key={p}
+                label={p === 'she' ? 'She/Her' : p === 'he' ? 'He/Him' : 'They/Them'}
+                selected={pronouns === p}
+                onPress={() => setPronouns(p)}
+              />
+            ))}
+          </View>
           {existing && (
             <ThemedText type="small" themeColor="textSecondary">
               Record: {existing.wins}-{existing.losses}

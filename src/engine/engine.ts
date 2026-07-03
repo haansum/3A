@@ -1,19 +1,32 @@
-import { narrate } from './narration';
+import { narrate, type Who } from './narration';
 import { logistic, Rng } from './rng';
 import {
+  aftermathScene,
+  bodyFoldScene,
   cleanHitScene,
   clinchScene,
   finishScene,
   groundStrikesScene,
+  slamScene,
   standupScene,
   strikeScene,
   submissionScene,
   sweepScene,
   takedownScene,
+  wakeupScene,
+  type Momentum,
   type SceneFighter,
 } from './scenes';
 import { STANCE_WEIGHTS, styleMultiplier, SUB_HUNT } from './styleMatrix';
-import { pickStrike, pickSub, pickTakedown } from './techniques';
+import {
+  IS_BLOOD_CHOKE,
+  KO_PROFILE,
+  pickStrike,
+  pickSub,
+  pickTakedown,
+  SLAM_CAPABLE,
+  type StrikeKind,
+} from './techniques';
 import { UsageTracker } from './variety';
 import type {
   FightConfig,
@@ -22,6 +35,7 @@ import type {
   FighterFightStats,
   FightMethod,
   FightResult,
+  FinishTier,
   SceneDescription,
   Scorecard,
 } from './types';
@@ -129,6 +143,7 @@ interface Finish {
   winner: 0 | 1;
   round: number;
   time: number;
+  tier?: FinishTier;
 }
 
 export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: FightConfig): FightResult {
@@ -139,7 +154,6 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
   const A = newState(fighterA, fighterB, rng, config.carryoverA);
   const B = newState(fighterB, fighterA, rng, config.carryoverB);
   const S: [FighterState, FighterState] = [A, B];
-  const name = (i: 0 | 1) => S[i].f.name;
   const other = (i: 0 | 1): 0 | 1 => (i === 0 ? 1 : 0);
 
   // Shared ring state (mutated by the exchange helpers below);
@@ -168,6 +182,7 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
   const sf = (i: 0 | 1): SceneFighter => ({
     id: S[i].f.id,
     name: S[i].f.name,
+    p: S[i].f.pronouns ?? 'they',
     cond: {
       tired: S[i].stamina < 40,
       hurt: S[i].damage > 45,
@@ -175,28 +190,85 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     },
   });
 
+  /** Fighter reference (name + pronouns) for narration templates. */
+  const who = (i: 0 | 1): Who => ({ name: S[i].f.name, p: S[i].f.pronouns ?? 'they' });
+
+  /**
+   * How deep did the shutdown go? (Animation Bible KO tiers.)
+   * More accumulated damage, more finishing power, and more rotational
+   * strike kinds bias toward the Stiff and Deep tiers.
+   */
+  const koTier = (attacker: 0 | 1, victim: FighterState, kind?: StrikeKind): FinishTier => {
+    const deepBias = kind ? KO_PROFILE[kind].deepBias : 0.1;
+    const score =
+      Math.min(110, victim.damage) / 100 +
+      deepBias +
+      eff(S[attacker], 'power') / 400 +
+      rng.range(0, 0.3);
+    if (score < 1.05) return 'flash';
+    if (score > 1.5) return 'deep';
+    return 'stiff';
+  };
+
+  /**
+   * The post-finish sequence: the agonal state (fencing response,
+   * stiffening/melt, snoring, twitch) and the involuntary wake-up.
+   */
+  const logAftermath = (winner: 0 | 1, tier: FinishTier) => {
+    const loser = other(winner);
+    clock = Math.min(299, clock + rng.int(5, 12));
+    log(
+      'ko_aftermath',
+      narrate.aftermath(t, who(winner), who(loser), tier),
+      winner,
+      aftermathScene(t, sf(winner), sf(loser), tier),
+    );
+    clock = Math.min(299, clock + rng.int(15, tier === 'flash' ? 20 : 45));
+    log(
+      'wakeup',
+      narrate.wakeup(t, who(winner), who(loser), tier),
+      winner,
+      wakeupScene(t, sf(winner), sf(loser)),
+    );
+  };
+
+  interface StoppageContext {
+    kind?: StrikeKind;
+    momentum?: Momentum;
+    /** A body fold lowers the referee's threshold — no answer to the liver */
+    bodyFold?: boolean;
+  }
+
   /** Knockout / stoppage checks after damage lands. Returns true if over. */
-  const checkStoppage = (attacker: 0 | 1, wasKnockdown: boolean): boolean => {
+  const checkStoppage = (attacker: 0 | 1, wasKnockdown: boolean, ctx: StoppageContext = {}): boolean => {
     const victim = S[other(attacker)];
-    if (wasKnockdown) {
+    // Only head trauma switches the lights off (Animation Bible, Part 1);
+    // leg and body damage end fights by stoppage, not unconsciousness
+    const headShot = !ctx.kind || KO_PROFILE[ctx.kind].target === 'head';
+    if (wasKnockdown && headShot) {
       const finisherInstinct = eff(S[attacker], 'power') / 500;
       const pKO = Math.min(0.85, Math.max(0.12, 0.18 + finisherInstinct + (victim.damage - 65) / 130));
       if (rng.chance(pKO)) {
-        finish = { method: 'KO', winner: attacker, round, time: clock };
+        const tier = koTier(attacker, victim, ctx.kind);
+        finish = { method: 'KO', winner: attacker, round, time: clock, tier };
         log(
           'ko',
-          narrate.ko(t, name(attacker), name(other(attacker)), round, clock),
+          narrate.ko(t, who(attacker), who(other(attacker)), tier, round, clock),
           attacker,
-          finishScene(t, sf(attacker), sf(other(attacker)), 'ko'),
+          finishScene(t, sf(attacker), sf(other(attacker)), 'ko', tier),
         );
+        logAftermath(attacker, tier);
         return true;
       }
     }
-    if (victim.damage >= KO_DAMAGE + 5 + victim.f.attributes.heart / 10) {
-      finish = { method: 'TKO', winner: attacker, round, time: clock };
+    const threshold = ctx.bodyFold
+      ? KO_DAMAGE - 20 + victim.f.attributes.heart / 10
+      : KO_DAMAGE + 5 + victim.f.attributes.heart / 10;
+    if (victim.damage >= threshold) {
+      finish = { method: 'TKO', winner: attacker, round, time: clock, tier: 'flash' };
       log(
         'tko',
-        narrate.tko(t, name(attacker), name(other(attacker)), round, clock),
+        narrate.tko(t, who(attacker), who(other(attacker)), round, clock),
         attacker,
         finishScene(t, sf(attacker), sf(other(attacker)), 'tko'),
       );
@@ -223,43 +295,65 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         me.round.strikes++;
         let dmg = strikeDamage(rng, me, op, 2.5, 5.5);
         const tech = pickStrike(rng, me.f.style);
+        const profile = KO_PROFILE[tech.kind];
+        // Law 1: what was the victim's body doing when this landed?
+        const momentum: Momentum =
+          op.rockedFor > 0
+            ? 'retreating'
+            : op.f.attributes.aggression >= 70 || op.f.style === 'pressure' || op.f.style === 'brawler'
+              ? 'advancing'
+              : 'flat';
         // Heavy shot: power vs chin, more likely against a worn opponent
         const pBig = 0.05 + eff(me, 'power') / 650 + Math.min(60, op.damage) / 500;
         if (rng.chance(pBig)) {
           dmg += strikeDamage(rng, me, op, 7, 14);
-          const pKD = logistic(eff(me, 'power') - eff(op, 'chin'), 45, 0.3) * (0.55 + Math.min(100, op.damage) / 160);
+          // Rotational strikes starch; body shots fold (Animation Bible)
+          const pKD =
+            logistic(eff(me, 'power') - eff(op, 'chin'), 45, 0.3) *
+            (0.55 + Math.min(100, op.damage) / 160) *
+            profile.kd;
           if (rng.chance(pKD)) {
             dealDamage(op, dmg + rng.range(5, 10));
             op.rockedFor = 3;
             me.stats.knockdowns++;
             me.round.knockdowns++;
-            log(
-              'knockdown',
-              narrate.knockdown(t, name(i), name(other(i)), tech),
-              i,
-              strikeScene(t, sf(i), sf(other(i)), tech.kind, 'knockdown'),
-            );
-            if (checkStoppage(i, true)) return true;
+            if (profile.target === 'body') {
+              log(
+                'body_fold',
+                narrate.bodyFold(t, who(i), who(other(i)), tech),
+                i,
+                bodyFoldScene(t, sf(i), sf(other(i)), tech.kind),
+              );
+              if (checkStoppage(i, false, { kind: tech.kind, bodyFold: true })) return true;
+            } else {
+              log(
+                'knockdown',
+                narrate.knockdown(t, who(i), who(other(i)), tech),
+                i,
+                strikeScene(t, sf(i), sf(other(i)), tech.kind, 'knockdown', momentum),
+              );
+              if (checkStoppage(i, true, { kind: tech.kind, momentum })) return true;
+            }
             continue;
           }
           op.rockedFor = 2;
           dealDamage(op, dmg);
           log(
             'big_strike',
-            narrate.bigStrike(t, name(i), name(other(i)), tech),
+            narrate.bigStrike(t, who(i), who(other(i)), tech),
             i,
-            strikeScene(t, sf(i), sf(other(i)), tech.kind, 'rocked'),
+            strikeScene(t, sf(i), sf(other(i)), tech.kind, 'rocked', momentum),
           );
-          if (checkStoppage(i, false)) return true;
+          if (checkStoppage(i, false, { kind: tech.kind })) return true;
           continue;
         }
         dealDamage(op, dmg);
-        if (checkStoppage(i, false)) return true;
+        if (checkStoppage(i, false, { kind: tech.kind })) return true;
         // Log ordinary landed strikes sparingly so the log stays readable
         if (rng.chance(0.22)) {
           log(
             'exchange',
-            narrate.exchange(t, name(i), name(other(i)), tech),
+            narrate.exchange(t, who(i), who(other(i)), tech),
             i,
             cleanHitScene(t, sf(i), sf(other(i)), tech.kind),
           );
@@ -285,7 +379,7 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     const pBig = 0.08 + eff(d, 'power') / 550;
     if (rng.chance(pBig)) {
       dmg += strikeDamage(rng, d, shooter, 7, 14);
-      const pKD = logistic(eff(d, 'power') - eff(shooter, 'chin'), 40, 0.35);
+      const pKD = logistic(eff(d, 'power') - eff(shooter, 'chin'), 40, 0.35) * KO_PROFILE[tech.kind].kd;
       if (rng.chance(pKD)) {
         dealDamage(shooter, dmg + rng.range(5, 10));
         shooter.rockedFor = 3;
@@ -293,24 +387,25 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         d.round.knockdowns++;
         log(
           'knockdown',
-          narrate.knockdown(t, d.f.name, shooter.f.name, tech),
+          narrate.knockdown(t, who(defender), who(other(defender)), tech),
           defender,
-          strikeScene(t, sf(defender), sf(other(defender)), tech.kind, 'knockdown'),
+          // Law 1: KO'd mid-shot — the dive completes on inertia
+          strikeScene(t, sf(defender), sf(other(defender)), tech.kind, 'knockdown', 'shooting'),
         );
-        return checkStoppage(defender, true) ? 'ended' : 'broken';
+        return checkStoppage(defender, true, { kind: tech.kind, momentum: 'shooting' }) ? 'ended' : 'broken';
       }
       shooter.rockedFor = 2;
       dealDamage(shooter, dmg);
       log(
         'big_strike',
-        narrate.bigStrike(t, d.f.name, shooter.f.name, tech),
+        narrate.bigStrike(t, who(defender), who(other(defender)), tech),
         defender,
-        strikeScene(t, sf(defender), sf(other(defender)), tech.kind, 'rocked'),
+        strikeScene(t, sf(defender), sf(other(defender)), tech.kind, 'rocked', 'shooting'),
       );
-      return checkStoppage(defender, false) ? 'ended' : 'broken';
+      return checkStoppage(defender, false, { kind: tech.kind }) ? 'ended' : 'broken';
     }
     dealDamage(shooter, dmg);
-    return checkStoppage(defender, false) ? 'ended' : 'none';
+    return checkStoppage(defender, false, { kind: tech.kind }) ? 'ended' : 'none';
   };
 
   /** Takedown attempt by `i`. Returns true if the fight ended. */
@@ -332,18 +427,42 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     if (rng.chance(pTD)) {
       me.stats.takedowns++;
       me.round.takedowns++;
+      // Animation Bible Part 3: high-amplitude takedowns can finish on
+      // impact — a gravity weapon, scaled by the power/chin mismatch
+      const slamKind = SLAM_CAPABLE[td.kind];
+      if (slamKind) {
+        const pSlam =
+          0.02 +
+          (op.rockedFor > 0 ? 0.05 : 0) +
+          Math.max(0, eff(me, 'power') - eff(op, 'chin')) / 1500 +
+          (op.damage > 50 ? 0.02 : 0);
+        if (rng.chance(pSlam)) {
+          dealDamage(op, rng.range(25, 40));
+          const tier: FinishTier = 'slam';
+          finish = { method: 'KO', winner: i, round, time: clock, tier };
+          log(
+            'slam',
+            narrate.slam(t, who(i), who(other(i)), slamKind),
+            i,
+            slamScene(t, sf(i), sf(other(i)), slamKind),
+          );
+          // Powerbomb skips the stiffening phase entirely — the melt
+          logAftermath(i, slamKind === 'powerbomb' ? 'deep' : 'stiff');
+          return true;
+        }
+      }
       ring.position = 'ground';
       ring.controller = i;
       log(
         'takedown',
-        narrate.takedown(t, name(i), name(other(i)), td),
+        narrate.takedown(t, who(i), who(other(i)), td),
         i,
         takedownScene(t, sf(i), sf(other(i)), td.kind, true),
       );
     } else {
       log(
         'takedown_stuffed',
-        narrate.takedownStuffed(t, name(i), name(other(i))),
+        narrate.takedownStuffed(t, who(i), who(other(i))),
         other(i),
         takedownScene(t, sf(i), sf(other(i)), td.kind, false),
       );
@@ -378,10 +497,10 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         const topIdx = ring.controller;
         if ((bot.f.style === 'submission' || bot.f.style === 'balanced') && rng.chance(0.3)) {
           ring.controller = botIdx;
-          log('sweep', narrate.sweep(t, bot.f.name), botIdx, sweepScene(t, sf(botIdx), sf(topIdx)));
+          log('sweep', narrate.sweep(t, who(botIdx)), botIdx, sweepScene(t, sf(botIdx), sf(topIdx)));
         } else {
           ring.position = 'standing';
-          log('standup', narrate.standup(t, bot.f.name), botIdx, standupScene(t, sf(botIdx), sf(topIdx)));
+          log('standup', narrate.standup(t, who(botIdx)), botIdx, standupScene(t, sf(botIdx), sf(topIdx)));
         }
         return false;
       }
@@ -401,7 +520,7 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         const sub = pickSub(rng);
         log(
           'sub_attempt',
-          narrate.subAttempt(t, top.f.name, bot.f.name, sub),
+          narrate.subAttempt(t, who(ci), who(other(ci)), sub),
           ci,
           submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'locked'),
         );
@@ -409,19 +528,35 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
         if (rng.chance(pEscape)) {
           log(
             'sub_escape',
-            narrate.subEscape(t, top.f.name, bot.f.name, sub),
+            narrate.subEscape(t, who(ci), who(other(ci)), sub),
             other(ci),
             submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'escape'),
           );
           if (rng.chance(0.4)) ring.position = 'standing';
         } else {
-          finish = { method: 'Submission', winner: ci, round, time: clock };
-          log(
-            'submission',
-            narrate.submissionWin(t, top.f.name, bot.f.name, sub, round, clock),
-            ci,
-            submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'tap'),
-          );
+          // Animation Bible Part 2: on a blood choke, a high-heart
+          // fighter refuses to tap and gets put to sleep instead
+          const pSleep = IS_BLOOD_CHOKE[sub.kind]
+            ? Math.min(0.45, Math.max(0.1, 0.15 + (bot.f.attributes.heart - 50) / 300))
+            : 0;
+          if (rng.chance(pSleep)) {
+            finish = { method: 'Submission', winner: ci, round, time: clock, tier: 'sleep' };
+            log(
+              'submission',
+              narrate.submissionSleep(t, who(ci), who(other(ci)), sub, round, clock),
+              ci,
+              submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'sleep'),
+            );
+            logAftermath(ci, 'sleep');
+          } else {
+            finish = { method: 'Submission', winner: ci, round, time: clock, tier: 'tap' };
+            log(
+              'submission',
+              narrate.submissionWin(t, who(ci), who(other(ci)), sub, round, clock),
+              ci,
+              submissionScene(t, sf(ci), sf(other(ci)), sub.kind, 'tap'),
+            );
+          }
           return true;
         }
       }
@@ -439,7 +574,7 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
       if (rng.chance(0.35)) {
         log(
           'ground_strikes',
-          narrate.groundStrikes(t, top.f.name, bot.f.name),
+          narrate.groundStrikes(t, who(ring.controller), who(other(ring.controller))),
           ring.controller,
           groundStrikesScene(t, sf(ring.controller), sf(other(ring.controller))),
         );
@@ -465,7 +600,7 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     if (rng.chance(0.3)) {
       log(
         'clinch_work',
-        narrate.clinchWork(t, c.f.name, d.f.name),
+        narrate.clinchWork(t, who(ring.controller), who(other(ring.controller))),
         ring.controller,
         clinchScene(t, sf(ring.controller), sf(other(ring.controller))),
       );
@@ -635,6 +770,7 @@ export function simulateFight(fighterA: Fighter, fighterB: Fighter, config: Figh
     fighterBName: B.f.name,
     winnerId,
     method,
+    finishTier: finish ? (finish as Finish).tier : undefined,
     endRound,
     endTime,
     scheduledRounds: config.rounds,

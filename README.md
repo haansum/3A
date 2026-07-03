@@ -57,6 +57,35 @@ condition-aware (tired fighters gasp, rocked fighters' eyes go glassy).
 Kinematics always match the named technique in the commentary, and all of it is
 deterministic per seed.
 
+### Animation Bible physics (`docs/animation-bible.md`)
+Finishes obey the Bible's rules, in both the simulation math and the prose:
+
+- **Rotational acceleration**: hooks, head kicks, overhands, uppercuts and
+  knees carry real KO multipliers; straights push, body shots *fold* (a
+  conscious, breathless `body_fold` event — no lights-out), leg kicks chop
+  the base but never starch anyone.
+- **KO tiers**: Flash (jelly legs, ref rescue mid-stumble), Stiff (timber
+  fall, fencing response, single-finger twitch), Deep (the melt — cascading
+  collapse, instant agonal snore). Tier is computed from accumulated damage,
+  finishing power, and strike kind, and stored on the result as `finishTier`.
+- **Law 1 — momentum conservation**: fall kinematics are selected by what
+  the victim's body was doing at shutdown (advancing / retreating /
+  shooting / flat). A fighter KO'd mid-hook corkscrews; one KO'd mid-shot
+  slides along the line of the takedown.
+- **Blood chokes**: high-heart fighters refuse to tap and get put to
+  sleep — the wet melt (hands slide off first), toes curled in plantar
+  flexion, rhythmic foot twitch, wet guttural snore.
+- **Slam KOs**: double-legs, body locks and high-crotch lifts carry a small
+  slam probability (spike / powerbomb / suplex mechanics, Spring-vs-Water
+  victim states, the accordion, the single head bounce, the Void).
+- **Aftermath + wake-up events**: every KO and sleep is followed by
+  `ko_aftermath` (the four agonal layers) and `wakeup` (involuntary
+  recovery, confused dialogue) events with full scene data.
+
+### Pronouns
+Fighters carry a pronoun set (she/he/they) and every narration and scene
+template renders with the correct pronouns. The preset roster is mixed.
+
 ### Anti-repetition (variety engine)
 All narration and scene prose is drawn through a usage tracker
 (`src/engine/variety.ts`): within a fight, a template bank never repeats a
