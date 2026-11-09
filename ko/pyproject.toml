@@ -1,0 +1,19 @@
+[project]
+name = "ko"
+version = "0.1.0"
+description = "KO animation framework: manifest -> physics sim -> Blender bake -> render"
+requires-python = ">=3.11"
+dependencies = ["mujoco>=4.0", "numpy", "scipy", "pyyaml"]
+
+[project.optional-dependencies]
+blender = ["bpy>=5.2"]
+dev = ["pytest"]
+
+[project.scripts]
+ko = "ko.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ko*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

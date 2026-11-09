@@ -1,0 +1,9 @@
+# VRoid sample avatar (AvatarSample_A, VRM 0.x). Licence in the file's own metadata:
+# commercial use allowed, violent-use allowed. Fetched on demand, never committed.
+name: vroid_a
+source:
+  url: https://raw.githubusercontent.com/madjin/vrm-samples/master/vroid/stable/AvatarSample_A.vrm
+  file: assets_cache/vroid_sample_a/AvatarSample_A.vrm
+  sha256: null          # filled in the lock file
+mass: 52.0              # kg, assumed for a 1.55 m frame
+bone_map: {}            # canonical -> bone name overrides; empty = automatic

@@ -1,0 +1,10 @@
+mujoco>=4.0
+numpy
+scipy
+pyyaml
+
+[blender]
+bpy>=5.2
+
+[dev]
+pytest

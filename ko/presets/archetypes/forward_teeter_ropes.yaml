@@ -1,0 +1,39 @@
+# Hook lands as she drives forward; arms extend briefly (tonic reflex), she slumps into the
+# ropes, is propped, then slides down. Forces/timings below are tuned by eye, not from footage.
+name: forward_teeter_ropes
+sim: {dt: 0.002, duration: 5.0, settle: 0.6}
+motion:
+  assist_cap: 0.15            # of body weight; logged; zero from the KO instant
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.35, pose: stance, advance: 0.0}
+      - {t: 0.80, pose: lunge, advance: 0.45}
+      - {t: 1.5, pose: lunge, advance: 0.45}
+strike:
+  t: 0.62                     # mid-drive, near peak forward speed
+  body: head
+  impulse: 14.0               # N s
+  duration: 0.015             # s
+  dir: [-1.0, -0.15, 0.1]     # hook from her left; world frame
+  frame: world
+  offset: [0.0, -0.05, -0.04] # on the jaw line, relative to the head centre of mass
+  ko_delay: 0.01
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  breath: {period: 4.0, amp_deg: 1.5}
+  ko:
+    tier: flash
+    off_ramp: 0.04
+    residual: {neck: 0.20, trunk: 0.08, arm: 0.035, leg: 0.035}
+    phases:
+      - {t: 0.04, rise: 0.10, hold: 0.35, fade: 0.30, regions: [arm_L, arm_R], tone: 0.6, pose: arms_forward}
+      - {t: 0.00, rise: 0.02, hold: 0.15, fade: 0.35, regions: [leg_L, leg_R], tone: 0.30}
+      - {t: 0.00, rise: 0.02, hold: 0.20, fade: 0.40, regions: [trunk], tone: 0.30}
+    tremor: {hz: 9.0, amp_deg: 1.2, onset: 1.0}
+outcome:
+  name: propped_then_down
+  rope_contact_min_s: 0.5     # torso or arms on the ropes at least this long
+  final_pelvis_max_z: 0.45

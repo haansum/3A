@@ -1,0 +1,182 @@
+"""Tone controller: one PD law for the whole take; the KO is a change of tone, not of state.
+
+  tau_j = clip( tone_r * [ kp_j (q*_j - q_j) + kv_j (qd*_j - qd_j) ],  +-tone_r * tau_max_j )
+
+ - gains from effective inertia 1/diag(M^-1) (old-pipeline lesson: not diag(M)); while the feet
+   are planted the leg inertia is computed with the feet constrained, after the KO unconstrained
+ - damping sits inside the torque cap and acts on velocity error
+ - at the KO nothing is zeroed or frozen: the last command stays, tone ramps to residual over
+   tens of ms, tonic-posturing phases then raise tone toward their own target poses
+ - integration is implicit in the actuator (MuJoCo affine actuators), so stiff gains are stable
+
+Root assist: a capped, logged PD wrench on the pelvis toward the reference root. It is a
+non-physical stand-in for balance control; it is forced to zero from the KO instant.
+"""
+import mujoco
+import numpy as np
+
+from .reference import POSES
+
+REGIONS = ['neck', 'trunk', 'arm_L', 'arm_R', 'leg_L', 'leg_R']
+
+
+class Controller:
+    def __init__(self, m, spec, cfg, mass):
+        self.m, self.cfg, self.mass = m, cfg, mass
+        self.jn, self.qadr, self.dadr, self.reg, self.off, self.tmax = [], [], [], [], [], []
+        for b in spec['bodies']:
+            for j in b['joints']:
+                jid = m.joint(j['name']).id
+                self.jn.append(j['name'])
+                self.qadr.append(m.jnt_qposadr[jid])
+                self.dadr.append(m.jnt_dofadr[jid])
+                self.reg.append(REGIONS.index(b['region']))
+                self.off.append(j['offset'])
+                self.tmax.append(j['torque'])
+        self.qadr, self.dadr = np.array(self.qadr), np.array(self.dadr)
+        self.reg, self.off, self.tmax = np.array(self.reg), np.array(self.off), np.array(self.tmax)
+        self.idx = {n: i for i, n in enumerate(self.jn)}
+        self.aid = np.array([m.actuator('a_' + n).id for n in self.jn])
+        self.lo = m.jnt_range[[m.joint(n).id for n in self.jn], 0]
+        self.hi = m.jnt_range[[m.joint(n).id for n in self.jn], 1]
+        self.pelvis = m.body('pelvis').id
+        self.grav_ff = np.array([not REGIONS[r].startswith('leg') for r in self.reg])
+        self.t_ko = None
+        self.q_hold = None
+        self.rng = np.random.default_rng(cfg.get('seed', 0))
+        self.tremor_phase = self.rng.uniform(0, 2 * np.pi, len(self.jn))
+
+    # -- pose helpers ----------------------------------------------------------------------
+    def pose_vec(self, pose, base=None):
+        """anatomical degrees dict -> joint-coordinate radians, clipped to range."""
+        q = np.zeros(len(self.jn)) if base is None else base.copy()
+        for k, v in pose.items():
+            if k in self.idx:
+                i = self.idx[k]
+                q[i] = np.radians(v - self.off[i])
+        return np.clip(q, self.lo + 0.01, self.hi - 0.01)
+
+    def rate_vec(self, rates):
+        qd = np.zeros(len(self.jn))
+        for k, v in rates.items():
+            if k in self.idx:
+                qd[self.idx[k]] = np.radians(v)
+        return qd
+
+    # -- gains -----------------------------------------------------------------------------
+    def effective_inertia(self, d, planted_feet):
+        m = self.m
+        Minv = np.zeros((m.nv, m.nv))
+        mujoco.mj_solveM(m, d, Minv, np.eye(m.nv))
+        if planted_feet:
+            Js = []
+            for f in ('foot_L', 'foot_R'):
+                jp, jr = np.zeros((3, m.nv)), np.zeros((3, m.nv))
+                mujoco.mj_jacBody(m, d, jp, jr, m.body(f).id)
+                Js += [jp, jr]
+            J = np.vstack(Js)
+            A = J @ Minv @ J.T
+            Minv = Minv - Minv @ J.T @ np.linalg.solve(A + 1e-9 * np.eye(len(A)), J @ Minv)
+        return 1.0 / np.maximum(np.diag(Minv)[self.dadr], 1e-9)
+
+    def set_inertia(self, d):
+        free = self.effective_inertia(d, False)
+        planted = np.minimum(self.effective_inertia(d, True), 60.0 * free)
+        self.I_free, self.I_planted = free, planted
+
+    # -- tone ------------------------------------------------------------------------------
+    def trigger_ko(self, t, q_cmd):
+        self.t_ko = t
+        self.q_hold = q_cmd.copy()
+
+    def tone_and_target(self, t, q_ref):
+        """-> (tone per joint, target per joint, tone per region)"""
+        n = len(self.jn)
+        if self.t_ko is None or t < self.t_ko:
+            return np.ones(n), q_ref, np.ones(len(REGIONS))
+        ko = self.cfg['ko']
+        dt = t - self.t_ko
+        res = np.array([ko['residual'][r.split('_')[0]] for r in REGIONS])
+        ramp = max(0.0, 1.0 - dt / ko.get('off_ramp', 0.04))
+        tone_r = res + (1 - res) * ramp
+        target = self.q_hold.copy()
+        for ph in ko.get('phases', []):
+            a = dt - ph['t']
+            if a < 0:
+                continue
+            rise, hold, fade = ph.get('rise', 0.1), ph.get('hold', 0.3), ph.get('fade', 0.3)
+            env = (a / rise if a < rise else 1.0 if a < rise + hold
+                   else max(0.0, 1 - (a - rise - hold) / fade))
+            if env <= 0:
+                continue
+            regs = [REGIONS.index(r) for r in ph['regions']]
+            for r in regs:
+                tone_r[r] = max(tone_r[r], ph['tone'] * env)
+            if ph.get('pose'):
+                pv = self.pose_vec(POSES[ph['pose']], base=target)
+                sel = np.isin(self.reg, regs)
+                w = min(1.0, a / rise)
+                target[sel] = (1 - w) * target[sel] + w * pv[sel]
+        tone = tone_r[self.reg]
+        tr = ko.get('tremor')
+        if tr:   # tremor grows as tone drains, scaled by what tone is left
+            fatigue = min(1.0, dt / tr.get('onset', 1.0))
+            target = target + np.radians(tr['amp_deg']) * fatigue * np.sqrt(tone) * np.sin(
+                2 * np.pi * tr['hz'] * t + self.tremor_phase)
+        return tone, target, tone_r
+
+    # -- per step --------------------------------------------------------------------------
+    def apply(self, d, t, q_ref, qd_ref, breath=0.0):
+        c = self.cfg
+        tone, target, tone_r = self.tone_and_target(t, q_ref)
+        if 'chest_flex' in self.idx:
+            target = target.copy()
+            target[self.idx['chest_flex']] += breath
+        post = self.t_ko is not None and t >= self.t_ko
+        I = self.I_free if post else self.I_planted
+        w = 2 * np.pi * c.get('track_hz', 3.0)
+        kp = tone * I * w * w
+        kv = 2 * c.get('zeta', 1.0) * np.sqrt(tone) * I * w
+        m = self.m
+        m.actuator_gainprm[self.aid, 0] = kp
+        m.actuator_biasprm[self.aid, 1] = -kp
+        m.actuator_biasprm[self.aid, 2] = -kv
+        cap = np.maximum(tone, 1e-3) * self.tmax
+        m.actuator_forcerange[self.aid, 0] = -cap
+        m.actuator_forcerange[self.aid, 1] = cap
+        qd = np.zeros_like(target) if post else qd_ref
+        # postural tone: muscles carry the weight of what hangs off each joint. Exact for the
+        # trunk, neck and arms (segments distal to the joint); legs carry load through ground
+        # contact instead, which the stiff planted-inertia PD handles. Scales with tone, so it
+        # drains away with the KO like everything else.
+        ff = np.where(self.grav_ff, tone * d.qfrc_bias[self.dadr], 0.0)
+        d.ctrl[self.aid] = target + (kv * qd + ff) / np.maximum(kp, 1e-9)
+        return tone_r
+
+    def root_assist(self, d, t, p_ref, v_ref, cap_frac):
+        """Horizontal force + upright torque on the pelvis, capped. Returns the wrench applied."""
+        m = self.m
+        d.xfrc_applied[self.pelvis] = 0
+        if cap_frac <= 0 or (self.t_ko is not None and t >= self.t_ko):
+            return np.zeros(6)
+        W = self.mass * 9.81
+        wn = 2 * np.pi * 1.5
+        p = d.xpos[self.pelvis]
+        v = d.qvel[:3]                      # free-joint linear velocity is world-frame
+        F = self.mass * (wn * wn * (p_ref - p) + 2 * wn * (v_ref - v))
+        F[2] = 0.0
+        n = np.linalg.norm(F)
+        if n > cap_frac * W:
+            F *= cap_frac * W / n
+        # keep the pelvis from pitching/rolling/yawing away (small-angle PD on its rotation)
+        R = d.xmat[self.pelvis].reshape(3, 3)
+        rv = 0.5 * np.array([R[2, 1] - R[1, 2], R[0, 2] - R[2, 0], R[1, 0] - R[0, 1]])
+        Ip = 0.1 * self.mass
+        T = -Ip * (wn * wn * rv + 2 * wn * (R @ d.qvel[3:6]))
+        tcap = cap_frac * W * 0.3
+        tn = np.linalg.norm(T)
+        if tn > tcap:
+            T *= tcap / tn
+        d.xfrc_applied[self.pelvis, :3] = F
+        d.xfrc_applied[self.pelvis, 3:] = T
+        return np.concatenate([F, T])

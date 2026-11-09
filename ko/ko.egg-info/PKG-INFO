@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: ko
+Version: 0.1.0
+Summary: KO animation framework: manifest -> physics sim -> Blender bake -> render
+Requires-Python: >=3.11
+Requires-Dist: mujoco>=4.0
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: pyyaml
+Provides-Extra: blender
+Requires-Dist: bpy>=5.2; extra == "blender"
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"

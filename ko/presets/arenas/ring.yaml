@@ -1,0 +1,14 @@
+# Boxing ring, one simulated rope side (the one the take needs); the render shows all four.
+# Every rope number here is ASSUMED, not measured from a real ring.
+name: ring
+canvas_friction: 0.9
+rope_distance: 1.7      # m from her start position to the rope side she faces
+ring_size: 6.0
+rope:
+  span: 6.0
+  heights: [0.46, 0.76, 1.07, 1.37]
+  preload: 2000.0       # N
+  k_end: 20000.0        # N/m at each end
+  rho: 1.0              # kg/m
+  transverse_damp: 8.0  # 1/s, in-house damping element (bench: built-in damping cannot reach this mode)
+  spacer_k: 8000.0
