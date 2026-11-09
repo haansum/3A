@@ -41,3 +41,6 @@ example
 # generated native folders
 /ios
 /android
+
+# MuJoCo warning log written by the simulator
+MUJOCO_LOG.TXT
