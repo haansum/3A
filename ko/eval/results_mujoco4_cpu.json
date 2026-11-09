@@ -1,0 +1,115 @@
+{
+ "mujoco": "4.0.0",
+ "assumed": {
+  "T0": 2000.0,
+  "K_END": 20000.0,
+  "RHO": 1.0,
+  "NSEG": 16,
+  "L": 6.0
+ },
+ "A_static_sag": [
+  {
+   "dt": 0.002,
+   "self_sag_cm": 2.18,
+   "self_sag_analytic_cm": 2.21,
+   "transverse_ring_cm_after_4s": 3.1,
+   "load_sag_m": 0.3357,
+   "load_sag_analytic_m": 0.3633,
+   "load_sag_linear_m": 0.4047,
+   "loaded_ring_cm": 0.01
+  },
+  {
+   "dt": 0.001,
+   "self_sag_cm": 2.18,
+   "self_sag_analytic_cm": 2.21,
+   "transverse_ring_cm_after_4s": 3.1,
+   "load_sag_m": 0.3357,
+   "load_sag_analytic_m": 0.3633,
+   "load_sag_linear_m": 0.4047,
+   "loaded_ring_cm": 0.01
+  }
+ ],
+ "B_drop_55kg": [
+  {
+   "dt": 0.005,
+   "nan": false,
+   "max_penetration_mm": 46.58,
+   "lowest_z_m": 0.326,
+   "rebounds": 3,
+   "rest_z_m": 0.691,
+   "held": true,
+   "final_speed": 1.2695
+  },
+  {
+   "dt": 0.002,
+   "nan": false,
+   "max_penetration_mm": 14.26,
+   "lowest_z_m": 0.382,
+   "rebounds": 3,
+   "rest_z_m": 0.903,
+   "held": true,
+   "final_speed": 0.9662
+  },
+  {
+   "dt": 0.001,
+   "nan": false,
+   "max_penetration_mm": 12.69,
+   "lowest_z_m": 0.381,
+   "rebounds": 3,
+   "rest_z_m": 0.902,
+   "held": true,
+   "final_speed": 0.9738
+  }
+ ],
+ "C_ring_ragdoll": [
+  {
+   "dt": 0.005,
+   "nv": 226,
+   "nbody": 82,
+   "nan": false,
+   "max_penetration_mm": 25.0,
+   "max_rope_penetration_mm": 15.64,
+   "max_dof_speed": 12.8,
+   "pelvis_final": [
+    3.075,
+    0.088,
+    0.586
+   ],
+   "steps_per_s": 2539,
+   "realtime_factor": 12.7
+  },
+  {
+   "dt": 0.002,
+   "nv": 226,
+   "nbody": 82,
+   "nan": false,
+   "max_penetration_mm": 29.86,
+   "max_rope_penetration_mm": 14.64,
+   "max_dof_speed": 28.7,
+   "pelvis_final": [
+    3.613,
+    -1.038,
+    0.174
+   ],
+   "steps_per_s": 3331,
+   "realtime_factor": 6.7
+  },
+  {
+   "dt": 0.001,
+   "nv": 226,
+   "nbody": 82,
+   "nan": false,
+   "max_penetration_mm": 33.33,
+   "max_rope_penetration_mm": 19.15,
+   "max_dof_speed": 35.3,
+   "pelvis_final": [
+    3.589,
+    -1.253,
+    0.16
+   ],
+   "steps_per_s": 3854,
+   "realtime_factor": 3.9
+  }
+ ],
+ "C_deterministic_bitwise": true
+}
