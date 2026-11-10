@@ -1,0 +1,8 @@
+# Same scenario as freya_wheel_kick_gnp_001, but compiled from the prose via a beat sheet
+# instead of a hand-written archetype.
+character: freya
+arena: ring
+beats: takes/beats/freya_wheel_kick_gnp_001.yaml
+seed: 2
+quality: draft
+overrides: {arena: {simulate_ropes: false}}

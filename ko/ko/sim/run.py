@@ -130,6 +130,7 @@ def run(cfg, char_dir, out_dir=None, record=True):
     Wt = spec['mass'] * 9.81
     gfl, gfr = m.geom('g_foot_L').id, m.geom('g_foot_R').id
     foot_geoms = {gfl, gfr}
+    body_geoms = {m.geom(g).id for g in range(m.ngeom) if m.geom(g).name.startswith('g_')} - foot_geoms
     ok = True
     for i in range(n):
         t = i * dt
@@ -155,6 +156,9 @@ def run(cfg, char_dir, out_dir=None, record=True):
             if (c.geom1 == canvas and c.geom2 == ghead and fbuf[0] > 0.3 * Wt
                     and 'head_impact' not in ctl.events and ctl.t_ko is not None):
                 ctl.events['head_impact'] = t      # next step's control sees it (2 ms later)
+            if (c.geom1 == canvas and c.geom2 in body_geoms and fbuf[0] > 0.05 * Wt
+                    and 'down' not in ctl.events and ctl.t_ko is not None):
+                ctl.events['down'] = t             # first part other than a foot on the canvas
             slip = 0.0
             if c.geom1 == canvas and c.geom2 in foot_geoms:      # slip speed of the sole point
                 b = m.geom_bodyid[c.geom2]

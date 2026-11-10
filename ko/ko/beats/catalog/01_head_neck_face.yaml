@@ -41,7 +41,7 @@ levers:
      check: {pred: oscillation, regions: [neck], lo_hz: 1.0, hi_hz: 3.0, min: [0.5, 3.0]}, src: new}
 
   # ---- eyes ----
-  - {id: eyes.gaze_up_corner, label: 'Gaze up and toward the upper corner, her frame (house default: 30% of pupil showing)', side: LR,
+  - {id: eyes.gaze_up_corner, label: 'Gaze up and toward the upper corner, her frame (house default: 30% of pupil showing)', side: LR, default_side: L,
      say: [gaze up corner, eyes up and to the, looking up and to the, upper corner, eyes staring off upper, eyes rolled up and to the side],
      layer: {gaze: {up_deg: [15, 34], side_deg: [10, 24]}}, src: log}
   - {id: eyes.rolled_up, label: Eyes rolled straight up (bottom third of iris showing),
@@ -50,7 +50,7 @@ levers:
   - {id: eyes.pupil_visible, label: Fraction of pupil/iris left visible (0.3 = house rule),
      say: [pupil visible, of the pupil, of pupils visible, can't see pupils, iris visible],
      layer: {gaze_visible: [0.6, 0.3]}, note: 'measured from an ID pass once the render gate exists', src: log}
-  - {id: eyes.vacant_forward, label: Vacant stare straight ahead (flash KO, eyes unfocused),
+  - {id: eyes.vacant_forward, label: 'Vacant stare straight ahead (flash KO, eyes unfocused)',
      say: [vacant stare, blank stare, thousand yard, staring through, glazed],
      layer: {gaze: {up_deg: [0, 6], side_deg: [0, 0]}}, src: bible}
   - {id: eyes.divergent, label: Eyes drift apart (each eye slightly off-axis),
@@ -59,7 +59,7 @@ levers:
      say: [eyes drift, eyes wander, gaze wanders, eyes flick, eyes dart, nystagmus], src: new}
   - {id: eyes.lids_half, label: Eyelids half closed / heavy,
      say: [half closed, heavy lids, lids droop, eyes half open, hooded eyes], layer: {face: {lids_closed: [0.2, 0.6]}}, src: new}
-  - {id: eyes.lids_wide, label: Eyes wide open, fixed,
+  - {id: eyes.lids_wide, label: 'Eyes wide open, fixed',
      say: [eyes wide, wide eyed, eyes fixed open, eyes stuck open], layer: {face: {lids_wide: [0.2, 1.0]}}, src: new}
   - {id: eyes.lids_flutter, label: Eyelids flutter,
      say: [eyelids flutter, lids flutter, eyes flutter, blinking rapidly], layer: {face: {lid_flutter_hz: [4, 9]}}, src: new}
@@ -71,10 +71,10 @@ levers:
      say: [eyes more distinct, saturated color, eye color], layer: {asset: eye_saturation}, src: log}
 
   # ---- mouth / jaw / brow ----
-  - {id: face.jaw_slack, label: Jaw slack, mouth hangs slightly open (house default),
+  - {id: face.jaw_slack, label: 'Jaw slack, mouth hangs slightly open (house default)',
      say: [jaw slack, mouth hangs open, mouth agape, slack jaw, mouth open, jaw drops],
      layer: {face: {jaw_open: [0.1, 0.6]}}, src: bible}
-  - {id: face.teeth_clenched, label: Teeth clenched, jaw tight,
+  - {id: face.teeth_clenched, label: 'Teeth clenched, jaw tight',
      say: [teeth clenched, jaw clenched, clenching, gritted teeth, biting down],
      layer: {face: {jaw_clench: [0.4, 1.0]}}, src: log}
   - {id: face.mouthguard, label: Mouthguard visible (asset),
@@ -83,7 +83,7 @@ levers:
      say: [mouthguard hanging, mouthguard half out, mouthguard pops out, mouthguard flies], src: new}
   - {id: face.frown, label: Mouth corners down (no default smirk),
      say: [frown, mouth corners down, sad mouth, no smirk, no smile], layer: {face: {mouth_frown: [0.2, 0.8]}}, src: log}
-  - {id: face.lips_parted, label: Lips parted, relaxed,
+  - {id: face.lips_parted, label: 'Lips parted, relaxed',
      say: [lips parted, lips apart], layer: {face: {jaw_open: [0.05, 0.25]}}, src: new}
   - {id: face.lips_pursed, label: Lips pressed/pursed with the tonic phase,
      say: [lips pursed, lips pressed, lips tight, grimace], layer: {face: {mouth_press: [0.3, 1.0]}}, src: new}

@@ -2,7 +2,7 @@
 
 Generated from `ko/beats/catalog/*.yaml` by `python -m ko.beats.catalog`. Do not edit here.
 
-301 levers. 68 checks, 56 drives, 74 drives+checks, 1 partial, 102 planned.
+302 levers. 68 checks, 53 drives, 74 drives+checks, 1 partial, 106 planned.
 
 - **drives+checks**: prose sets it, the sim is driven toward it, the checker measures it.
 - **drives**: set and driven, not measured yet.
@@ -31,21 +31,21 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `eyes.gaze_up_corner` | Gaze up and toward the upper corner, her frame (house default: 30% of pupil showing) (L/R) | gaze up corner; eyes up and to the; looking up and to the; upper corner | drives | log |  |
 |   | `eyes.rolled_up` | Eyes rolled straight up (bottom third of iris showing) | eyes rolled up; eyes roll back; eyes rolled back; bottom third | drives | log |  |
 |   | `eyes.pupil_visible` | Fraction of pupil/iris left visible (0.3 = house rule) | pupil visible; of the pupil; of pupils visible; can't see pupils | planned | log | measured from an ID pass once the render gate exists |
-|   | `eyes.vacant_forward` | Vacant stare straight ahead (flash KO | vacant stare; blank stare; thousand yard; staring through | drives | bible |  |
+|   | `eyes.vacant_forward` | Vacant stare straight ahead (flash KO, eyes unfocused) | vacant stare; blank stare; thousand yard; staring through | drives | bible |  |
 |   | `eyes.divergent` | Eyes drift apart (each eye slightly off-axis) | eyes diverge; eyes drift apart; wall-eyed; unfocused eyes | planned | new |  |
 |   | `eyes.drift` | Slow wandering gaze (nystagmus-like slow drift and reset) | eyes drift; eyes wander; gaze wanders; eyes flick | planned | new |  |
 |   | `eyes.lids_half` | Eyelids half closed / heavy | half closed; heavy lids; lids droop; eyes half open | planned | new |  |
-|   | `eyes.lids_wide` | Eyes wide open | eyes wide; wide eyed; eyes fixed open; eyes stuck open | planned | new |  |
+|   | `eyes.lids_wide` | Eyes wide open, fixed | eyes wide; wide eyed; eyes fixed open; eyes stuck open | planned | new |  |
 |   | `eyes.lids_flutter` | Eyelids flutter | eyelids flutter; lids flutter; eyes flutter; blinking rapidly | planned | new |  |
 |   | `eyes.closed` | Eyes closed (overrides house rule of eyes open) | eyes closed; eyes shut | planned | new |  |
 |   | `eyes.asym_lids` | One lid lower than the other (L/R) | one eye half closed; one lid lower; uneven eyelids; one eye more open | planned | new |  |
 |   | `eyes.color` | Eye colour more distinct and saturated (asset note) | eyes more distinct; saturated color; eye color | planned | log |  |
-|   | `face.jaw_slack` | Jaw slack | jaw slack; mouth hangs open; mouth agape; slack jaw | planned | bible |  |
-|   | `face.teeth_clenched` | Teeth clenched | teeth clenched; jaw clenched; clenching; gritted teeth | planned | log |  |
+|   | `face.jaw_slack` | Jaw slack, mouth hangs slightly open (house default) | jaw slack; mouth hangs open; mouth agape; slack jaw | planned | bible |  |
+|   | `face.teeth_clenched` | Teeth clenched, jaw tight | teeth clenched; jaw clenched; clenching; gritted teeth | planned | log |  |
 |   | `face.mouthguard` | Mouthguard visible (asset) | mouthguard; mouth guard; gum shield | planned | log |  |
 |   | `face.mouthguard_out` | Mouthguard half out / hanging from the lips | mouthguard hanging; mouthguard half out; mouthguard pops out; mouthguard flies | planned | new |  |
 |   | `face.frown` | Mouth corners down (no default smirk) | frown; mouth corners down; sad mouth; no smirk | planned | log |  |
-|   | `face.lips_parted` | Lips parted | lips parted; lips apart | planned | new |  |
+|   | `face.lips_parted` | Lips parted, relaxed | lips parted; lips apart | planned | new |  |
 |   | `face.lips_pursed` | Lips pressed/pursed with the tonic phase | lips pursed; lips pressed; lips tight; grimace | planned | new |  |
 |   | `face.cheek_puff` | Cheeks puff with each breath out | cheek puff; cheeks puff; puffing cheeks; blowing | planned | new |  |
 |   | `face.jaw_shift` | Jaw pushed sideways at the strike then returns (L/R) | jaw shifts; jaw pushed sideways; jaw slides | planned | new |  |
@@ -84,7 +84,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `arms.drop_limp` | Arms drop limp to the sides | arms drop; arms go limp; arms fall to her sides; arms hang | drives+checks | bible |  |
 |   | `arms.starfish` | Arms flung wide (spread-eagle) | arms flung wide; arms spread; spread eagle; starfish | drives+checks | new |  |
 |   | `arms.goalpost` | Arms up, elbows bent 90 degrees ("goalpost" on the canvas) | goalpost; arms up elbows bent; hands by her head; cactus arms | drives+checks | new |  |
-|   | `arms.t_rex` | Elbows pinned to ribs | t-rex; elbows pinned; elbows tucked to ribs; forearms up wrists limp | drives+checks | new |  |
+|   | `arms.t_rex` | Elbows pinned to ribs, forearms up, wrists dropped | t-rex; elbows pinned; elbows tucked to ribs; forearms up wrists limp | drives+checks | new |  |
 |   | `arms.one_reaching_up` | One arm reaching straight up off the canvas (stuck in the air) (L/R) | arm reaching up; arm stuck in the air; arm pointing at the ceiling; arm straight up | drives+checks | log |  |
 |   | `arms.not_propping` | Arm must not hold her body up (flattens as tone fades) (L/R) | not keeping her up; holding up her body with her arm; let it flatten; not propping | checks | log |  |
 |   | `arms.pinned_under` | Arm trapped under her body (L/R) | arm trapped under; arm under her body; arm pinned beneath; lying on her arm | checks | new |  |
@@ -102,7 +102,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `hand.thumb_in` | Thumb tucked across the palm (L/R) | thumb tucked; thumb in; thumb across palm | planned | new |  |
 |   | `hand.finger_twitch` | Fingers twitch individually (L/R) | fingers twitch; finger twitching; fingers flutter; fingers quiver | planned | new |  |
 |   | `hand.grasping` | Hand slowly opens and closes (grasping at nothing) (L/R) | grasping; hand opens and closes; pawing; clutching at air | planned | new |  |
-|   | `hand.no_clip` | Hands must not pass through face | hand clipping; fix hand clipping; hands clip; no clipping | checks | log | body-level proxy; mesh-level test is the render-mesh gate |
+|   | `hand.no_clip` | Hands must not pass through face, chest or each other | hand clipping; fix hand clipping; hands clip; no clipping | checks | log | body-level proxy; mesh-level test is the render-mesh gate |
 
 ## Trunk, core, hips, legs, feet
 
@@ -129,7 +129,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `legs.knee_bend` | Knee bends (L/R) | knee bend; knee bent; knee flex; leg bends | drives+checks | new |  |
 |   | `legs.knee_up` | Knee drawn up toward the chest (L/R) | knee drawn up; knee to chest; leg drawn up; knee pulls up | drives+checks | new |  |
 |   | `legs.buckle` | Knees buckle (legs give way under her) (L/R) | knees buckle; legs give out; legs give way; legs fold under | drives+checks | bible |  |
-|   | `legs.scissor` | Legs scissor: one hip flexes while the other extends, legs drawn together (L/R) | scissor legs; legs scissor; scissoring; legs start to scissor | drives+checks | log |  |
+|   | `legs.scissor` | Legs scissor: one hip flexes while the other extends, legs drawn together (L/R) | scissor legs; legs scissor; scissoring; legs start to scissor | drives+checks | log | judged as movement since the beat opened: a stance that already had one leg forward does not count |
 |   | `legs.scissor_flutter` | Scissoring builds to a brief flutter at impact | flutter; legs flutter; slight flutter; fluttering kick | drives+checks | log |  |
 |   | `legs.ankles_cross` | Ankles cross (L/R) | ankles cross; crossing ankles; ankles start to cross; crossed ankles | drives+checks | log |  |
 |   | `legs.spread` | Legs fall apart / splayed wide (L/R) | legs splay; legs spread; legs fall open; legs apart | drives+checks | new |  |
@@ -164,7 +164,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `tier.melt` | Melt / deep KO: tone drops out, body pours down | melt ko; deep ko; goes limp; limp ko | drives | bible |  |
 |   | `tone.intensify` | Posture intensity steps up (tone rises above the previous beat) | intensifies; intensify; escalat; increases tonic | drives+checks | log |  |
 |   | `tone.max` | Posture at maximum intensity | max level; maximum intensity; to max; max tonic | drives+checks | log |  |
-|   | `tone.mild` | Mild posture only (low tone | mild tonic; mild posture; subtle posture; slight tonic | drives+checks | log |  |
+|   | `tone.mild` | Mild posture only (low tone, shapes barely formed) | mild tonic; mild posture; subtle posture; slight tonic | drives+checks | log |  |
 |   | `tone.no_step` | This event must NOT raise the intensity (jolt only) | doesn't increase the tonic; does not increase; without intensifying; no escalation | checks | log |  |
 |   | `tone.ramp_hold_fade` | Posture ramps to a set level, holds, fades: no sporadic jerks | progress to determined intensity; ramp hold fade; no sporadic; not sporadic | checks | log |  |
 |   | `tone.fade_fast` | Posture fades faster | fades faster; fade faster; relaxes quickly; quick fade | drives | log |  |
@@ -175,7 +175,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `tone.lower_only` | Legs posture, arms stay slack | lower body only; only her legs; arms stay limp; arms slack | planned | new |  |
 |   | `tone.wave` | Stiffening travels through the body (e.g. legs first then arms) | travels up her body; wave of stiffness; starts in her legs; spreads to her arms | planned | new |  |
 |   | `dyn.tremor` | Fine tremor / quiver through the body | tremor; tremors; quiver; quivering | drives+checks | log |  |
-|   | `dyn.tremor_upper` | Tremor in the upper body (arms | upper body tremor; arms tremble; arms quiver; arms shake | drives+checks | log |  |
+|   | `dyn.tremor_upper` | Tremor in the upper body (arms, trunk, neck) | upper body tremor; arms tremble; arms quiver; arms shake | drives+checks | log |  |
 |   | `dyn.tremor_legs` | Tremor in the legs | legs tremble; legs quiver; legs shake; leg tremor | drives+checks | new |  |
 |   | `dyn.tremor_grows` | Quivering grows as the hold tires | more quivering as the hold tires; quivering grows; tremor builds; shaking builds | drives | log |  |
 |   | `dyn.no_tremor` | No tremor (smooth hold) | no tremor; without tremor; no shaking; perfectly still | checks | new |  |
@@ -232,7 +232,8 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `strike.backfist` | Spinning backfist (L/R) | backfist; back fist; spinning backfist | drives | new |  |
 |   | `strike.body_shot` | Body shot (trunk; a fold, not a head KO) (L/R) | body shot; liver shot; body kick; shot to the body | drives | new | conscious fold: needs a guarded-collapse behaviour, not the KO tone model |
 |   | `strike.slam` | Slam / throw onto the canvas | slam; slammed; suplex; thrown | planned | bible | needs an opponent body or a scripted carry |
-|   | `hit.jaw_tip` | Lands on the tip of the jaw (mostly spins the head) | clips the jaw; on the chin; tip of the jaw; on the button | drives | log |  |
+|   | `hit.jaw_tip` | Lands on the tip of the jaw (mostly spins the head) | on the chin; tip of the jaw; on the button; to the jaw | drives | log |  |
+|   | `hit.clips_jaw` | Clips the jaw: lands on the tip with a partial connection | clips the jaw; clips her jaw; clips her chin; clips the chin | drives | log |  |
 |   | `hit.temple` | Lands on the temple | temple; side of the head; behind the ear | drives | new |  |
 |   | `hit.forehead` | Lands high on the forehead (drives the head back) | forehead; high on the head | drives | new |  |
 |   | `hit.clip` | A clip, not a full connection (less momentum into the body) | clips; clip; grazes; glancing | drives | log |  |
@@ -240,8 +241,8 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `hit.walked_into` | She was moving into it (closing speed adds) | walks into; walked into; runs into; steps into the punch | drives | new |  |
 |   | `hit.retreating` | She was giving ground when hit | backing up; retreating; moving backward when; gives ground | drives | log |  |
 |   | `follow.punch` | Follow-up punch from above on the grounded head | followup shot; follow-up shot; follow up strike; followup strike | drives | log |  |
-|   | `follow.count` | Number of follow-up strikes | single followup; one followup; two followup; multiple followup | drives | log |  |
-|   | `follow.delay` | Follow-up lands this long after she hits the canvas (house: 1 s) | 1s after she's hit the ground; a second after; right after she lands; seconds after she hits | drives | log |  |
+|   | `follow.count` | Number of follow-up strikes | single followup; one followup; two followup; multiple followup | planned | log |  |
+|   | `follow.delay` | Follow-up lands this long after she hits the canvas (house: 1 s) | 1s after she's hit the ground; a second after; right after she lands; seconds after she hits | planned | log |  |
 |   | `follow.harder` | Follow-up hits harder and more pronounced | hit harder; harder and more pronounced; heavier shot; bigger shot | drives | log |  |
 |   | `follow.drives_head_to_mat` | Shot snaps her head further toward the mat | snaps her head further towards the mat; drives her head into the mat; head pinned to the mat | checks | log |  |
 |   | `follow.head_snaps_side` | Head snaps to the side from the punch and returns | head snapping to the side and back; head snaps to the side and back to neutral | checks | log |  |
@@ -253,7 +254,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `setup.guard_low` | Hands low before the strike | hands low; hands down; low guard; hands by her waist | drives | new |  |
 |   | `setup.mid_punch` | She is mid-punch when hit (arm extended) | mid punch; throwing a punch when; caught while punching; counter | drives | new |  |
 |   | `setup.mid_kick` | She is mid-kick when hit (one leg off the canvas) | mid kick; caught while kicking; as she kicks; on one leg | drives | new | needs single-support balance |
-|   | `setup.shooting` | She is shooting for a takedown (low | shooting in; shoots for a takedown; level change; diving in | drives | new |  |
+|   | `setup.shooting` | She is shooting for a takedown (low, driving forward) | shooting in; shoots for a takedown; level change; diving in | drives | new |  |
 |   | `setup.circling` | Circling / lateral movement when hit (L/R) | circling; moving laterally; sidestepping | drives | new |  |
 |   | `setup.live_fight_stance` | Stance and distance consistent with a live fight (bladed, guard up) | realistic to the scenario of a fight; consistent with a live fight; fight stance; bladed stance | drives | log |  |
 |   | `setup.already_hurt` | Already hurt: guard sagging, slow feet before the final shot | already hurt; already wobbled; on wobbly legs; rocked before | drives | new |  |
@@ -341,8 +342,8 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `sec.rope_ring` | Ropes keep ringing after contact (already simulated; expose the damping) | ropes shake; ropes ring; ropes vibrate | drives | new |  |
 |   | `sec.sweat_spray` | Sweat spray at the strike (particles; within content rules) | sweat spray; sweat flies | planned | new |  |
 |   | `ref.wave_off_timing` | Take ends as if at the referee wave-off (cut timing only, nobody rendered) | wave off; ref stops it; referee stops | planned | new |  |
-|   | `opp.walk_off` | Walk-off KO: no follow-up strikes at all | walk off; walk-off ko; no follow up; no followup | drives | new |  |
-|   | `opp.late_shot` | A late extra shot after she is clearly out | late shot; unnecessary shot; one more for good measure | drives | new |  |
+|   | `opp.walk_off` | Walk-off KO: no follow-up strikes at all | walk off; walk-off ko; no follow up; no followup | planned | new |  |
+|   | `opp.late_shot` | A late extra shot after she is clearly out | late shot; unnecessary shot; one more for good measure | planned | new |  |
 |   | `vary.mirror` | Mirror the whole take left/right | mirror it; mirrored; other side; flip left and right | planned | new |  |
 |   | `vary.seeded_details` | Fill every unspecified lever from a seeded draw of plausible options (listed in the sheet for approval) | surprise me; vary it; something different; different from last time | planned | new |  |
 |   | `vary.avoid_recent` | Avoid lever combinations used in the last N takes | don't repeat; avoid repeating; not like the previous | planned | new |  |

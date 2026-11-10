@@ -44,13 +44,15 @@ levers:
 
   # ---- where it lands / how cleanly ----
   - {id: hit.jaw_tip, label: 'Lands on the tip of the jaw (mostly spins the head)', kind: strike_mod,
-     say: [clips the jaw, on the chin, tip of the jaw, on the button, clips her chin, jaw], layer: {strike_mod: {offset: [0, -0.085, -0.075]}}, src: log}
+     say: [on the chin, tip of the jaw, on the button, to the jaw, to the chin], layer: {strike_mod: {offset: [0, -0.085, -0.075]}}, src: log}
+  - {id: hit.clips_jaw, label: 'Clips the jaw: lands on the tip with a partial connection', kind: strike_mod,
+     say: [clips the jaw, clips her jaw, clips her chin, clips the chin, grazes the jaw], layer: {strike_mod: {offset: [0, -0.085, -0.075], impulse_scale: 0.55}}, src: log}
   - {id: hit.temple, label: Lands on the temple, kind: strike_mod,
      say: [temple, side of the head, behind the ear], layer: {strike_mod: {offset: [0, 0.0, 0.03]}}, src: new}
   - {id: hit.forehead, label: Lands high on the forehead (drives the head back), kind: strike_mod,
      say: [forehead, high on the head], layer: {strike_mod: {offset: [0, -0.08, 0.05]}}, src: new}
   - {id: hit.clip, label: 'A clip, not a full connection (less momentum into the body)', kind: strike_mod,
-     say: [clips, clip, grazes, glancing, barely connects], layer: {strike_mod: {impulse_scale: 0.65}}, src: log}
+     say: [clips, clip, grazes, glancing, barely connects], layer: {strike_mod: {impulse_scale: 0.55}}, src: log}
   - {id: hit.flush, label: Lands flush / clean, kind: strike_mod,
      say: [flush, clean, lands clean, full connection, square], layer: {strike_mod: {impulse_scale: 1.2}}, src: new}
   - {id: hit.walked_into, label: She was moving into it (closing speed adds),
@@ -93,7 +95,7 @@ levers:
      say: [mid punch, throwing a punch when, caught while punching, counter, countered, as she throws], layer: {setup: {action: punching}}, src: new}
   - {id: setup.mid_kick, label: 'She is mid-kick when hit (one leg off the canvas)',
      say: [mid kick, caught while kicking, as she kicks, on one leg], layer: {setup: {action: kicking}}, note: needs single-support balance, src: new}
-  - {id: setup.shooting, label: She is shooting for a takedown (low, driving forward),
+  - {id: setup.shooting, label: 'She is shooting for a takedown (low, driving forward)',
      say: [shooting in, shoots for a takedown, level change, diving in], layer: {setup: {action: shooting}}, src: new}
   - {id: setup.circling, label: Circling / lateral movement when hit, side: LR,
      say: [circling, moving laterally, sidestepping], layer: {setup: {lateral: [0.1, 0.4]}}, src: new}

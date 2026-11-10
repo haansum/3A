@@ -60,16 +60,28 @@ def joint_change(tr, i0, i1, joint, side=None, lead=0.1):
 
 
 @pred
-def intensity(tr, i0, i1, joints, agg='median', side=None):
-    """How far a pose lever was reached, 0..1: each joint's angle mapped through the lever's
-    own [angle at 0, angle at 1]; mean over its joints."""
+def intensity(tr, i0, i1, joints, agg='median', side=None, i_ref=None, lead=0.1):
+    """How far a pose lever was reached, as a fraction of the way from where each joint was
+    just before the window (i_ref) to the lever's extreme angle. 0 = did not move, 1 = fully
+    there. A joint already within 8 deg of the extreme counts as reached (1)."""
+    i_ref = i0 if i_ref is None else i_ref
+    k = max(1, int(lead / tr.dt))
     out = []
-    for j, (a0, a1) in joints.items():
-        if abs(a1 - a0) < 1e-6:
-            continue
-        q = _agg(tr.joints[_side(j, side)][i0:i1], agg)
-        out.append((q - a0) / (a1 - a0))
+    for j, a1 in joints.items():
+        q = tr.joints[_side(j, side)]
+        q0 = float(np.median(q[max(0, i_ref - k):max(1, i_ref)]))
+        now = _agg(q[i0:i1], agg)
+        if abs(a1 - q0) < 8.0:
+            out.append(1.0 if abs(now - a1) < 12.0 else (1.0 - abs(now - a1) / 40.0))
+        else:
+            out.append((now - q0) / (a1 - q0))
     return float(np.mean(out)) if out else float('nan')
+
+
+@pred
+def height_diff(tr, i0, i1, a, b, agg='median'):
+    """height(a) - height(b), m: size-independent 'is this part lifted relative to that'."""
+    return _agg(tr.pos[i0:i1, tr.b(a), 2] - tr.pos[i0:i1, tr.b(b), 2], agg)
 
 
 # -- tone -----------------------------------------------------------------------------------
@@ -226,7 +238,7 @@ def oscillation(tr, i0, i1, regions=None, joints=None, lo_hz=5.0, hi_hz=14.0):
     """RMS joint motion inside a frequency band, degrees (largest joint). Tremor lives at
     5-14 Hz; breathing at 0.15-0.5 Hz."""
     n = i1 - i0
-    if n < int(2.0 / max(lo_hz, 1e-3) / tr.dt) // 2 or n < 16:
+    if n < int(1.5 / hi_hz / tr.dt) or n < 16:        # needs 1.5 periods of the band's fast edge
         return float('nan')
     f = np.fft.rfftfreq(n, tr.dt)
     band = (f >= lo_hz) & (f <= hi_hz)

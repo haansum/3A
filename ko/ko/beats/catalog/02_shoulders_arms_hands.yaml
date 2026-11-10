@@ -86,7 +86,7 @@ levers:
      say: [goalpost, arms up elbows bent, hands by her head, cactus arms],
      pose: {upper_arm_L_abd: [-40, 0], upper_arm_R_abd: [-40, 0], upper_arm_L_twist: [0, -70], upper_arm_R_twist: [0, -70],
             forearm_L_flex: [60, 90], forearm_R_flex: [60, 90]}, region: arm, src: new}
-  - {id: arms.t_rex, label: Elbows pinned to ribs, forearms up, wrists dropped,
+  - {id: arms.t_rex, label: 'Elbows pinned to ribs, forearms up, wrists dropped',
      say: [t-rex, elbows pinned, elbows tucked to ribs, forearms up wrists limp],
      expands: [{id: elbow.flex, side: L, i: 0.6}, {id: elbow.flex, side: R, i: 0.6}, {id: shoulder.arm_at_side, side: L, i: 0.7},
                {id: shoulder.arm_at_side, side: R, i: 0.7}, {id: wrist.flex, side: L}, {id: wrist.flex, side: R}], src: new}
@@ -137,6 +137,6 @@ levers:
      say: [fingers twitch, finger twitching, fingers flutter, fingers quiver], layer: {fingers: {twitch_hz: [3, 8]}}, src: new}
   - {id: hand.grasping, label: Hand slowly opens and closes (grasping at nothing), side: LR,
      say: [grasping, hand opens and closes, pawing, clutching at air], layer: {fingers: {grasp_hz: [0.4, 1.2]}}, src: new}
-  - {id: hand.no_clip, label: Hands must not pass through face, chest or each other,
+  - {id: hand.no_clip, label: 'Hands must not pass through face, chest or each other',
      say: [hand clipping, fix hand clipping, hands clip, no clipping], check: {pred: distance, a: hand_L, b: head, min: 0.09},
      note: 'body-level proxy; mesh-level test is the render-mesh gate', src: log}

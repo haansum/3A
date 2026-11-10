@@ -1,0 +1,73 @@
+kluk_elbow_stiff	replay one pans across, as if a referee was checking her over with the shot ending at her face
+kluk_limp_ext	model a mouthguard. eyes rolled up so that bottom 3rd is only visible
+kluk_teeter	eyes staring off upper left
+len_deep_toes	fix face clipping. add ref cam similar to other more recent renders
+len_deep_toes_v3	replay 3 full body with zoom pan across body. examine and fix shoulder clipping
+len_deep_toes_v3	right elbow extended after head impact with ground
+len_deep_toes_v3	scissor legs when extending elbow
+len_deep_toes_v3	raise/adjust camera slightly so that the face is visible in the final 3 replays
+len_limp_ext_v2	include heaving breathing. render fully. make her look more towards the upper corner rather than just upwards
+marl_deep_toes	reduce the intensity of the chin tuck (as if she was looking at her knees)
+marl_deep_toes	adjust so that she lays on her stomach and her face slides along the ground as she falls. keep legs tonic
+marl_deep_toes	ref cam from other side of body. add another underground view
+marl_deep_toes	fix right arm. I don't like how unnatural it looks for her to be holding up her body with her arm, let it flatten out a bit. she should be almost flat when as the tonic posture fades
+marl_deep_toes	right arm points higher at moment of ko, so that it's not keeping her up when she slumps forard
+marl_deep_toes	eyes more up and to the right. ref cam stops 1s after reaching final position
+marl_elbow_stiff_back	make the gaze aim upwards to the corner, rather than just up. make replay 3 a full body shot, not a zoom in. teeth clenched. legs begin scissoring and climaxes to a slight flutter upon impact with floor.
+marl_gnp_back	reduce core crunch by 10%. make replay 2 longer by 35%. make replay 3 longer. start panning over the body towards the head after 40% of the replay has played.
+marl_gnp_back	chin tilts upward as the ground and pound strikes land. eyes look up and to the side (30% of pupil visible
+marl_gnp_back	right arm full extension on ground during follow-up strikes
+marl_gnp_back	make replay 2 last until the tonic state relaxes. add another pov of a camera angle standing where the opponent stood
+marl_gnp_follow	make the followup hit harder and more pronounced
+marl_gnp_follow	make the followup hit harder and more pronounced. legs should jolt upon follow up inpact
+marl_gnp_follow	eyes rolled up and to the side more, so that only 30% of the pupils are visible
+marl_gnp_follow	more heavy breathing. asymmetric tonic upon followup strike (left arm extension, right arm contraction). eyes looking up and to the opposite side
+marl_gnp_follow	one arm extended (elbow extension) the other arm contracted. classic fencing posture
+marl_gnp_follow	after the follow up strike I want her to reset close to the same position, so her head snaps back, to sell the impression that she is stiff in the position she ended up in
+marl_gnp_follow	followup strike happens 1s after she's hit the ground
+marl_gnp_follow	can't see pupils. increase length of replay 2. add a zoom out to replay 5. fix hand clipping after followup
+marl_gnp_follow	shoulders hunched forward, right elbow extended
+marl_gnp_follow	right arm reaching up and to the left. render a glove to show each strike
+marl_gnp_follow	up and to the left relative to marls pov, not the camera.
+marl_gnp_follow	jolt limbs and head on each strike, not just the last one
+marl_hk_flash_v4	replay 4 zooms into face (not back of head). make replay 3 a full body shot
+marl_hk_flash_v4	I want a 3rd version where the head bounce doesn't increase the tonic intensity. mild tonic at impact, jolt on head impact with floor, and add a follow-up shot that increases the intensity of the tonic posture to a climax
+marl_hk_flash_v4	fall forward
+marl_hk_flash_v4	make the jolt more pronounced, almost changing the tonic posture into a similar but different one
+marl_hk_flash_v4	good. add a 2nd follow-up shot that escalates the posture even more. make it so that the momentum of the 2nd follow-up hit rolls her on to her back. make it look organic
+marl_hk_flash_v4	way too much momentum on the other strike. make it more subtle, but her final position should still be on her back
+marl_hk_flash_v4	upon the follow up hit, increase the tonic posture more, make her arms lock out and scissor them, hunch her upper back off the mat
+marl_hk_flash_v4	chin tilts up with each strike
+marl_hk_flash_v4	the follow-up shot on the ground is missing. I want it to slightly roll her on her back. check why it was missed
+marl_hk_flash_v4	make it multiple followup shots after she's hit the ground. the first one sends an impulse that snaps her head further towards the mat, escalating the posture and sending her arms straight. (already added, good) add a 2nd shot that will subtly turn her on her back, she should be on her back with at least 3s of runtime left on the sim
+marl_hk_flash_v4	increase the length of renders 2 and 3 by 50%. add a zoom out to render 4
+marl_hk_flash_v4	she still doesn't finish on her back. make sure her both sides of the back of her hips are touching the mat too.
+marl_hk_flash_v4	extend this replay until the end of the sim. track marl from the same perspective. pan up and down
+marl_hk_flash_v4	ref cam zoomed out and lasts for longer
+marl_hk_flash_v4	final replay zooms out more by the end
+mosin_deep_toes	on back not side. keep tonic posture
+mosin_deep_toes	elbows locked straight upon head impact with ground. eyes looking up and to the side
+mosin_deep_toes	upon taking the initial hit while standing, hinge at the hips more so that the head whips into the ground when falling backwards. keep the previous instructions otherwise
+mosin_deep_toes	no. the hip hinge sends her back, I want the hip hinge to allow her to slump forward, but since her momentum is sending her back she falls back on to her ass which causes her upper half to whip into the canvas
+mosin_deep_toes	I don't like the back arch. make it a back curl instead
+mosin_deep_toes	increase length of replay 3 and ass pan up to face. ensure head doesn't hit the ground before her glues do.
+mosin_deep_toes	her eyes are refracting weird here. please examine
+mosin_deep_toes	the bend looks unnatural. please fix and make it more natural. she's hunched forward after the initial strike then hitting the ground whips her back like a whip and slams her head into the ground
+mosin_deep_toes	make the right arm slowly rise as it hits max tonic posture
+mosin_deep_toes	zoom out during this shot
+mosin_deep_toes	generate an additional camera angle opposing her front on but from underground
+mosin_deep_toes	underground angle zoomed out to full body
+mosin_deep_toes	add crunching and relaxing to illustrate unconscious breathing
+mosin_gnp_follow	reduce the amount she spins around on the follow up shots. keep the head snapping to the side and back to neutral from the punch. arms jolt and unconsciously straighten out a little further with each impact
+mosin_hk_flash_v4	replay 3 circles around her
+noelle_deep_toes	more quivering. ankles start to cross
+noelle_deep_toes	shoulders shrugging, upper back hunching off canvas. replay 2 lasts 50% longer. at the end of replay 2, orbit around and pan from toe to head. ensure face is visible and not blocked by body. add camera angle underground showing the curled toes right before the final ref cam
+noelle_deep_toes	I don't want sporratic hunching, I want an upper back hunch as a result of the impact that behaves like other tonic posturing (progress to determined intensity, then fade after a while). the underground angle should be a full body shot. zooming in and panning from head to toe back to head
+noelle_deep_toes	reduce intensity of body bend by 40%
+noelle_gnp_back	eyes looking up and to the left. 30% pupil visible. hands are halfway between fists and their current state. during the followup shots her legs start to scissor. ensure there is no clipping. I want to also test rendering the glove for the initial hit. nothing else from the opponent needs to be rendered.
+noelle_gnp_back	make her eyes a more distinct, saturated color. add fist renderings for the followup shots too. make replay 2 start orbiting halfway through
+noelle_gnp_back	fix the eye clipping here
+noelle_gnp_back	final camera angle plays for longer
+noelle_hook_uppercut	fades faster. fix neck. shoulder movement looks unnatural elbows reaching forward (relative to her). reduce leg elevation by 30%. analyze and fix inverse kinematics
+noelle_hook_uppercut	shoulders moving weird with breath. please diagnose and fix, it looks very inorganic. right arm full extension
+noelle_hook_uppercut	fix outfit to be the royal blue set.

@@ -1,0 +1,85 @@
+take: freya_wheel_kick_gnp_001
+approved: false
+seed: 2
+prose: I want a wheel kick that clips the jaw, leading to a teeter fall. The fighter's guard drops slightly and
+  while hands are still up, as if in a loose guard, one arm extends slightly and the other starts contracting. wrists
+  bend downwards. body slightly slumps forward as the body teeters backwards. when the head bounces off the ground
+  the tonic posture intensifies, causing slight tremors, scissoring of the legs and shoulders rolling forward. a
+  single followup shot while on the ground increases tonic posture intensity to max level, curling toes and crossing
+  ankles. upper body tremors start. stylize facial expression as per pipeline doc.
+strikes:
+- lever: strike.wheel_kick
+  name: ko_strike
+  i: 0.6
+  side: R
+  chosen: seed
+  mods:
+  - hit.clips_jaw
+- lever: follow.punch
+  name: followup_1
+  i: 0.5
+beats:
+- id: b1
+  'on': ko
+  say: I want a wheel kick that clips the jaw, leading to a teeter fall. The fighter's guard drops slightly and
+    while hands are still up, as if in a loose guard, one arm extends slightly and the other starts contracting.
+    wrists bend downwards. body slightly slumps forward as the body teeters backwards.
+  levers:
+  - id: fall.teeter
+    i: 0.6
+  - id: arms.loose_guard
+    i: 0.25
+  - id: arms.fencing
+    i: 0.25
+    chosen: seed
+    side: L
+  - id: wrist.flex
+    i: 0.6
+    side: both
+  - id: trunk.slump_forward
+    i: 0.25
+  - id: fall.backward
+    i: 0.6
+- id: b2
+  'on': touch:head
+  say: when the head bounces off the ground the tonic posture intensifies, causing slight tremors, scissoring of
+    the legs and shoulders rolling forward.
+  levers:
+  - id: ground.head_bounce
+    i: 0.6
+  - id: tone.intensify
+    i: 0.6
+  - id: dyn.tremor
+    i: 0.25
+  - id: legs.scissor
+    i: 0.25
+    side: L
+  - id: shoulder.roll_forward
+    i: 0.6
+    side: both
+- id: b3
+  'on': followup_1
+  say: a single followup shot while on the ground increases tonic posture intensity to max level, curling toes and
+    crossing ankles. upper body tremors start. stylize facial expression as per pipeline doc.
+  levers:
+  - id: tone.intensify
+    i: 0.6
+  - id: tone.max
+    i: 1.0
+  - id: toes.curl
+    i: 1.0
+    side: both
+  - id: legs.ankles_cross
+    i: 0.6
+    side: L
+  - id: dyn.tremor_upper
+    i: 0.6
+  - id: face.stylized_default
+    i: 0.6
+unmatched:
+- beat: b2
+  text: the tonic posture
+- beat: b3
+  text: on the ground increases
+- beat: b3
+  text: pipeline doc

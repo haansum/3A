@@ -131,13 +131,22 @@ class Controller:
             if env <= 0:
                 continue
             regs = [REGIONS.index(r) for r in ph['regions']]
+            w = min(1.0, a / rise)
             for r in regs:
-                tone_r[r] = max(tone_r[r], ph['tone'] * env)
+                if ph.get('replace'):       # a later beat supersedes earlier ones (can lower tone)
+                    tone_r[r] = (1 - w) * tone_r[r] + w * max(res[r], ph['tone'] * env)
+                else:
+                    tone_r[r] = max(tone_r[r], ph['tone'] * env)
             if ph.get('pose'):
                 pv = self.pose_vec(POSES[ph['pose']], base=target)
                 sel = np.isin(self.reg, regs)
-                w = min(1.0, a / rise)
                 target[sel] = (1 - w) * target[sel] + w * pv[sel]
+            for jn_, (a1, frac) in (ph.get('pose_rel') or {}).items():
+                # relative pose: go `frac` of the way from wherever the target is to a1
+                if jn_ in self.idx:
+                    i_ = self.idx[jn_]
+                    goal = np.clip(np.radians(a1 - self.off[i_]), self.lo[i_] + 0.01, self.hi[i_] - 0.01)
+                    target[i_] += w * frac * (goal - target[i_])
         tone = tone_r[self.reg]
         tr = ko.get('tremor')
         for e in ([tr] if isinstance(tr, dict) else (tr or [])):

@@ -17,7 +17,7 @@ STAGE_CODE = {
     'character': ['ko/character'],
     'body': ['ko/body'],
     'sim': ['ko/sim'],
-    'qa': ['ko/qa'],
+    'qa': ['ko/qa', 'ko/beats'],
     'bake': ['ko/bake'],
     'render': ['ko/render'],
 }
@@ -54,7 +54,7 @@ def code_hash(stage):
     for d in STAGE_CODE[stage]:
         for base, _, files in sorted(os.walk(os.path.join(ROOT, d))):
             for f in sorted(files):
-                if f.endswith('.py'):
+                if f.endswith(('.py', '.yaml')):
                     h.update(open(os.path.join(base, f), 'rb').read())
     return h.hexdigest()[:16]
 
@@ -63,7 +63,13 @@ def resolve(take_path, quality=None):
     take = yaml.safe_load(open(take_path))
     char = _yaml('presets', 'characters', take['character'] + '.yaml')
     arena = _yaml('presets', 'arenas', take['arena'] + '.yaml')
-    arch = _yaml('presets', 'archetypes', take['archetype'] + '.yaml')
+    if take.get('beats'):            # compiled from an owner-approved beat sheet
+        from .beats import compile as bc
+        arch, notes = bc.compile_sheet(_yaml(take['beats']))
+        arena = deep_merge(arena, arch.pop('arena_overrides', None))
+        arch['compile_notes'] = notes
+    else:
+        arch = _yaml('presets', 'archetypes', take['archetype'] + '.yaml')
     house = _yaml('presets', 'house.yaml') if os.path.exists(os.path.join(ROOT, 'presets', 'house.yaml')) else {}
     cfg = deep_merge(deep_merge({'bake': house.get('bake', {})}, arch), take.get('overrides'))
     cfg['arena'] = deep_merge(arena, (take.get('overrides') or {}).get('arena'))

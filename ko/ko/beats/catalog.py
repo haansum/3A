@@ -15,7 +15,7 @@ KEYS = {'id', 'label', 'say', 'side', 'default_side', 'region', 'pose', 'mirror'
         'expands', 'also', 'src', 'approved', 'note', 'kind'}
 # layer keys the compiler turns into sim/bake config today (see compile.py)
 DRIVEN = {'tone', 'tone_all', 'tone_step', 'tier', 'tremor', 'breath', 'strike', 'strike_mod',
-          'toes', 'gaze', 'fade_s', 'hold_s', 'rise_s', 'setup', 'arena', 'follow_count', 'follow_delay',
+          'toes', 'gaze', 'fade_s', 'hold_s', 'rise_s', 'setup', 'arena',
           'phase_delay_s'}
 JOINT = re.compile(r'^(spine|chest|neck|head)_(flex|lat|twist)$|^(upper_arm|forearm|hand|thigh|shin|foot)_(\$S|\$O|L|R)_'
                    r'(flex|abd|twist|dev|dorsi|inv)$')

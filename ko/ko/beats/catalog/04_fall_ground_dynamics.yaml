@@ -5,7 +5,7 @@ levers:
   - {id: tier.flash, label: 'Flash KO: brief shutdown, mild posturing, quick fade',
      say: [flash ko, flash knockout, lights flicker, brief ko, out for a second], layer: {tier: {tone: 0.45, hold_s: 0.8, fade_s: 0.8}}, src: bible}
   - {id: tier.stiff, label: 'Stiff KO: whole body rigid, long hold',
-     say: [stiff ko, goes stiff, stiffens, stiffen, rigid ko, body stiffens, tonic], layer: {tier: {tone: 0.85, hold_s: 3.0, fade_s: 2.5}}, src: bible}
+     say: [stiff ko, goes stiff, stiffens, stiffen, rigid ko, body stiffens], layer: {tier: {tone: 0.85, hold_s: 3.0, fade_s: 2.5}}, src: bible}
   - {id: tier.melt, label: 'Melt / deep KO: tone drops out, body pours down',
      say: [melt ko, deep ko, goes limp, limp ko, out cold limp, ragdoll, lights out limp], layer: {tier: {tone: 0.05, hold_s: 0.0, fade_s: 0.0}}, src: bible}
   - {id: tone.intensify, label: Posture intensity steps up (tone rises above the previous beat),
@@ -14,7 +14,7 @@ levers:
   - {id: tone.max, label: Posture at maximum intensity,
      say: [max level, maximum intensity, to max, max tonic, full intensity, peak intensity, to a climax],
      layer: {tone_all: [0.95, 1.0]}, check: {pred: tone, agg: p90, min: 0.93}, src: log}
-  - {id: tone.mild, label: Mild posture only (low tone, shapes barely formed),
+  - {id: tone.mild, label: 'Mild posture only (low tone, shapes barely formed)',
      say: [mild tonic, mild posture, subtle posture, slight tonic, light stiffening],
      layer: {tone_all: [0.5, 0.35]}, check: {pred: tone, agg: p90, max: 0.6}, src: log}
   - {id: tone.no_step, label: 'This event must NOT raise the intensity (jolt only)',
@@ -43,15 +43,15 @@ levers:
   - {id: dyn.tremor, label: Fine tremor / quiver through the body,
      say: [tremor, tremors, quiver, quivering, trembling, shaking, shudder, vibrat],
      layer: {tremor: {hz: [9.0, 8.0], amp_deg: [0.5, 3.0], onset: [0.5, 0.25]}},
-     check: {pred: oscillation, lo_hz: 5, hi_hz: 14, min: [0.05, 0.6]}, src: log}
-  - {id: dyn.tremor_upper, label: Tremor in the upper body (arms, trunk, neck),
+     check: {pred: oscillation, lo_hz: 5, hi_hz: 14, min: [0.04, 0.3]}, src: log}
+  - {id: dyn.tremor_upper, label: 'Tremor in the upper body (arms, trunk, neck)',
      say: [upper body tremor, arms tremble, arms quiver, arms shake, hands tremble, shoulders tremble],
      layer: {tremor: {hz: [9.0, 8.0], amp_deg: [0.6, 3.0], onset: [0.4, 0.25], regions: [trunk, neck, arm_L, arm_R]}},
-     check: {pred: oscillation, regions: [arm_L, arm_R, trunk], lo_hz: 5, hi_hz: 14, min: [0.05, 0.6]}, src: log}
+     check: {pred: oscillation, regions: [arm_L, arm_R, trunk], lo_hz: 5, hi_hz: 14, min: [0.04, 0.3]}, src: log}
   - {id: dyn.tremor_legs, label: Tremor in the legs,
      say: [legs tremble, legs quiver, legs shake, leg tremor, knees tremble, thighs quiver],
      layer: {tremor: {hz: [8.0, 7.0], amp_deg: [0.6, 3.0], onset: [0.4, 0.25], regions: [leg_L, leg_R]}},
-     check: {pred: oscillation, regions: [leg_L, leg_R], lo_hz: 5, hi_hz: 14, min: [0.05, 0.6]}, src: new}
+     check: {pred: oscillation, regions: [leg_L, leg_R], lo_hz: 5, hi_hz: 14, min: [0.04, 0.3]}, src: new}
   - {id: dyn.tremor_grows, label: Quivering grows as the hold tires,
      say: [more quivering as the hold tires, quivering grows, tremor builds, shaking builds, tremor increases as],
      layer: {tremor: {grow_s: [1.0, 3.0]}}, src: log}
@@ -73,10 +73,10 @@ levers:
   # ---- fall direction and style ----
   - {id: fall.backward, label: Falls backward,
      say: [falls back, fall back, teeter back, teeters backward, topples back, tips backward, goes over backward, sent back],
-     check: [{pred: travel, body: head, toward: back, min: 0.5, when: fall_end}, {pred: lean, toward: back, agg: p90, min: 25, when: fall}], src: log}
+     check: [{pred: travel, body: head, toward: back, min: 0.5, when: fall_end}, {pred: lean, toward: back, agg: max, min: 60, when: fall_end}], src: log}
   - {id: fall.forward, label: Falls forward,
      say: [fall forward, falls forward, teeter forward, teeters forward, face plant, pitches forward, topples forward, faceplant],
-     check: [{pred: travel, body: head, toward: front, min: 0.5, when: fall_end}, {pred: lean, toward: front, agg: p90, min: 25, when: fall}], src: log}
+     check: [{pred: travel, body: head, toward: front, min: 0.5, when: fall_end}, {pred: lean, toward: front, agg: max, min: 60, when: fall_end}], src: log}
   - {id: fall.sideways, label: Falls to her side, side: LR,
      say: [falls sideways, falls to her left, falls to her right, topples sideways, tips over sideways, falls to the side],
      check: {pred: travel, body: head, toward: left, sign_by_side: 1, min: 0.4, when: fall_end}, src: new}
@@ -88,7 +88,7 @@ levers:
      check: [{pred: joint, joint: shin_L_flex, agg: max, max: 35, when: fall}, {pred: joint, joint: thigh_L_flex, agg: max, max: 40, when: fall}], src: bible}
   - {id: fall.teeter, label: 'Teeter: hangs at the balance point before going over',
      say: [teeter, teeters, wavers, sways before, hangs for a moment, balance point],
-     check: {pred: event_gap, a: ko, b: down, min: [0.6, 1.4]}, src: log}
+     check: {pred: event_gap, a: ko, b: down, min: [0.5, 1.2]}, src: log}
   - {id: fall.delayed, label: 'Delayed drop: stays up a beat, then goes',
      say: [delayed, delayed reaction, a beat later, then drops, stands for a second then], check: {pred: event_gap, a: ko, b: down, min: [0.9, 2.5]}, src: new}
   - {id: fall.instant, label: Drops immediately,

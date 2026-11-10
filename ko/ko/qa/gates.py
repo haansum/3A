@@ -203,6 +203,18 @@ def check(sim_path, lock):
              'tone': 'standing < after head impact < after follow-up',
              'ankle_gap_after_followup_m': '<=0.02 (crossed)', 'max_foot_height_after_followup_m': '<=0.30', 'face_up_at_rest': '>=0.5'})
 
+    if oc.get('name') == 'beats':
+        from ..beats import check as bcheck
+        from ..beats.trace import Trace
+        brep = bcheck.check(Trace.load(sim_path), oc['sheet'])
+        rep['beats'] = brep
+        n = brep['summary']
+        add(1, 'beats', brep['pass'], n, {'fail': 0},
+            '; '.join(f"{r['beat']} {r['lever']}{'/' + r['side'] if r['side'] else ''}: {r['value']} (want {r['want']})"
+                      for r in brep['rows'] if r['pass'] is False)[:900])
+        add(1, 'beat_sheet_approved_by_owner', brep['approved'], brep['approved'], True,
+            'set approved: true in the beat sheet once the owner has read it')
+
     # 2. motion quality ---------------------------------------------------------------------
     pen_rope = -cd[b_rope].min() * 1000 if b_rope.any() else 0.0
     pen_can = -cd[b_can].min() * 1000 if b_can.any() else 0.0
@@ -272,6 +284,9 @@ def check(sim_path, lock):
 
 
 def show(rep):
+    if rep.get('beats'):
+        from ..beats import check as bcheck
+        bcheck.show(rep['beats'])
     for c in rep['checks']:
         s = 'todo' if c['pass'] is None else 'PASS' if c['pass'] else 'FAIL'
         print(f"  [{s}] gate {c['gate']} {c['name']}: {c.get('value', '')} (limit {c.get('limit', '-')}) {c.get('note', '')}")

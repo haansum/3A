@@ -18,7 +18,7 @@ levers:
   - {id: trunk.upper_back_hunch, label: Upper back hunches up off the canvas, region: trunk,
      say: [upper back hunch, hunch her upper back, upper back off the mat, hunching off canvas, shoulders lift off the mat, upper back off canvas],
      pose: {chest_flex: [0, 28], neck_flex: [0, 18]},
-     check: {pred: height, body: chest, min: [0.14, 0.24]}, src: log}
+     check: {pred: height_diff, a: chest, b: pelvis, min: [0.01, 0.10]}, src: log}
   - {id: trunk.rigid_plank, label: Trunk rigid as a board, region: trunk,
      say: [rigid trunk, stiff as a board, plank, body rigid, like a statue, like a tree, timber, stiff body],
      pose: {spine_flex: [0, 0], chest_flex: [0, 0], spine_lat: [0, 0], chest_lat: [0, 0]}, layer: {tone: [0.6, 1.0]},
@@ -78,7 +78,7 @@ levers:
   - {id: legs.scissor, label: 'Legs scissor: one hip flexes while the other extends, legs drawn together', region: leg, side: LR, default_side: L,
      say: [scissor legs, legs scissor, scissoring, legs start to scissor, legs cross over],
      pose: {thigh_$S_flex: [0, 22], thigh_$O_flex: [0, -12], thigh_$S_abd: [0, -16], thigh_$O_abd: [0, -12], shin_$S_flex: [0, 6]},
-     check: {pred: joint_diff, a: thigh_$S_flex, b: thigh_$O_flex, min: [4, 30]}, src: log}
+     note: 'judged as movement since the beat opened: a stance that already had one leg forward does not count', src: log}
   - {id: legs.scissor_flutter, label: Scissoring builds to a brief flutter at impact, region: leg,
      say: [flutter, legs flutter, slight flutter, fluttering kick, legs flutter kick],
      layer: {tremor: {hz: [3.0, 5.0], amp_deg: [1.5, 6.0], joints: [thigh_L_flex, thigh_R_flex], antiphase: true, decay_s: [0.6, 1.5]}},
