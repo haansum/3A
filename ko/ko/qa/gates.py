@@ -127,8 +127,10 @@ def check(sim_path, lock):
             # extensor tone has had 0.3 s to straighten them
             rep['metrics']['head_rebound_height_m'] = round(float(
                 head_p[ih + 5:ih + 150, 2].max() - head_p[ih:ih + 15, 2].min()), 3)
-            rep['metrics']['head_impact_speed_m_s'] = round(float(np.linalg.norm(
-                (head_p[ih] - head_p[ih - 5]) / (5 * dt))), 2)
+            # peak head speed over the 60 ms before the event (the event fires on force, a few
+            # ms after first touch, by which time the head has already slowed)
+            hv = np.linalg.norm(np.diff(head_p[max(0, ih - 30):ih + 1], axis=0), axis=1) / dt
+            rep['metrics']['head_impact_speed_m_s'] = round(float(hv.max()), 2)
 
     # 2. motion quality ---------------------------------------------------------------------
     pen_rope = -cd[b_rope].min() * 1000 if b_rope.any() else 0.0

@@ -209,7 +209,7 @@ def make_cameras(lock, fr, root, coll, fps):
         shots[name] = ob
         return ob
 
-    cam('live', (5.6, mid[1] + 1.0, 2.6), 50, target=mid + [0, 0, -0.3])
+    cam('live', (5.8, mid[1] + 1.2, 4.0), 55, target=mid + [0, 0, -0.45])
     cam('tight', (2.3, mid[1] + 1.6, 1.0), 60, follow=track)
     cam('referee', (-1.6, y0 + 2.4, 1.6), 50, follow=track)
     cam('opponent', (0.5, y0 + 0.25, 1.5), 24, follow=track)
