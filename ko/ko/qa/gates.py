@@ -68,6 +68,7 @@ def check(sim_path, lock):
 
     # contacts between body and ropes / canvas
     b_rope = (is_rope[g1] & is_body[g2]) | (is_rope[g2] & is_body[g1])
+    b_can = (is_canvas[g1] & is_body[g2]) | (is_canvas[g2] & is_body[g1])
     torso = _mask(gn, lambda n: n in ('g_chest', 'g_spine', 'g_pelvis', 'g_upper_arm_L',
                                       'g_upper_arm_R', 'g_forearm_L', 'g_forearm_R', 'g_neck'))
     t_rope = b_rope & (torso[g1] | torso[g2]) & (cf > 1.0)
@@ -85,9 +86,52 @@ def check(sim_path, lock):
             {'rope_contact_s': round(propped_time, 2), 'final_pelvis_z': round(float(pelvis_z[-1]), 3)},
             {'rope_contact_s': oc['rope_contact_min_s'], 'final_pelvis_z': oc['final_pelvis_max_z']})
 
+    if oc.get('name') == 'stiff_back_escalate':
+        import json as _json
+        ev = _json.loads(str(z['events']))
+        hgi = gn.index('g_head')
+        hm = b_can & ((g1 == hgi) | (g2 == hgi)) & (cf > 0.05 * W)
+        hsteps = np.unique(cs[hm])
+        # a bounce = the head leaving the canvas and striking it again hard (> half body weight);
+        # resting back down after the core curls is not a bounce
+        hload = np.zeros(len(t))
+        np.add.at(hload, cs[hm], cf[hm])
+        episodes = 0
+        if len(hsteps):
+            cuts = np.nonzero(np.diff(hsteps) > int(0.04 / dt))[0]
+            for seg in np.split(hsteps, cuts + 1):
+                episodes += int(hload[seg].max() > 0.5 * W)
+        head_p = z['xpos'][:, bn.index('head')]
+        ik0 = int(t_ko / dt)
+        ih = int(ev['head_impact'] / dt) if 'head_impact' in ev else None
+        jn = [str(n) for n in z['joint_names']]
+        knee = np.degrees(q[:, [jn.index('shin_L_flex'), jn.index('shin_R_flex')]])
+        tone_m = z['tone'].mean(axis=1)
+        val = {'head_impact_t_after_ko': round(ev['head_impact'] - t_ko, 2) if ih else None,
+               'backward_travel_m': round(float(head_p[-1, 1] - head_p[ik0, 1]), 2),
+               'max_knee_flex_before_impact_deg': round(float(knee[ik0 + int(0.3 / dt):ih].max()), 1) if ih else None,
+               'head_bounces': max(0, episodes - 1),
+               'tone_before_impact': round(float(tone_m[ih - 25:ih].mean()), 2) if ih else None,
+               'tone_after_impact': round(float(tone_m[ih + 60:ih + 200].mean()), 2) if ih else None,
+               'final_chest_z': round(float(z['xpos'][-1, bn.index('chest'), 2]), 2)}
+        lim = {'backward_travel_m': oc.get('min_backward_m', 0.8),
+               'max_knee_flex_before_impact_deg': oc.get('max_knee_flex_deg', 30),
+               'head_bounces': 1, 'final_chest_z': 0.35}
+        ok = (ih is not None and val['backward_travel_m'] >= lim['backward_travel_m']
+              and val['max_knee_flex_before_impact_deg'] <= lim['max_knee_flex_before_impact_deg']
+              and val['head_bounces'] <= 1 and val['tone_after_impact'] > val['tone_before_impact']
+              and val['final_chest_z'] <= lim['final_chest_z'])
+        add(1, 'outcome_stiff_back_escalate', ok, val, lim)
+        if ih:
+            # legs were bent in the stance at the KO instant; 'stiff' is judged once the
+            # extensor tone has had 0.3 s to straighten them
+            rep['metrics']['head_rebound_height_m'] = round(float(
+                head_p[ih + 5:ih + 150, 2].max() - head_p[ih:ih + 15, 2].min()), 3)
+            rep['metrics']['head_impact_speed_m_s'] = round(float(np.linalg.norm(
+                (head_p[ih] - head_p[ih - 5]) / (5 * dt))), 2)
+
     # 2. motion quality ---------------------------------------------------------------------
     pen_rope = -cd[b_rope].min() * 1000 if b_rope.any() else 0.0
-    b_can = (is_canvas[g1] & is_body[g2]) | (is_canvas[g2] & is_body[g1])
     pen_can = -cd[b_can].min() * 1000 if b_can.any() else 0.0
     b_self = is_body[g1] & is_body[g2]
     pen_self = -cd[b_self].min() * 1000 if b_self.any() else 0.0
@@ -135,7 +179,7 @@ def check(sim_path, lock):
     ik = int(t_ko / dt) if t_ko >= 0 else 0
     speed = np.linalg.norm(z['qvel'][:, :6], axis=1)
     rest = np.nonzero(speed > 0.15)[0]
-    rep['metrics'] = {
+    rep['metrics'].update({
         't_ko': round(t_ko, 3),
         'pelvis_velocity_at_ko': [round(float(x), 2) for x in v[ik]],
         'fall_azimuth_deg_from_forward': round(float(np.degrees(np.arctan2(
@@ -149,7 +193,7 @@ def check(sim_path, lock):
         'final_pelvis': [round(float(x), 2) for x in z['xpos'][-1, bn.index('pelvis')]],
         'final_head': [round(float(x), 2) for x in head[-1]],
         'validated_against_footage': False,
-    }
+    })
     rep['pass'] = all(c['pass'] for c in rep['checks'] if c['pass'] is not None)
     return rep
 

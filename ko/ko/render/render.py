@@ -132,7 +132,10 @@ def build_arena(lock, fr, root, coll):
     r = p.get('radius', 0.0125) * 1.6      # padded rope cover reads thicker than the core
     # static sides
     for i, z in enumerate(hs):
-        for (ax, ay), (bx, by) in (((x0, y1), (x1, y1)), ((x0, y0), (x0, y1)), ((x1, y0), (x1, y1))):
+        sides = [((x0, y1), (x1, y1)), ((x0, y0), (x0, y1)), ((x1, y0), (x1, y1))]
+        if not fr['rope'].shape[1]:            # no simulated side in this take: draw it static
+            sides.append(((x0, y0), (x1, y0)))
+        for (ax, ay), (bx, by) in sides:
             me = bpy.data.meshes.new('rope_static')
             L = math.hypot(bx - ax, by - ay)
             c = np.stack([np.linspace(0, L, 2), np.zeros(2), np.zeros(2)], 1)[None]
@@ -180,8 +183,8 @@ def make_cameras(lock, fr, root, coll, fps):
     """Shot template. Canonical coords: she starts at the origin facing -y, ropes at y = rope_y."""
     y0 = lock['arena']['rope_y']
     pel, head = fr['pelvis'], fr['head']
-    mid = np.array([0.0, y0 / 2, 0.95])
     rest = pel[-1]
+    mid = np.array([0.0, 0.5 * (pel[0][1] + rest[1]), 0.95])     # centre of the action
     track = smooth_path(0.5 * (pel + head), fps)
     shots = {}
 
@@ -206,8 +209,8 @@ def make_cameras(lock, fr, root, coll, fps):
         shots[name] = ob
         return ob
 
-    cam('live', (6.4, y0 / 2 + 1.2, 2.75), 45, target=mid + [0, -0.1, -0.25])
-    cam('tight', (2.2, y0 + 2.3, 1.15), 70, follow=track)
+    cam('live', (5.6, mid[1] + 1.0, 2.6), 50, target=mid + [0, 0, -0.3])
+    cam('tight', (2.3, mid[1] + 1.6, 1.0), 60, follow=track)
     cam('referee', (-1.6, y0 + 2.4, 1.6), 50, follow=track)
     cam('opponent', (0.5, y0 + 0.25, 1.5), 24, follow=track)
     orb = cam('orbit', (3.0, y0 + 0.4, 1.3), 85, follow=np.repeat(rest[None] + [0, 0, 0.2], len(pel), 0))

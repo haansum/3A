@@ -1,0 +1,47 @@
+# Giving ground when the hook lands. Stiff tier: instant rigidity, statue topple backward on
+# locked legs, symmetric arm posturing while upright. The head striking the canvas is a
+# physical event in the sim; it triggers the escalation (harder, asymmetric fencing, pointed
+# feet, curled core), which then trembles and drains.
+# Impulse, tone levels and timings are tuned by eye, not from footage.
+name: stiff_back_hook
+sim: {dt: 0.002, duration: 6.0, settle: 0.6}
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.30, pose: stance, advance: 0.0}
+      - {t: 0.75, pose: retreat, advance: -0.30}
+      - {t: 1.5, pose: retreat, advance: -0.30}
+strike:
+  t: 0.58
+  body: head
+  impulse: 16.0
+  duration: 0.015
+  dir: [-1.0, 0.45, 0.1]       # hook from her left, driving her back
+  frame: world
+  offset: [0.0, -0.05, -0.04]
+  ko_delay: 0.01
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  breath: {period: 4.0, amp_deg: 1.5}
+  ko:
+    tier: stiff
+    off_ramp: 0.04
+    residual: {neck: 0.20, trunk: 0.08, arm: 0.035, leg: 0.035}
+    phases:
+      # stiffening, clocked from the KO: holds until well past the landing, then is taken over
+      - {t: 0.03, rise: 0.10, hold: 2.5, fade: 0.5, regions: [leg_L, leg_R], tone: 0.8, pose: extensor_legs}
+      - {t: 0.03, rise: 0.10, hold: 2.5, fade: 0.5, regions: [trunk, neck], tone: 0.7, pose: rigid_trunk}
+      - {t: 0.05, rise: 0.15, hold: 2.5, fade: 0.5, regions: [arm_L, arm_R], tone: 0.6, pose: arms_forward}
+      # escalation, clocked from the head hitting the canvas
+      - {after: head_impact, t: 0.03, rise: 0.08, hold: 1.4, fade: 2.6, regions: [arm_L, arm_R], tone: 1.0, pose: fencing_escalated}
+      - {after: head_impact, t: 0.03, rise: 0.08, hold: 1.4, fade: 2.6, regions: [leg_L, leg_R], tone: 1.0, pose: extensor_legs_hard}
+      - {after: head_impact, t: 0.03, rise: 0.10, hold: 1.4, fade: 2.6, regions: [trunk, neck], tone: 0.9, pose: curl_core}
+    tremor: {hz: 9.0, amp_deg: 1.5, onset: 1.5}
+outcome:
+  name: stiff_back_escalate
+  min_backward_m: 0.8
+  max_knee_flex_deg: 30

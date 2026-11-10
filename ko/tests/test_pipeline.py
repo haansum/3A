@@ -1,4 +1,4 @@
-"""Needs the VRoid test character built once:  python -m ko.cli build takes/slice_001.yaml --to body"""
+"""Needs the VRoid test character built once:  python -m ko.cli build takes/stiff_back_001.yaml --to body"""
 import hashlib
 import json
 import os
@@ -11,7 +11,7 @@ from ko import manifest
 from ko.body import gen_body
 from ko.sim import run, scene
 
-TAKE = os.path.join(manifest.ROOT, 'takes', 'slice_001.yaml')
+TAKE = os.path.join(manifest.ROOT, 'takes', 'stiff_back_001.yaml')
 lock = manifest.resolve(TAKE)
 BODY = manifest.stage_dir(lock, 'body')
 pytestmark = pytest.mark.skipif(not os.path.exists(os.path.join(BODY, 'body.json')),
@@ -62,3 +62,13 @@ def test_root_assist_is_capped_and_zero_after_ko():
     a = np.linalg.norm(o['assist'][:, :3], axis=1) / W
     assert a.max() <= lock['motion']['assist_cap'] * 1.02
     assert not a[o['t'] >= float(o['t_ko'])].any()
+
+
+def test_escalation_is_clocked_from_the_head_hitting_the_canvas():
+    import json as _json
+    o = run.run(lock, BODY, None)
+    ev = _json.loads(str(o['events']))
+    assert 'head_impact' in ev and ev['head_impact'] > float(o['t_ko'])
+    i = int(ev['head_impact'] / float(o['dt']))
+    tone = o['tone'].mean(axis=1)
+    assert tone[i + 100:i + 200].mean() > tone[i - 25:i].mean() + 0.15

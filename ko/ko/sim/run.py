@@ -106,6 +106,8 @@ def run(cfg, char_dir, out_dir=None, record=True):
     con = []
     fbuf, vbuf = np.zeros(6), np.zeros(6)
     canvas = m.geom('canvas').id
+    ghead = m.geom('g_head').id
+    Wt = spec['mass'] * 9.81
     gfl, gfr = m.geom('g_foot_L').id, m.geom('g_foot_R').id
     foot_geoms = {gfl, gfr}
     ok = True
@@ -130,6 +132,9 @@ def run(cfg, char_dir, out_dir=None, record=True):
             mujoco.mj_contactForce(m, d, ci, fbuf)
             if c.geom1 == canvas and c.geom2 in fl:
                 fl[c.geom2] += fbuf[0]
+            if (c.geom1 == canvas and c.geom2 == ghead and fbuf[0] > 0.3 * Wt
+                    and 'head_impact' not in ctl.events and ctl.t_ko is not None):
+                ctl.events['head_impact'] = t      # next step's control sees it (2 ms later)
             slip = 0.0
             if c.geom1 == canvas and c.geom2 in foot_geoms:      # slip speed of the sole point
                 b = m.geom_bodyid[c.geom2]
@@ -152,6 +157,7 @@ def run(cfg, char_dir, out_dir=None, record=True):
     out['regions'] = np.array(REGIONS)
     out['rope_names'] = np.array([m.body(b).name for b in rope_ids])
     out['mass'] = np.array(spec['mass'])
+    out['events'] = np.array(json.dumps(ctl.events))
     out['dt'] = np.array(dt)
     if out_dir and record:
         os.makedirs(out_dir, exist_ok=True)

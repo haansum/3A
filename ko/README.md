@@ -5,9 +5,9 @@ Every take is rebuilt from one manifest. Self-contained: this directory is meant
 lifted into its own repository as-is.
 
     pip install -e ".[blender,dev]"        # mujoco 4, bpy 5.2 LTS (Blender as a module)
-    python -m ko.cli build takes/slice_001.yaml            # draft cut
-    python -m ko.cli build takes/slice_001.yaml --quality full
-    python -m ko.sweep takes/slice_001.yaml --set arena.rope_distance=0.8,0.9 --seeds 1,2,3
+    python -m ko.cli build takes/stiff_back_001.yaml            # draft cut
+    python -m ko.cli build takes/stiff_back_001.yaml --quality full
+    python -m ko.sweep takes/stiff_back_001.yaml --set arena.rope_distance=0.8,0.9 --seeds 1,2,3
     python -m pytest
 
 ## Stages

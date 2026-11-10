@@ -46,7 +46,7 @@ def build(body_frag, arena, dt=0.002):
     assets, body, acts, excl = body_frag
     p = dict(ROPE_DEFAULT, **(arena.get('rope') or {}))
     world, tendons = [], []
-    if arena.get('rope_y') is not None:
+    if arena.get('rope_y') is not None and arena.get('simulate_ropes', True):
         x0 = -p['span'] / 2
         hs = list(p['heights'])
         for i, z in enumerate(hs):

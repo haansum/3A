@@ -43,6 +43,7 @@ class Controller:
         self.grav_ff = np.array([not REGIONS[r].startswith('leg') for r in self.reg])
         self.t_ko = None
         self.q_hold = None
+        self.events = {}                  # physical events seen by the sim: name -> time
         self.foot_w = np.ones(2)          # low-passed 0..1 'this foot is planted' weight
         self.rng = np.random.default_rng(cfg.get('seed', 0))
         self.tremor_phase = self.rng.uniform(0, 2 * np.pi, len(self.jn))
@@ -107,7 +108,12 @@ class Controller:
         tone_r = res + (1 - res) * ramp
         target = self.q_hold.copy()
         for ph in ko.get('phases', []):
-            a = dt - ph['t']
+            if ph.get('after'):             # phase clocked from a physical event, not the KO
+                if ph['after'] not in self.events:
+                    continue
+                a = t - self.events[ph['after']] - ph['t']
+            else:
+                a = dt - ph['t']
             if a < 0:
                 continue
             rise, hold, fade = ph.get('rise', 0.1), ph.get('hold', 0.3), ph.get('fade', 0.3)
