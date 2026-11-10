@@ -71,13 +71,18 @@ def check(sim_path, lock):
     torso = _mask(gn, lambda n: n in ('g_chest', 'g_spine', 'g_pelvis', 'g_upper_arm_L',
                                       'g_upper_arm_R', 'g_forearm_L', 'g_forearm_R', 'g_neck'))
     t_rope = b_rope & (torso[g1] | torso[g2]) & (cf > 1.0)
-    rope_time = len(np.unique(cs[t_rope])) * dt
+    chest_z = z['xpos'][:, bn.index('chest'), 2]
+    # 'propped' means held up by the ropes: chest still well off the canvas while in contact
+    prop_h = (lock.get('outcome') or {}).get('propped_min_chest_z', 0.55)
+    rope_steps = np.unique(cs[t_rope])
+    rope_time = len(rope_steps) * dt
+    propped_time = int((chest_z[rope_steps] > prop_h).sum()) * dt if len(rope_steps) else 0.0
     pelvis_z = z['xpos'][:, bn.index('pelvis'), 2]
     oc = lock.get('outcome') or {}
     if oc.get('name') == 'propped_then_down':
-        ok = rope_time >= oc['rope_contact_min_s'] and pelvis_z[-1] <= oc['final_pelvis_max_z']
+        ok = propped_time >= oc['rope_contact_min_s'] and pelvis_z[-1] <= oc['final_pelvis_max_z']
         add(1, 'outcome_propped_then_down', ok,
-            {'rope_contact_s': round(rope_time, 2), 'final_pelvis_z': round(float(pelvis_z[-1]), 3)},
+            {'rope_contact_s': round(propped_time, 2), 'final_pelvis_z': round(float(pelvis_z[-1]), 3)},
             {'rope_contact_s': oc['rope_contact_min_s'], 'final_pelvis_z': oc['final_pelvis_max_z']})
 
     # 2. motion quality ---------------------------------------------------------------------
@@ -139,6 +144,7 @@ def check(sim_path, lock):
         'time_to_head_canvas_contact': round(float((hc.min() - ik) * dt), 2) if len(hc) else None,
         'time_to_rest': round(float((rest.max() - ik) * dt), 2) if len(rest) else 0.0,
         'torso_on_ropes_s': round(rope_time, 2),
+        'propped_on_ropes_s': round(propped_time, 2),
         'max_rope_deflection_m': round(float(np.abs(z['rope'][:, :, 1] - z['rope'][0, :, 1]).max()), 3) if z['rope'].shape[1] else 0.0,
         'final_pelvis': [round(float(x), 2) for x in z['xpos'][-1, bn.index('pelvis')]],
         'final_head': [round(float(x), 2) for x in head[-1]],

@@ -1,16 +1,17 @@
 character: vroid_a
 arena: ring
 archetype: forward_teeter_ropes
-seed: 2
+seed: 1
 quality: draft
-# picked from `ko.sweep` (32 variants, 6 reached the outcome). Ropes at 1.05 m is closer than
-# a real exchange would be: without stagger steps she cannot carry further before dropping.
+# Picked with ko.sweep (96 variants x 2 seeds; this row reached the outcome on both seeds).
+# Ropes at 0.8 m from her start is closer than a real exchange: with no stagger-step
+# controller she cannot carry further before going down. Tuned by eye, not from footage.
 overrides:
   sim: {duration: 3.6, perturb: 0.05}
-  arena: {rope_distance: 1.05}
+  arena: {rope_distance: 0.8}
   controller:
     ko:
       phases:
         - {t: 0.04, rise: 0.10, hold: 0.35, fade: 0.30, regions: [arm_L, arm_R], tone: 0.6, pose: arms_forward}
-        - {t: 0.00, rise: 0.02, hold: 0.45, fade: 0.35, regions: [leg_L, leg_R], tone: 0.6}
-        - {t: 0.00, rise: 0.02, hold: 0.20, fade: 0.40, regions: [trunk], tone: 0.3}
+        - {t: 0.00, rise: 0.02, hold: 0.90, fade: 0.35, regions: [leg_L, leg_R], tone: 0.9}
+        - {t: 0.00, rise: 0.02, hold: 0.30, fade: 0.40, regions: [trunk], tone: 0.5}

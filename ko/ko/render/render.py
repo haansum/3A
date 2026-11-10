@@ -113,7 +113,7 @@ def build_arena(lock, fr, root, coll):
     p = a['rope']
     y0 = a['rope_y']                      # simulated side (she faces it); ring extends to +y
     x0, x1, y1 = -RING / 2, RING / 2, y0 + RING
-    m_canvas = mat('KO_canvas', (0.62, 0.66, 0.72), 0.85)
+    m_canvas = mat('KO_canvas', (0.30, 0.34, 0.42), 0.9)
     m_apron = mat('KO_apron', (0.03, 0.03, 0.05), 0.5)
     m_rope = [mat(f'KO_rope{i}', c, 0.55) for i, c in
               enumerate([(0.75, 0.04, 0.04), (0.9, 0.9, 0.9), (0.05, 0.1, 0.6), (0.75, 0.04, 0.04)])]
@@ -206,8 +206,8 @@ def make_cameras(lock, fr, root, coll, fps):
         shots[name] = ob
         return ob
 
-    cam('live', (5.2, y0 / 2 + 0.6, 1.55), 35, target=mid + [0, -0.1, -0.1])
-    cam('tight', (2.6, y0 - 0.0 + 1.9, 1.25), 85, follow=track)
+    cam('live', (6.4, y0 / 2 + 1.2, 2.75), 45, target=mid + [0, -0.1, -0.25])
+    cam('tight', (2.2, y0 + 2.3, 1.15), 70, follow=track)
     cam('referee', (-1.6, y0 + 2.4, 1.6), 50, follow=track)
     cam('opponent', (0.5, y0 + 0.25, 1.5), 24, follow=track)
     orb = cam('orbit', (3.0, y0 + 0.4, 1.3), 85, follow=np.repeat(rest[None] + [0, 0, 0.2], len(pel), 0))
@@ -220,9 +220,9 @@ def make_cameras(lock, fr, root, coll, fps):
 
 
 def lights(root, coll):
-    for i, (x, y, col, w) in enumerate([(-2, -2, (1, .96, .9), 900), (2, -2, (1, .96, .9), 900),
-                                        (-2, 2.5, (.9, .95, 1), 700), (2, 2.5, (.9, .95, 1), 700),
-                                        (0, 0, (1, 1, 1), 500)]):
+    for i, (x, y, col, w) in enumerate([(-2, -2, (1, .96, .9), 420), (2, -2, (1, .96, .9), 420),
+                                        (-2, 2.5, (.9, .95, 1), 320), (2, 2.5, (.9, .95, 1), 320),
+                                        (0, 0, (1, 1, 1), 220)]):
         ld = bpy.data.lights.new(f'truss{i}', 'AREA')
         ld.energy, ld.color, ld.size = w, col, 1.6
         ld.spread = math.radians(110)

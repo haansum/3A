@@ -106,7 +106,8 @@ def run(cfg, char_dir, out_dir=None, record=True):
     con = []
     fbuf, vbuf = np.zeros(6), np.zeros(6)
     canvas = m.geom('canvas').id
-    foot_geoms = {m.geom('g_foot_L').id, m.geom('g_foot_R').id}
+    gfl, gfr = m.geom('g_foot_L').id, m.geom('g_foot_R').id
+    foot_geoms = {gfl, gfr}
     ok = True
     for i in range(n):
         t = i * dt
@@ -123,9 +124,12 @@ def run(cfg, char_dir, out_dir=None, record=True):
         rec['assist'].append(wrench)
         rec['struck'].append(struck)
         rec['act'].append(d.actuator_force[ctl.aid].copy())
+        fl = {g: 0.0 for g in foot_geoms}
         for ci in range(d.ncon):
             c = d.contact[ci]
             mujoco.mj_contactForce(m, d, ci, fbuf)
+            if c.geom1 == canvas and c.geom2 in fl:
+                fl[c.geom2] += fbuf[0]
             slip = 0.0
             if c.geom1 == canvas and c.geom2 in foot_geoms:      # slip speed of the sole point
                 b = m.geom_bodyid[c.geom2]
@@ -133,6 +137,7 @@ def run(cfg, char_dir, out_dir=None, record=True):
                 vp = vbuf[3:] + np.cross(vbuf[:3], c.pos - d.xpos[b])
                 slip = float(np.hypot(vp[0], vp[1]))
             con.append((i, c.geom1, c.geom2, c.dist, fbuf[0], slip))
+        ctl.update_foot_load(fl[gfl], fl[gfr], dt)
     out = {k: np.array(v) for k, v in rec.items()}
     out['contacts'] = np.array(con, dtype=np.float64).reshape(-1, 6)
     out['t'] = np.arange(len(out['qpos'])) * dt

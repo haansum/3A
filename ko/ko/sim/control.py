@@ -43,6 +43,7 @@ class Controller:
         self.grav_ff = np.array([not REGIONS[r].startswith('leg') for r in self.reg])
         self.t_ko = None
         self.q_hold = None
+        self.foot_w = np.ones(2)          # low-passed 0..1 'this foot is planted' weight
         self.rng = np.random.default_rng(cfg.get('seed', 0))
         self.tremor_phase = self.rng.uniform(0, 2 * np.pi, len(self.jn))
 
@@ -83,6 +84,11 @@ class Controller:
         free = self.effective_inertia(d, False)
         planted = np.minimum(self.effective_inertia(d, True), 60.0 * free)
         self.I_free, self.I_planted = free, planted
+
+    def update_foot_load(self, load_L, load_R, dt):
+        W = self.mass * 9.81
+        tgt = np.clip(np.array([load_L, load_R]) / (0.2 * W), 0.0, 1.0)
+        self.foot_w += (tgt - self.foot_w) * min(1.0, dt / 0.03)
 
     # -- tone ------------------------------------------------------------------------------
     def trigger_ko(self, t, q_cmd):
@@ -133,7 +139,15 @@ class Controller:
             target = target.copy()
             target[self.idx['chest_flex']] += breath
         post = self.t_ko is not None and t >= self.t_ko
-        I = self.I_free if post else self.I_planted
+        # A leg whose foot still carries load is a closed chain: its effective inertia is the
+        # body above it, not the free limb. Blend by measured foot load so a leg with tone can
+        # really hold her up after the KO, and goes soft the moment the foot unloads.
+        I = self.I_planted.copy()
+        if post:
+            I = self.I_free.copy()
+            for side, w in (('L', self.foot_w[0]), ('R', self.foot_w[1])):
+                sel = self.reg == REGIONS.index('leg_' + side)
+                I[sel] = w * self.I_planted[sel] + (1 - w) * self.I_free[sel]
         w = 2 * np.pi * c.get('track_hz', 3.0)
         kp = tone * I * w * w
         kv = 2 * c.get('zeta', 1.0) * np.sqrt(tone) * I * w
