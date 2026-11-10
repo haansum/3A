@@ -58,8 +58,8 @@ def main(argv=None):
     a = ap.parse_args(argv)
     axes = []
     for s in a.set:
-        p, vs = s.split('=')
-        axes.append([(p, yaml.safe_load(v)) for v in vs.split(',')])
+        p, vs = s.split('=', 1)
+        axes.append([(p, yaml.safe_load(v)) for v in vs.split(';' if ';' in vs else ',')])  # ';' separates list values
     jobs = [(a.take, c, int(sd)) for c in itertools.product(*axes) for sd in a.seeds.split(',')]
     with ProcessPoolExecutor(a.jobs) as ex:
         res = list(ex.map(one, jobs))

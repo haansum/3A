@@ -1,8 +1,11 @@
 character: vroid_a
 arena: ring
 archetype: stiff_back_hook
-seed: 1
+seed: 2
 quality: draft
+# Picked with ko.sweep: impulse 6/10/14 N s x 4 seeds. 10 N s reaches the outcome on 2 of 4
+# seeds (the misses are a second hard head re-impact); 14 N s rolls her face-down.
 overrides:
   sim: {perturb: 0.05}
+  strike: {impulse: 10.0}
   arena: {rope_distance: 3.0, simulate_ropes: false}   # mid-ring; ropes play no part

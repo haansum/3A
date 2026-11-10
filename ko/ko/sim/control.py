@@ -2,8 +2,9 @@
 
   tau_j = clip( tone_r * [ kp_j (q*_j - q_j) + kv_j (qd*_j - qd_j) ],  +-tone_r * tau_max_j )
 
- - gains from effective inertia 1/diag(M^-1) (old-pipeline lesson: not diag(M)); while the feet
-   are planted the leg inertia is computed with the feet constrained, after the KO unconstrained
+ - gains from the reduced inertia of the two rigid halves each joint connects (see
+   set_inertia: 1/diag(M^-1) was measured to be far too soft); a planted leg sees the body
+   above it
  - damping sits inside the torque cap and acts on velocity error
  - at the KO nothing is zeroed or frozen: the last command stays, tone ramps to residual over
    tens of ms, tonic-posturing phases then raise tone toward their own target poses
@@ -66,24 +67,32 @@ class Controller:
         return qd
 
     # -- gains -----------------------------------------------------------------------------
-    def effective_inertia(self, d, planted_feet):
+    def set_inertia(self, d):
+        """Effective inertia each joint's PD gain is scaled by.
+
+        1/diag(M^-1) (the old pipeline's rule) treats every other joint as free, so it sees
+        only the lightest neighbouring link and gives gains far too soft to hold a posture
+        (measured here: 30 N m of hip torque at 50 deg of error). Instead lock every other
+        joint and take the reduced inertia of the two rigid halves the joint connects,
+            I_free = Ia*Ib / (Ia + Ib),
+        from the 7x7 block (floating root + this joint) of the mass matrix. A leg joint whose
+        foot is planted has its distal half held by the ground, so it sees the proximal half
+        alone: I_planted = Ia.
+        """
         m = self.m
         Minv = np.zeros((m.nv, m.nv))
         mujoco.mj_solveM(m, d, Minv, np.eye(m.nv))
-        if planted_feet:
-            Js = []
-            for f in ('foot_L', 'foot_R'):
-                jp, jr = np.zeros((3, m.nv)), np.zeros((3, m.nv))
-                mujoco.mj_jacBody(m, d, jp, jr, m.body(f).id)
-                Js += [jp, jr]
-            J = np.vstack(Js)
-            A = J @ Minv @ J.T
-            Minv = Minv - Minv @ J.T @ np.linalg.solve(A + 1e-9 * np.eye(len(A)), J @ Minv)
-        return 1.0 / np.maximum(np.diag(Minv)[self.dadr], 1e-9)
-
-    def set_inertia(self, d):
-        free = self.effective_inertia(d, False)
-        planted = np.minimum(self.effective_inertia(d, True), 60.0 * free)
+        M = np.linalg.inv(Minv)
+        root = list(range(6))
+        free = np.zeros(len(self.dadr))
+        planted = np.zeros(len(self.dadr))
+        for k, j in enumerate(self.dadr):
+            idx = root + [int(j)]
+            red = 1.0 / np.linalg.inv(M[np.ix_(idx, idx)])[6, 6]
+            Ib = M[j, j]                              # distal subtree about the joint axis
+            Ia = red * Ib / max(Ib - red, 1e-9)       # proximal half
+            free[k] = red
+            planted[k] = min(Ia, 40.0 * red) if REGIONS[self.reg[k]].startswith('leg') else red
         self.I_free, self.I_planted = free, planted
 
     def update_foot_load(self, load_L, load_R, dt):

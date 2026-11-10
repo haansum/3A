@@ -107,20 +107,39 @@ def check(sim_path, lock):
         jn = [str(n) for n in z['joint_names']]
         knee = np.degrees(q[:, [jn.index('shin_L_flex'), jn.index('shin_R_flex')]])
         tone_m = z['tone'].mean(axis=1)
+        hip = np.degrees(q[:, [jn.index('thigh_L_flex'), jn.index('thigh_R_flex')]])
+
+        def axes(i, body):
+            w, x, y, zz = z['xquat'][i, bn.index(body)]
+            up = np.array([2 * (x * zz + y * w), 2 * (y * zz - x * w), 1 - 2 * (x * x + y * y)])
+            back = np.array([2 * (x * y - zz * w), 1 - 2 * (x * x + zz * zz), 2 * (y * zz + x * w)])
+            return up, -back                     # body up axis, body front axis (world)
+        i_pre = (ih - 10) if ih else len(t) - 1
+        up_pre, _ = axes(i_pre, 'chest')
+        _, front_end = axes(len(t) - 1, 'chest')
         val = {'head_impact_t_after_ko': round(ev['head_impact'] - t_ko, 2) if ih else None,
                'backward_travel_m': round(float(head_p[-1, 1] - head_p[ik0, 1]), 2),
                'max_knee_flex_before_impact_deg': round(float(knee[ik0 + int(0.3 / dt):ih].max()), 1) if ih else None,
                'head_bounces': max(0, episodes - 1),
                'tone_before_impact': round(float(tone_m[ih - 25:ih].mean()), 2) if ih else None,
                'tone_after_impact': round(float(tone_m[ih + 60:ih + 200].mean()), 2) if ih else None,
-               'final_chest_z': round(float(z['xpos'][-1, bn.index('chest'), 2]), 2)}
+               'final_chest_z': round(float(z['xpos'][-1, bn.index('chest'), 2]), 2),
+               # a statue topple: hips stay extended, the trunk tips toward +y (her back),
+               # and she comes to rest face-up
+               'max_hip_flex_before_impact_deg': round(float(hip[ik0 + int(0.3 / dt):ih].max()), 1) if ih else None,
+               'trunk_tips_backward': round(float(up_pre[1]), 2),
+               'face_up_at_rest': round(float(front_end[2]), 2)}
         lim = {'backward_travel_m': oc.get('min_backward_m', 0.8),
                'max_knee_flex_before_impact_deg': oc.get('max_knee_flex_deg', 30),
-               'head_bounces': 1, 'final_chest_z': 0.35}
+               'head_bounces': 1, 'final_chest_z': 0.35, 'max_hip_flex_before_impact_deg': 35,
+               'trunk_tips_backward': 0.5, 'face_up_at_rest': 0.5}
         ok = (ih is not None and val['backward_travel_m'] >= lim['backward_travel_m']
               and val['max_knee_flex_before_impact_deg'] <= lim['max_knee_flex_before_impact_deg']
               and val['head_bounces'] <= 1 and val['tone_after_impact'] > val['tone_before_impact']
-              and val['final_chest_z'] <= lim['final_chest_z'])
+              and val['final_chest_z'] <= lim['final_chest_z']
+              and val['max_hip_flex_before_impact_deg'] <= lim['max_hip_flex_before_impact_deg']
+              and val['trunk_tips_backward'] >= lim['trunk_tips_backward']
+              and val['face_up_at_rest'] >= lim['face_up_at_rest'])
         add(1, 'outcome_stiff_back_escalate', ok, val, lim)
         if ih:
             # legs were bent in the stance at the KO instant; 'stiff' is judged once the

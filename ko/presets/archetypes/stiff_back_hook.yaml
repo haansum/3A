@@ -32,9 +32,10 @@ controller:
     off_ramp: 0.04
     residual: {neck: 0.20, trunk: 0.08, arm: 0.035, leg: 0.035}
     phases:
-      # stiffening, clocked from the KO: holds until well past the landing, then is taken over
-      - {t: 0.03, rise: 0.10, hold: 2.5, fade: 0.5, regions: [leg_L, leg_R], tone: 0.8, pose: extensor_legs}
-      - {t: 0.03, rise: 0.10, hold: 2.5, fade: 0.5, regions: [trunk, neck], tone: 0.7, pose: rigid_trunk}
+      # stiffening, clocked from the KO, with no limp gap first (stiff tier): holds until well
+      # past the landing, then is taken over
+      - {t: 0.0, rise: 0.03, hold: 2.5, fade: 0.5, regions: [leg_L, leg_R], tone: 0.8, pose: extensor_legs}
+      - {t: 0.0, rise: 0.03, hold: 2.5, fade: 0.5, regions: [trunk, neck], tone: 0.7, pose: rigid_trunk}
       - {t: 0.05, rise: 0.15, hold: 2.5, fade: 0.5, regions: [arm_L, arm_R], tone: 0.6, pose: arms_forward}
       # escalation, clocked from the head hitting the canvas
       - {after: head_impact, t: 0.03, rise: 0.08, hold: 1.4, fade: 2.6, regions: [arm_L, arm_R], tone: 1.0, pose: fencing_escalated}
