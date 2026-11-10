@@ -1,0 +1,142 @@
+family: shoulders_arms_hands
+title: Shoulders, arms, wrists, hands
+levers:
+  # ---- shoulders ----
+  - {id: shoulder.roll_forward, label: Shoulders roll / hunch forward, region: arm, side: LR, default_side: both,
+     say: [shoulders roll forward, shoulders hunched forward, shoulders rolling forward, shoulders round, shoulders hunch, shoulders curl in],
+     pose: {upper_arm_$S_twist: [0, 40], upper_arm_$S_flex: [30, 55]},
+     note: 'no clavicle joint yet: approximated by internal rotation + upper-back flexion', also: [{id: trunk.upper_back_hunch, i: 0.6}], src: log}
+  - {id: shoulder.shrug, label: Shoulders shrug up toward the ears, region: arm, side: LR, default_side: both,
+     say: [shoulders shrug, shrugging, shoulders up to ears, shoulders lift], note: needs clavicle joint, src: log}
+  - {id: shoulder.raise_arm, label: Upper arm lifted away from the body (elevation), region: arm, side: LR,
+     say: [arm raised, arm lifts, arm up, arm rises, arm points higher, arm elevated, arm out to the side],
+     pose: {upper_arm_$S_abd: [-80, 10]}, src: log}
+  - {id: shoulder.arm_overhead, label: Arm up over the head, region: arm, side: LR,
+     say: [arm overhead, arm above head, arm over her head, hand above head, arm thrown up],
+     pose: {upper_arm_$S_abd: [-20, 70]}, check: {pred: rel, point: hand_$S, frame: chest, axis: z, min: [0.15, 0.4]}, src: new}
+  - {id: shoulder.arm_at_side, label: Arm lies down along the body, region: arm, side: LR,
+     say: [arm at her side, arm by her side, arm down along the body, arm flat at side, arms at sides],
+     pose: {upper_arm_$S_abd: [-60, -88], upper_arm_$S_flex: [20, 0]}, src: new}
+  - {id: shoulder.reach_forward, label: 'Arm reaches forward (in front of her chest, her frame)', region: arm, side: LR,
+     say: [arm reach forward, arms extend forward, arm forward, reaching out, arms out in front, elbows reaching forward],
+     pose: {upper_arm_$S_flex: [30, 90], upper_arm_$S_abd: [-50, -15]}, src: log}
+  - {id: shoulder.reach_across, label: Arm reaches up and across the body to the other side, region: arm, side: LR,
+     say: [reaching up and to the, arm across the body, reach across, arm crosses chest],
+     pose: {upper_arm_$S_flex: [40, 100], upper_arm_$S_twist: [0, 45], upper_arm_$S_abd: [-50, -10]},
+     check: {pred: rel, point: hand_$S, frame: chest, axis: x, sign_by_side: -1, min: [-0.05, 0.05]}, src: log}
+  - {id: shoulder.arm_back, label: Arm trails behind the body (extension), region: arm, side: LR,
+     say: [arm behind her, arm trails behind, arm swept back, arm pinned under],
+     pose: {upper_arm_$S_flex: [0, -40]}, src: new}
+  - {id: shoulder.rotate_in, label: Upper arm rotates inward (forearm across belly), region: arm, side: LR,
+     say: [arm rotates inward, internal rotation, forearm across belly, forearm across stomach],
+     pose: {upper_arm_$S_twist: [0, 65]}, src: new}
+  - {id: shoulder.rotate_out, label: Upper arm rotates outward (forearm falls open), region: arm, side: LR,
+     say: [arm rotates outward, external rotation, forearm falls open, arm flops open],
+     pose: {upper_arm_$S_twist: [0, -65]}, src: new}
+  - {id: shoulder.slow_rise, label: Arm slowly rises as the posture peaks, region: arm, side: LR,
+     say: [arm slowly rise, arm slowly lifts, arm floats up, arm drifts up],
+     layer: {slow_pose: {upper_arm_$S_flex: [10, 45], over_s: [1.5, 3.0]}},
+     check: {pred: monotone_drift, joint: upper_arm_$S_flex, min: [5, 30]}, src: log}
+
+  # ---- elbows ----
+  - {id: elbow.extend, label: Elbow straightens, region: arm, side: LR,
+     say: [elbow extend, arm extend, arm straighten, elbow straighten, arm extension, elbow extension, arm goes straight, arms straight],
+     pose: {forearm_$S_flex: [75, 0]}, src: log}
+  - {id: elbow.lock, label: Elbow locked dead straight (full extension), region: arm, side: LR,
+     say: [elbow locked, arm lock out, arms lock out, locked straight, full extension, fully extended arm],
+     pose: {forearm_$S_flex: [20, 0]}, layer: {tone: [0.8, 1.0]},
+     check: {pred: joint, joint: forearm_$S_flex, max: 10}, src: log}
+  - {id: elbow.flex, label: Elbow bends / arm contracts toward the chest, region: arm, side: LR,
+     say: [arm contract, elbow flex, elbow bend, arm curls, arm contraction, arm drawn in, arm tucked, contracting],
+     pose: {forearm_$S_flex: [75, 148]}, src: log}
+  - {id: elbow.extend_more_each_strike, label: Arms straighten a little further with every follow-up strike, region: arm, side: LR, default_side: both,
+     say: [straighten further each, further with each impact, straighten out a little further, straightening further each time],
+     layer: {per_strike: {forearm_$S_flex: [-4, -15]}}, check: {pred: joint_change, joint: forearm_$S_flex, max: [-2, -8]}, src: log}
+
+  # ---- named arm postures (macros) ----
+  - {id: arms.fencing, label: 'Fencing posture: one arm extended, the other contracted (side = the extended arm)', side: LR,
+     say: [fencing, one arm extend the other contract, one arm extended the other, asymmetric tonic, fencer],
+     expands: [{id: elbow.extend, side: $S}, {id: shoulder.raise_arm, side: $S, i: 0.55}, {id: shoulder.reach_forward, side: $S, i: 0.6},
+               {id: elbow.flex, side: $O}, {id: shoulder.reach_forward, side: $O, i: 0.25}],
+     check: {pred: joint_diff, a: forearm_$O_flex, b: forearm_$S_flex, min: [15, 110]}, src: log}
+  - {id: arms.both_extended, label: Both arms extended stiff ("superman" / reaching),
+     say: [both arms extended, both arms straight, both arms lock, arms straight out, arms shoot out],
+     expands: [{id: elbow.extend, side: L}, {id: elbow.extend, side: R}, {id: shoulder.reach_forward, side: L, i: 0.7}, {id: shoulder.reach_forward, side: R, i: 0.7}], src: log}
+  - {id: arms.both_flexed, label: Both arms drawn up to the chest (flexor posture),
+     say: [both arms flexed, arms curl to chest, arms drawn up to chest, both arms contract, hands to chest, flexor posture],
+     expands: [{id: elbow.flex, side: L}, {id: elbow.flex, side: R}, {id: wrist.flex, side: L, i: 0.7}, {id: wrist.flex, side: R, i: 0.7}], src: bible}
+  - {id: arms.scissor, label: Arms locked out and crossed over each other,
+     say: [scissor arms, arms scissor, scissor them, arms cross over],
+     expands: [{id: elbow.lock, side: L}, {id: elbow.lock, side: R}, {id: shoulder.reach_across, side: L, i: 0.7}, {id: shoulder.reach_across, side: R, i: 0.5}],
+     check: {pred: rel_gap, a: hand_L, b: hand_R, frame: chest, axis: x, max: [0.05, -0.05]}, src: log}
+  - {id: arms.loose_guard, label: 'Guard sags but hands stay up (loose guard)',
+     say: [loose guard, guard drops slightly, guard drop, guard sags, hands still up, guard lowers],
+     pose: {upper_arm_L_abd: [-58, -70], upper_arm_R_abd: [-58, -70], upper_arm_L_flex: [55, 38], upper_arm_R_flex: [55, 38],
+            forearm_L_flex: [118, 100], forearm_R_flex: [118, 100]}, region: arm, layer: {tone: [0.7, 0.4]},
+     check: {pred: rel, point: hand_L, frame: chest, axis: z, min: -0.15}, src: log}
+  - {id: arms.guard_frozen, label: Guard frozen in place (hands stay exactly where they were),
+     say: [guard frozen, hands stay up, guard stays up, arms frozen in guard, still in her guard], layer: {hold_last: true, tone: [0.6, 1.0]}, src: bible}
+  - {id: arms.drop_limp, label: Arms drop limp to the sides, region: arm,
+     say: [arms drop, arms go limp, arms fall to her sides, arms hang, arms dangle, hands drop],
+     layer: {tone: [0.2, 0.02]}, check: {pred: tone, regions: [arm_L, arm_R], max: [0.25, 0.06]}, src: bible}
+  - {id: arms.starfish, label: Arms flung wide (spread-eagle),
+     say: [arms flung wide, arms spread, spread eagle, starfish, arms splayed, splayed out],
+     pose: {upper_arm_L_abd: [-60, 0], upper_arm_R_abd: [-60, 0], forearm_L_flex: [40, 10], forearm_R_flex: [40, 10]}, region: arm, src: new}
+  - {id: arms.goalpost, label: 'Arms up, elbows bent 90 degrees ("goalpost" on the canvas)',
+     say: [goalpost, arms up elbows bent, hands by her head, cactus arms],
+     pose: {upper_arm_L_abd: [-40, 0], upper_arm_R_abd: [-40, 0], upper_arm_L_twist: [0, -70], upper_arm_R_twist: [0, -70],
+            forearm_L_flex: [60, 90], forearm_R_flex: [60, 90]}, region: arm, src: new}
+  - {id: arms.t_rex, label: Elbows pinned to ribs, forearms up, wrists dropped,
+     say: [t-rex, elbows pinned, elbows tucked to ribs, forearms up wrists limp],
+     expands: [{id: elbow.flex, side: L, i: 0.6}, {id: elbow.flex, side: R, i: 0.6}, {id: shoulder.arm_at_side, side: L, i: 0.7},
+               {id: shoulder.arm_at_side, side: R, i: 0.7}, {id: wrist.flex, side: L}, {id: wrist.flex, side: R}], src: new}
+  - {id: arms.one_reaching_up, label: One arm reaching straight up off the canvas (stuck in the air), side: LR,
+     say: [arm reaching up, arm stuck in the air, arm pointing at the ceiling, arm straight up, hand reaching up],
+     expands: [{id: elbow.lock, side: $S}, {id: shoulder.reach_forward, side: $S, i: 1.0}],
+     check: {pred: rel, point: hand_$S, frame: chest, axis: y, max: [-0.2, -0.45]}, src: log}
+  - {id: arms.not_propping, label: 'Arm must not hold her body up (flattens as tone fades)', side: LR, default_side: both,
+     say: [not keeping her up, holding up her body with her arm, let it flatten, not propping, arm flattens],
+     check: {pred: contact_peak_bw, part: hand_$S, max: 0.15, when: rest}, src: log}
+  - {id: arms.pinned_under, label: Arm trapped under her body, side: LR,
+     say: [arm trapped under, arm under her body, arm pinned beneath, lying on her arm],
+     check: {pred: height, body: forearm_$S, max: 0.08, when: rest}, src: new}
+  - {id: arms.draped_on_rope, label: Arm(s) draped over a rope, side: LR, default_side: both,
+     say: [arm draped over the rope, arms over the ropes, arm hooked on the rope, arms hang over],
+     check: {pred: contact_time, part: arms, surface: rope, min: [0.3, 1.5]}, src: log}
+
+  # ---- wrists ----
+  - {id: wrist.flex, label: Wrist bends down toward the palm, region: arm, side: LR, default_side: both,
+     say: [wrists bend down, wrist flex, wrists curl, wrist drop, wrists bent, hands curl inward, wrists hooked],
+     pose: {hand_$S_flex: [0, 65]}, src: log}
+  - {id: wrist.extend, label: Wrist cocked back, region: arm, side: LR, default_side: both,
+     say: [wrist cocked back, wrist extend, wrists bent back, hands bent back],
+     pose: {hand_$S_flex: [0, -55]}, src: new}
+  - {id: wrist.pronate, label: Forearm/hand turns palm-down and inward, region: arm, side: LR, default_side: both,
+     say: [pronate, palms turn down, hands rotate inward, wrists rotate in, palms turn outward],
+     pose: {hand_$S_twist: [0, 70]}, src: new}
+  - {id: wrist.supinate, label: Hand turns palm-up, region: arm, side: LR, default_side: both,
+     say: [supinate, palms up, palm turns up, hands rotate outward],
+     pose: {hand_$S_twist: [0, -70]}, src: new}
+  - {id: wrist.limp, label: 'Wrists limp, hands hang', region: arm, side: LR, default_side: both,
+     say: [wrists limp, limp wrists, hands flop], note: per-joint tone not available yet (tone is per region), src: new}
+
+  # ---- hands / fingers (not simulated: baked layer) ----
+  - {id: hand.fist, label: Hands clenched into fists, side: LR, default_side: both,
+     say: [fists, fist clenched, hands clench, clenched hands], layer: {fingers: {curl: [0.6, 1.0]}}, src: log}
+  - {id: hand.half_fist, label: Hands halfway between open and fist, side: LR, default_side: both,
+     say: [halfway between fists, half fist, half closed hand, loosely curled fingers], layer: {fingers: {curl: [0.35, 0.6]}}, src: log}
+  - {id: hand.open_relaxed, label: 'Hands open, fingers softly curved', side: LR, default_side: both,
+     say: [hands open, hands relaxed, open hand, fingers relaxed], layer: {fingers: {curl: [0.05, 0.25]}}, src: new}
+  - {id: hand.fingers_splayed, label: Fingers splayed stiff and wide, side: LR, default_side: both,
+     say: [fingers splay, fingers spread, fingers fan, fingers stiff], layer: {fingers: {curl: [0, 0], spread: [0.4, 1.0]}}, src: new}
+  - {id: hand.claw, label: 'Fingers clawed (knuckles straight, tips curled)', side: LR, default_side: both,
+     say: [claw, clawed fingers, fingers hooked, fingers clawing], layer: {fingers: {claw: [0.4, 1.0]}}, src: new}
+  - {id: hand.thumb_in, label: Thumb tucked across the palm, side: LR, default_side: both,
+     say: [thumb tucked, thumb in, thumb across palm], layer: {fingers: {thumb_in: [0.4, 1.0]}}, src: new}
+  - {id: hand.finger_twitch, label: Fingers twitch individually, side: LR, default_side: both,
+     say: [fingers twitch, finger twitching, fingers flutter, fingers quiver], layer: {fingers: {twitch_hz: [3, 8]}}, src: new}
+  - {id: hand.grasping, label: Hand slowly opens and closes (grasping at nothing), side: LR,
+     say: [grasping, hand opens and closes, pawing, clutching at air], layer: {fingers: {grasp_hz: [0.4, 1.2]}}, src: new}
+  - {id: hand.no_clip, label: Hands must not pass through face, chest or each other,
+     say: [hand clipping, fix hand clipping, hands clip, no clipping], check: {pred: distance, a: hand_L, b: head, min: 0.09},
+     note: 'body-level proxy; mesh-level test is the render-mesh gate', src: log}

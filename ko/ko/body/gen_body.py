@@ -36,7 +36,18 @@ def unit(v):
     return v / np.linalg.norm(v)
 
 
-def joint_table(stem, side, d, fwd):
+def palm_normal(hull, side):
+    """Unit normal out of the palm, from the hand's own shape: the thin axis of its hull,
+    signed toward down/medial (true for every T- and A-pose rest). None if there is no hull."""
+    if hull is None or len(hull) < 8:
+        return None
+    H = np.asarray(hull) - np.mean(hull, axis=0)
+    n = np.linalg.eigh(H.T @ H)[1][:, 0]
+    s = 1.0 if side == 'L' else -1.0
+    return n if n @ np.array([-s, 0.0, -1.0]) > 0 else -n
+
+
+def joint_table(stem, side, d, fwd, palm=None):
     """[(dof name, axis, lo, hi deg, torque N m, rest offset deg)] for the joint above `stem`.
     Positive angle = the anatomical motion in the dof name. d = rest limb direction."""
     s = 1.0 if side == 'L' else -1.0
@@ -65,7 +76,16 @@ def joint_table(stem, side, d, fwd):
     if stem == 'forearm':
         return [('flex', elbow, 0, 150, 50, 0)]
     if stem == 'hand':
-        return [('flex', elbow, -70, 70, 10, 0), ('dev', s * fwd, -25, 25, 8, 0),
+        # anatomical wrist axes from the palm itself (measured: the elbow axis is the
+        # deviation axis on a palm-down rest pose, so it must not be reused here).
+        # flex + = palmar flexion (fingers toward the palm side), dev + = toward the thumb...
+        # thumb side is not known from shape, so dev + = toward her front at rest.
+        if palm is None:
+            palm = -Z
+        palm = unit(palm - (palm @ d) * d)
+        fax = unit(np.cross(d, palm))                  # rotates d toward the palm normal
+        dax = palm if np.cross(palm, d) @ fwd > 0 else -palm
+        return [('flex', fax, -70, 70, 10, 0), ('dev', dax, -25, 25, 8, 0),
                 ('twist', s * d, -80, 80, 8, 0)]
     raise KeyError(stem)
 
@@ -136,7 +156,8 @@ def build(char_dir, mass=60.0):
              'hull': (hp - J[name]).round(5).tolist() if hp is not None else None,
              'limb_dir': d.tolist(), 'joints': []}
         if name != 'pelvis':
-            for dof, axis, lo, hi, tq, off in joint_table(stem, side, d, fwd):
+            pn = palm_normal(hp, side) if stem == 'hand' else None
+            for dof, axis, lo, hi, tq, off in joint_table(stem, side, d, fwd, pn):
                 b['joints'].append({'name': f'{name}_{dof}', 'dof': dof,
                                     'axis': np.asarray(axis, float).round(6).tolist(),
                                     'range': [lo - off, hi - off], 'offset': off,

@@ -1,0 +1,104 @@
+family: proposed_families
+title: Proposed new families (brainstormed; none requested yet, all need owner approval)
+levers:
+  # ---- A. out on her feet / stagger sequences (need the stagger-step controller) ----
+  - {id: stagger.out_on_feet, label: 'Out on her feet: frozen upright a moment, eyes gone, before anything falls',
+     say: [out on her feet, frozen standing, stands frozen, standing ko], layer: {stagger: {freeze_s: [0.3, 1.2]}},
+     check: {pred: event_gap, a: ko, b: down, min: [0.8, 2.0]}, src: new}
+  - {id: stagger.drunken_walk, label: 'Several unsteady steps in a curve before the legs go',
+     say: [drunken walk, staggers across the ring, stumbles several steps, wanders], layer: {stagger: {steps: [2, 6]}}, src: new}
+  - {id: stagger.stumble_forward, label: Stumbles forward chasing her own balance then pitches down,
+     say: [stumbles forward, lurches forward, chases her balance], layer: {stagger: {steps: [1, 4], dir: front}}, src: new}
+  - {id: stagger.backpedal, label: Backpedals with heels skidding until she sits down,
+     say: [backpedals until, heels skid, runs backward], layer: {stagger: {steps: [2, 5], dir: back}}, src: new}
+  - {id: stagger.one_knee_dip, label: One knee dips and recovers before the real collapse, side: LR,
+     say: [knee dips, one knee buckles then, dips and recovers, leg betrays her], layer: {stagger: {dips: [1, 1]}}, src: new}
+  - {id: stagger.tries_to_stand, label: 'Reflex attempt to rise that fails (limbs push, body does not follow)',
+     say: [tries to get up, attempts to stand, tries to rise, pushes up and falls], note: 'semi-conscious behaviour: new controller mode', src: new}
+  - {id: stagger.grabs_for_support, label: Arm reaches for rope/opponent on the way down, side: LR,
+     say: [grabs for the rope, reaches for support, clutches at], note: needs reach targets (IK goal), src: new}
+  - {id: stagger.falls_into_ropes_twice, label: Bounces off the ropes then falls the other way,
+     say: [off the ropes then forward, rope rebound then falls], check: {pred: contact_time, part: trunk, surface: rope, min: 0.05, max: 0.8, when: take}, src: new}
+
+  # ---- B. delayed / layered neurological timing ----
+  - {id: timing.posture_latency, label: 'Latency between strike and posture onset (0 = instant)',
+     say: [posture starts late, a beat before she stiffens, delay before the tonic, instant stiffening], layer: {phase_delay_s: [0.0, 0.6]}, src: new}
+  - {id: timing.rise_snap, label: Posture snaps on (fast rise),
+     say: [snaps into, snaps stiff, instantly rigid, locks up at once], layer: {rise_s: [0.15, 0.04]}, src: new}
+  - {id: timing.rise_creep, label: Posture creeps on slowly,
+     say: [slowly stiffens, creeps into, gradually stiffens, gradually], layer: {rise_s: [0.3, 1.5]}, src: new}
+  - {id: timing.second_wave, label: 'A second wave of stiffening arrives on its own, with no new impact',
+     say: [second wave, stiffens again, re-stiffens, comes back in waves], layer: {waves: [2, 3]},
+     note: 'check that this is wanted: the house rule is ramp-hold-fade with no sporadic jerks', src: new}
+  - {id: timing.limb_order, label: 'Order in which limbs release as tone fades (e.g. legs first, arms last)',
+     say: [legs relax first, arms relax last, releases from the feet up, arm stays up longest], layer: {fade_order: true}, src: new}
+  - {id: timing.arm_lingers, label: One arm stays raised long after everything else has let go, side: LR,
+     say: [arm stays up, arm lingers, arm still raised after, last thing to drop], layer: {fade_order: {arm_$S: last}}, src: new}
+
+  # ---- C. unconscious reflex movements on the canvas ----
+  - {id: reflex.arm_drop_slow, label: Raised arm slowly sinks to the canvas as tone fades, side: LR,
+     say: [arm slowly sinks, arm slowly lowers, arm drifts down, arm falls in slow stages],
+     check: {pred: monotone_drift, joint: upper_arm_$S_flex, max: [-5, -40]}, src: new}
+  - {id: reflex.arm_drop_sudden, label: Raised arm drops all at once when tone lets go, side: LR,
+     say: [arm suddenly drops, arm flops down, arm falls all at once], layer: {fade_s: [0.5, 0.1]}, src: new}
+  - {id: reflex.leg_slow_extend, label: Bent leg slowly slides out straight, side: LR,
+     say: [leg slowly slides out, leg slowly straightens, heel slides along the mat],
+     check: {pred: monotone_drift, joint: shin_$S_flex, max: [-8, -60]}, src: new}
+  - {id: reflex.head_search, label: Head slowly turns side to side (unfocused searching),
+     say: [head turns side to side, head rolls side to side, head searching],
+     check: {pred: oscillation, joints: [neck_twist], lo_hz: 0.3, hi_hz: 1.2, min: [1.5, 8]}, src: new}
+  - {id: reflex.startle_on_touch, label: Whole-body startle (arms fling out) at an impact,
+     say: [startle, arms fling out, flinch at impact, moro], layer: {jolt: {regions: [arm_L, arm_R], deg: [10, 35]}}, src: new}
+  - {id: reflex.guarding_hands, label: 'Hands drift toward the face as if guarding, with no coordination',
+     say: [hands drift to her face, hands come up uncoordinated, guarding reflex, covers up weakly], src: new}
+  - {id: reflex.sit_up_curl, label: 'Trunk curls up off the canvas briefly as if sitting up, then drops',
+     say: [sits up briefly, curls up then drops, half sits up, crunches up off the mat then falls],
+     check: {pred: height, body: chest, agg: max, min: [0.25, 0.5]}, src: new}
+
+  # ---- D. alternative finishes (not head-strike KOs) ----
+  - {id: alt.choke_out, label: 'Choke: tone drains gradually, limbs go heavy, hands slide off',
+     say: [choke, choked out, goes to sleep, strangle, rear naked], note: 'Animation Bible has a choke section; needs opponent contact or a scripted hold', src: bible}
+  - {id: alt.choke_release_drop, label: Released from a hold and pours onto the canvas,
+     say: [released and drops, let go and she slumps, released from the choke], src: bible}
+  - {id: alt.body_fold, label: 'Body-shot fold: clutches, folds, takes a knee (conscious)',
+     say: [folds from the body shot, takes a knee, doubles over, clutches her side], src: new}
+  - {id: alt.tko_turtle, label: 'Covers up / turtles under strikes (conscious, stoppage)',
+     say: [turtles, covers up, shells up on the ground], src: new}
+  - {id: alt.slam_ko, label: 'Slam KO: posture begins on canvas impact, not on a strike',
+     say: [slam ko, knocked out by the slam, spiked], layer: {ko_on: 'touch:head'}, src: bible}
+  - {id: alt.double_ko_trip, label: She trips or slips into the KO (no strike momentum),
+     say: [slips, trips, loses her footing], src: new}
+
+  # ---- E. secondary motion (bake/render layers, not sim) ----
+  - {id: sec.hair_follow, label: Hair follows through on head snaps and impacts (spring bones),
+     say: [hair whips, hair follows, hair swings, hair fans out on the canvas], layer: {secondary: hair}, src: new}
+  - {id: sec.hair_over_face, label: Hair must not cover the face in replays,
+     say: [hair covering her face, hair out of her face], layer: {camera_rule: face_visible}, src: new}
+  - {id: sec.soft_tissue, label: 'Soft-tissue follow-through on impacts (jiggle layer, subtle)',
+     say: [jiggle, soft tissue, follow-through on impact], layer: {secondary: soft_tissue}, src: new}
+  - {id: sec.garment_shift, label: Garment shifts/wrinkles with motion (cloth layer),
+     say: [cloth moves, fabric wrinkles, garment shifts], layer: {secondary: cloth}, src: new}
+  - {id: sec.canvas_dent, label: Canvas visibly gives under head/hip impacts,
+     say: [canvas dents, mat gives, canvas ripples], layer: {secondary: canvas}, src: new}
+  - {id: sec.rope_ring, label: Ropes keep ringing after contact (already simulated; expose the damping),
+     say: [ropes shake, ropes ring, ropes vibrate], layer: {arena: {rope: {transverse_damp: [12, 3]}}}, src: new}
+  - {id: sec.sweat_spray, label: Sweat spray at the strike (particles; within content rules),
+     say: [sweat spray, sweat flies], layer: {secondary: particles}, src: new}
+
+  # ---- F. referee / opponent presence (house rule: only a glove is rendered) ----
+  - {id: ref.wave_off_timing, label: 'Take ends as if at the referee wave-off (cut timing only, nobody rendered)',
+     say: [wave off, ref stops it, referee stops], layer: {shot_args: {end_on: followup_last}}, src: new}
+  - {id: opp.walk_off, label: 'Walk-off KO: no follow-up strikes at all',
+     say: [walk off, walk-off ko, no follow up, no followup], layer: {follow_count: 0}, src: new}
+  - {id: opp.late_shot, label: A late extra shot after she is clearly out,
+     say: [late shot, unnecessary shot, one more for good measure], layer: {follow_count: 1}, src: new}
+
+  # ---- G. asymmetry and variety controls (anti-repetition) ----
+  - {id: vary.mirror, label: Mirror the whole take left/right,
+     say: [mirror it, mirrored, other side, flip left and right], layer: {vary: mirror}, src: new}
+  - {id: vary.seeded_details, label: 'Fill every unspecified lever from a seeded draw of plausible options (listed in the sheet for approval)',
+     say: [surprise me, vary it, something different, different from last time, not the same as before], layer: {vary: fill}, src: new}
+  - {id: vary.avoid_recent, label: Avoid lever combinations used in the last N takes,
+     say: [don't repeat, avoid repeating, not like the previous], layer: {vary: avoid_recent}, src: new}
+  - {id: vary.subtle_asym, label: 'Small left/right differences everywhere (nothing perfectly mirrored)',
+     say: [asymmetric, not symmetrical, break the symmetry, uneven], layer: {vary: asym_jitter}, src: new}

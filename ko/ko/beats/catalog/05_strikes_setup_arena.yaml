@@ -1,0 +1,129 @@
+family: strikes_setup_arena
+title: Strikes, follow-ups, pre-KO setup, ropes and arena
+# strike.dir is in HER frame at the moment of impact: x = toward her left, y = toward her
+# back, z = up. `from: LR` strikes are written as arriving from her left and mirrored.
+# impulse is N s at intensity [0, 1]; every value is tuned by eye, none is measured.
+levers:
+  # ---- initial strikes ----
+  - {id: strike.hook, label: Hook to the jaw (arrives from the side), side: LR, kind: strike,
+     say: [hook, left hook, right hook, check hook],
+     layer: {strike: {body: head, dir: [-1.0, 0.25, 0.1], offset: [0, -0.07, -0.06], impulse: [5, 14], prop: glove}}, src: log}
+  - {id: strike.cross, label: 'Straight punch / cross (arrives from the front)', kind: strike,
+     say: [cross, straight right, straight left, straight punch, jab, one-two, right hand down the pipe],
+     layer: {strike: {body: head, dir: [0.1, 1.0, 0.05], offset: [0, -0.09, -0.03], impulse: [5, 14], prop: glove}}, src: new}
+  - {id: strike.overhand, label: Overhand (arrives from above and the side), side: LR, kind: strike,
+     say: [overhand, looping punch, haymaker],
+     layer: {strike: {body: head, dir: [-0.7, 0.5, -0.5], offset: [0, -0.05, 0.03], impulse: [6, 15], prop: glove}}, src: new}
+  - {id: strike.uppercut, label: Uppercut (arrives from below), kind: strike,
+     say: [uppercut, upper cut],
+     layer: {strike: {body: head, dir: [0.0, 0.35, 1.0], offset: [0, -0.08, -0.09], impulse: [5, 13], prop: glove}}, src: log}
+  - {id: strike.elbow, label: Elbow (short arc from the side), side: LR, kind: strike,
+     say: [elbow strike, elbow to the, spinning elbow, an elbow],
+     layer: {strike: {body: head, dir: [-0.9, 0.4, -0.1], offset: [0, -0.06, 0.0], impulse: [5, 12]}}, src: log}
+  - {id: strike.head_kick, label: Round head kick (shin from the side), side: LR, kind: strike,
+     say: [head kick, high kick, roundhouse, shin to the head, switch kick],
+     layer: {strike: {body: head, dir: [-1.0, 0.15, 0.2], offset: [0, -0.02, 0.0], impulse: [8, 20], duration: 0.02}}, src: log}
+  - {id: strike.wheel_kick, label: 'Wheel / spinning heel kick (heel across from the side)', side: LR, kind: strike,
+     say: [wheel kick, spinning heel kick, spinning hook kick, spinning back kick to the head],
+     layer: {strike: {body: head, dir: [-1.0, 0.25, 0.15], offset: [0, -0.085, -0.075], impulse: [6, 18]}}, src: log}
+  - {id: strike.front_kick, label: Front kick / teep to the chin (from below-front), kind: strike,
+     say: [front kick, teep, push kick to the face, snap kick],
+     layer: {strike: {body: head, dir: [0.0, 0.8, 0.6], offset: [0, -0.08, -0.08], impulse: [7, 16]}}, src: new}
+  - {id: strike.knee, label: 'Knee (rising, from the front)', kind: strike,
+     say: [knee to the, flying knee, knee strike, a knee],
+     layer: {strike: {body: head, dir: [0.0, 0.6, 0.8], offset: [0, -0.08, -0.07], impulse: [8, 18]}}, src: new}
+  - {id: strike.backfist, label: Spinning backfist, side: LR, kind: strike,
+     say: [backfist, back fist, spinning backfist],
+     layer: {strike: {body: head, dir: [-1.0, -0.1, 0.0], offset: [0, -0.05, 0.0], impulse: [5, 12], prop: glove}}, src: new}
+  - {id: strike.body_shot, label: 'Body shot (trunk; a fold, not a head KO)', side: LR, kind: strike,
+     say: [body shot, liver shot, body kick, shot to the body, knee to the body],
+     layer: {strike: {body: spine, dir: [-0.6, 0.8, 0.1], offset: [0.08, -0.08, 0.05], impulse: [10, 25], ko: false}},
+     note: 'conscious fold: needs a guarded-collapse behaviour, not the KO tone model', src: new}
+  - {id: strike.slam, label: Slam / throw onto the canvas, kind: strike,
+     say: [slam, slammed, suplex, thrown, takedown slam], note: needs an opponent body or a scripted carry, src: bible}
+
+  # ---- where it lands / how cleanly ----
+  - {id: hit.jaw_tip, label: 'Lands on the tip of the jaw (mostly spins the head)', kind: strike_mod,
+     say: [clips the jaw, on the chin, tip of the jaw, on the button, clips her chin, jaw], layer: {strike_mod: {offset: [0, -0.085, -0.075]}}, src: log}
+  - {id: hit.temple, label: Lands on the temple, kind: strike_mod,
+     say: [temple, side of the head, behind the ear], layer: {strike_mod: {offset: [0, 0.0, 0.03]}}, src: new}
+  - {id: hit.forehead, label: Lands high on the forehead (drives the head back), kind: strike_mod,
+     say: [forehead, high on the head], layer: {strike_mod: {offset: [0, -0.08, 0.05]}}, src: new}
+  - {id: hit.clip, label: 'A clip, not a full connection (less momentum into the body)', kind: strike_mod,
+     say: [clips, clip, grazes, glancing, barely connects], layer: {strike_mod: {impulse_scale: 0.65}}, src: log}
+  - {id: hit.flush, label: Lands flush / clean, kind: strike_mod,
+     say: [flush, clean, lands clean, full connection, square], layer: {strike_mod: {impulse_scale: 1.2}}, src: new}
+  - {id: hit.walked_into, label: She was moving into it (closing speed adds),
+     say: [walks into, walked into, runs into, steps into the punch, lunging in], layer: {setup: {advance: [0.15, 0.5]}}, src: new}
+  - {id: hit.retreating, label: She was giving ground when hit,
+     say: [backing up, retreating, moving backward when, gives ground, on the back foot], layer: {setup: {advance: [-0.15, -0.45]}}, src: log}
+
+  # ---- follow-up strikes on the ground ----
+  - {id: follow.punch, label: Follow-up punch from above on the grounded head, kind: strike,
+     say: [followup shot, follow-up shot, follow up strike, followup strike, ground strike, ground and pound, follow-up hit, followup hit, gnp, hammerfist],
+     layer: {strike: {after: 'touch:head', t: 1.0, body: head, dir: [-0.45, 0.0, -0.9], frame: world, offset: [0, -0.06, -0.03], impulse: [3, 9], prop: glove, ko: false}}, src: log}
+  - {id: follow.count, label: Number of follow-up strikes,
+     say: [single followup, one followup, two followup, multiple followup, 2nd follow-up, second follow-up, several shots, three shots], layer: {follow_count: true}, src: log}
+  - {id: follow.delay, label: 'Follow-up lands this long after she hits the canvas (house: 1 s)',
+     say: [1s after she's hit the ground, a second after, right after she lands, seconds after she hits], layer: {follow_delay: true}, src: log}
+  - {id: follow.harder, label: Follow-up hits harder and more pronounced,
+     say: [hit harder, harder and more pronounced, heavier shot, bigger shot], layer: {strike_mod: {impulse_scale: 1.5}}, src: log}
+  - {id: follow.drives_head_to_mat, label: Shot snaps her head further toward the mat,
+     say: [snaps her head further towards the mat, drives her head into the mat, head pinned to the mat],
+     check: {pred: contact_peak_bw, part: head, min: [0.5, 2.0]}, src: log}
+  - {id: follow.head_snaps_side, label: Head snaps to the side from the punch and returns,
+     say: [head snapping to the side and back, head snaps to the side and back to neutral],
+     check: [{pred: range_of_motion, joint: neck_twist, min: [8, 35]}, {pred: returns, regions: [neck], max: 15}], src: log}
+  - {id: follow.rolls_her, label: This shot's momentum rolls her over,
+     say: [momentum of the follow-up rolls her, shot that turns her, shot rolls her], layer: {strike_mod: {dir_add: [0.9, 0, 0.2]}},
+     check: {pred: roll_events, min: 1}, src: log}
+  - {id: follow.glove_visible, label: A glove/fist is rendered for the strike (nothing else of the opponent),
+     say: [render a glove, render the glove, glove to show, fist rendering, show the glove], layer: {strike_mod: {prop: glove}}, src: log}
+
+  # ---- pre-KO setup ----
+  - {id: setup.stance_orthodox, label: Orthodox stance (left foot forward),
+     say: [orthodox], layer: {setup: {stance: orthodox}}, src: new}
+  - {id: setup.stance_southpaw, label: Southpaw stance (right foot forward),
+     say: [southpaw], layer: {setup: {stance: southpaw}}, src: new}
+  - {id: setup.guard_high, label: High tight guard before the strike,
+     say: [high guard, tight guard, hands high, shelled up], layer: {setup: {guard: high}}, src: new}
+  - {id: setup.guard_low, label: Hands low before the strike,
+     say: [hands low, hands down, low guard, hands by her waist], layer: {setup: {guard: low}}, src: new}
+  - {id: setup.mid_punch, label: She is mid-punch when hit (arm extended),
+     say: [mid punch, throwing a punch when, caught while punching, counter, countered, as she throws], layer: {setup: {action: punching}}, src: new}
+  - {id: setup.mid_kick, label: 'She is mid-kick when hit (one leg off the canvas)',
+     say: [mid kick, caught while kicking, as she kicks, on one leg], layer: {setup: {action: kicking}}, note: needs single-support balance, src: new}
+  - {id: setup.shooting, label: She is shooting for a takedown (low, driving forward),
+     say: [shooting in, shoots for a takedown, level change, diving in], layer: {setup: {action: shooting}}, src: new}
+  - {id: setup.circling, label: Circling / lateral movement when hit, side: LR,
+     say: [circling, moving laterally, sidestepping], layer: {setup: {lateral: [0.1, 0.4]}}, src: new}
+  - {id: setup.live_fight_stance, label: 'Stance and distance consistent with a live fight (bladed, guard up)',
+     say: [realistic to the scenario of a fight, consistent with a live fight, fight stance, bladed stance], layer: {setup: {stance: bladed}}, src: log}
+  - {id: setup.already_hurt, label: 'Already hurt: guard sagging, slow feet before the final shot',
+     say: [already hurt, already wobbled, on wobbly legs, rocked before, hurt before], layer: {setup: {pre_tone: [0.9, 0.6]}}, src: new}
+
+  # ---- ropes / ring / cage ----
+  - {id: arena.rope_distance, label: Distance to the ropes at the KO (m),
+     say: [close to the ropes, near the ropes, against the ropes, too close to the ropes, away from the ropes, center of the ring, middle of the ring],
+     layer: {arena: {rope_distance: [2.5, 0.5]}}, src: log}
+  - {id: arena.propped_on_ropes, label: Body ends up propped on the ropes for a while,
+     say: [propped up by the ropes, propped on the ropes, held up by the ropes, hangs on the ropes, caught by the ropes],
+     check: {pred: contact_time, part: trunk, surface: rope, min: [0.4, 2.0], when: take}, src: log}
+  - {id: arena.splayed_over_ropes, label: Splayed out over the ropes,
+     say: [splayed out over the ropes, draped over the ropes, hung over the ropes],
+     check: [{pred: contact_time, part: trunk, surface: rope, min: [0.8, 3.0], when: take}, {pred: contact_time, part: arms, surface: rope, min: 0.5, when: take}], src: log}
+  - {id: arena.slides_down_ropes, label: Slides slowly down the ropes to the canvas,
+     say: [slides down the ropes, slow slide down, sinks down the ropes],
+     check: [{pred: contact_time, part: trunk, surface: rope, min: 0.6, when: take}, {pred: height, body: pelvis, max: 0.3, when: rest}], src: log}
+  - {id: arena.bounces_off_ropes, label: Bounces off the ropes back into the ring,
+     say: [bounces off the ropes, rebounds off the ropes, springs back off], check: {pred: contact_time, part: trunk, surface: rope, min: 0.05, max: 0.6, when: take}, src: new}
+  - {id: arena.through_ropes, label: Falls between/through the ropes,
+     say: [through the ropes, between the ropes, out of the ring], note: needs apron geometry, src: new}
+  - {id: arena.head_on_bottom_rope, label: Head/neck comes to rest on the bottom rope,
+     say: [head on the bottom rope, neck on the rope, head resting on the rope], check: {pred: contact_time, part: head, surface: rope, min: 0.5, when: rest}, src: new}
+  - {id: arena.corner, label: KO happens in a corner (turnbuckle pad behind her),
+     say: [in the corner, corner post, turnbuckle], note: needs corner pad geometry, src: new}
+  - {id: arena.cage_wall, label: Cage wall behind her (slides down the fence),
+     say: [cage, fence, against the cage, slides down the fence, octagon], note: cage arena not built, src: new}
+  - {id: arena.no_ropes, label: Open canvas (no ropes simulated),
+     say: [open canvas, no ropes, open mat], layer: {arena: {simulate_ropes: false}}, src: new}

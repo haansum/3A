@@ -1,0 +1,164 @@
+family: fall_ground_dynamics
+title: Fall mechanics, ground contact, final position, whole-body dynamics
+levers:
+  # ---- KO tier / global tone (Animation Bible vocabulary) ----
+  - {id: tier.flash, label: 'Flash KO: brief shutdown, mild posturing, quick fade',
+     say: [flash ko, flash knockout, lights flicker, brief ko, out for a second], layer: {tier: {tone: 0.45, hold_s: 0.8, fade_s: 0.8}}, src: bible}
+  - {id: tier.stiff, label: 'Stiff KO: whole body rigid, long hold',
+     say: [stiff ko, goes stiff, stiffens, stiffen, rigid ko, body stiffens, tonic], layer: {tier: {tone: 0.85, hold_s: 3.0, fade_s: 2.5}}, src: bible}
+  - {id: tier.melt, label: 'Melt / deep KO: tone drops out, body pours down',
+     say: [melt ko, deep ko, goes limp, limp ko, out cold limp, ragdoll, lights out limp], layer: {tier: {tone: 0.05, hold_s: 0.0, fade_s: 0.0}}, src: bible}
+  - {id: tone.intensify, label: Posture intensity steps up (tone rises above the previous beat),
+     say: [intensifies, intensify, escalat, increases tonic, posture increases, more intense, ramps up, climax, tonic posture intensity],
+     layer: {tone_step: [0.08, 0.3]}, check: {pred: tone, vs_prev: gt}, src: log}
+  - {id: tone.max, label: Posture at maximum intensity,
+     say: [max level, maximum intensity, to max, max tonic, full intensity, peak intensity, to a climax],
+     layer: {tone_all: [0.95, 1.0]}, check: {pred: tone, agg: p90, min: 0.93}, src: log}
+  - {id: tone.mild, label: Mild posture only (low tone, shapes barely formed),
+     say: [mild tonic, mild posture, subtle posture, slight tonic, light stiffening],
+     layer: {tone_all: [0.5, 0.35]}, check: {pred: tone, agg: p90, max: 0.6}, src: log}
+  - {id: tone.no_step, label: 'This event must NOT raise the intensity (jolt only)',
+     say: [doesn't increase the tonic, does not increase, without intensifying, no escalation, stays the same intensity],
+     check: {pred: tone, vs_prev: le}, src: log}
+  - {id: tone.ramp_hold_fade, label: 'Posture ramps to a set level, holds, fades: no sporadic jerks',
+     say: [progress to determined intensity, ramp hold fade, no sporadic, not sporadic, don't want sporadic, behaves like other tonic],
+     check: {pred: tone_envelope_bumps, max: 0, when: take}, src: log}
+  - {id: tone.fade_fast, label: Posture fades faster,
+     say: [fades faster, fade faster, relaxes quickly, quick fade, releases quickly], layer: {fade_s: [2.0, 0.6]}, src: log}
+  - {id: tone.fade_slow, label: 'Posture holds long, fades slowly',
+     say: [fades slowly, long hold, holds for a long time, slow fade, lingers], layer: {hold_s: [3.0, 6.0], fade_s: [2.5, 5.0]}, src: log}
+  - {id: tone.relaxes_by_end, label: Tonic state has relaxed before the take ends,
+     say: [until the tonic state relaxes, tonic fades, relaxes by the end, goes slack at the end, flat as the tonic posture fades],
+     check: {pred: tone, agg: end, max: 0.25, when: take}, src: log}
+  - {id: tone.asym_side, label: One side of the body tighter than the other, side: LR,
+     say: [one side stiff, one side tighter, half her body, left side stiff, right side stiff], layer: {tone_side: [0.15, 0.5]}, src: new}
+  - {id: tone.upper_only, label: 'Upper body postures, legs stay slack',
+     say: [upper body only, only her arms, legs stay limp, legs slack], layer: {tone_regions: {arm_L: [0.6, 1], arm_R: [0.6, 1], trunk: [0.5, 0.9], leg_L: [0.1, 0.05], leg_R: [0.1, 0.05]}}, src: new}
+  - {id: tone.lower_only, label: 'Legs posture, arms stay slack',
+     say: [lower body only, only her legs, arms stay limp, arms slack], layer: {tone_regions: {leg_L: [0.6, 1], leg_R: [0.6, 1], arm_L: [0.1, 0.05], arm_R: [0.1, 0.05]}}, src: new}
+  - {id: tone.wave, label: Stiffening travels through the body (e.g. legs first then arms),
+     say: [travels up her body, wave of stiffness, starts in her legs, spreads to her arms, spreads through], layer: {region_delay_s: [0.1, 0.5]}, src: new}
+
+  # ---- tremor / jolt / twitch ----
+  - {id: dyn.tremor, label: Fine tremor / quiver through the body,
+     say: [tremor, tremors, quiver, quivering, trembling, shaking, shudder, vibrat],
+     layer: {tremor: {hz: [9.0, 8.0], amp_deg: [0.5, 3.0], onset: [0.5, 0.25]}},
+     check: {pred: oscillation, lo_hz: 5, hi_hz: 14, min: [0.05, 0.6]}, src: log}
+  - {id: dyn.tremor_upper, label: Tremor in the upper body (arms, trunk, neck),
+     say: [upper body tremor, arms tremble, arms quiver, arms shake, hands tremble, shoulders tremble],
+     layer: {tremor: {hz: [9.0, 8.0], amp_deg: [0.6, 3.0], onset: [0.4, 0.25], regions: [trunk, neck, arm_L, arm_R]}},
+     check: {pred: oscillation, regions: [arm_L, arm_R, trunk], lo_hz: 5, hi_hz: 14, min: [0.05, 0.6]}, src: log}
+  - {id: dyn.tremor_legs, label: Tremor in the legs,
+     say: [legs tremble, legs quiver, legs shake, leg tremor, knees tremble, thighs quiver],
+     layer: {tremor: {hz: [8.0, 7.0], amp_deg: [0.6, 3.0], onset: [0.4, 0.25], regions: [leg_L, leg_R]}},
+     check: {pred: oscillation, regions: [leg_L, leg_R], lo_hz: 5, hi_hz: 14, min: [0.05, 0.6]}, src: new}
+  - {id: dyn.tremor_grows, label: Quivering grows as the hold tires,
+     say: [more quivering as the hold tires, quivering grows, tremor builds, shaking builds, tremor increases as],
+     layer: {tremor: {grow_s: [1.0, 3.0]}}, src: log}
+  - {id: dyn.no_tremor, label: No tremor (smooth hold),
+     say: [no tremor, without tremor, no shaking, perfectly still, frozen still],
+     check: {pred: oscillation, lo_hz: 5, hi_hz: 14, max: 0.08}, src: new}
+  - {id: dyn.jolt_all, label: Jolt through limbs and head at the strike/impact,
+     say: [jolt, jolts, body jolts, jolt through, limbs jolt, jerks at impact, body jumps],
+     layer: {jolt: {regions: [neck, arm_L, arm_R, leg_L, leg_R], deg: [3, 15]}},
+     check: {pred: jolt, min: [2, 10]}, src: log}
+  - {id: dyn.jolt_changes_pose, label: 'Jolt strong enough to change the posture into a similar but different one',
+     say: [changing the tonic posture, similar but different, shifts into a different posture, posture changes on the jolt], layer: {repose: [0.2, 0.6]}, src: log}
+  - {id: dyn.twitch, label: Isolated twitches of single limbs (late agonal layer),
+     say: [twitch, twitches, twitching, spasm, limb jerks, random jerk], layer: {twitch: {rate_hz: [0.3, 1.5], deg: [3, 12]}},
+     note: 'conflicts with tone.ramp_hold_fade by design; ask which the owner wants', src: bible}
+  - {id: dyn.settle, label: Body visibly settles (small sag as everything lets go),
+     say: [settles, settling, sags into the canvas, lets go, sinks into the mat], check: {pred: tone, agg: end, max: 0.3}, src: bible}
+
+  # ---- fall direction and style ----
+  - {id: fall.backward, label: Falls backward,
+     say: [falls back, fall back, teeter back, teeters backward, topples back, tips backward, goes over backward, sent back],
+     check: [{pred: travel, body: head, toward: back, min: 0.5, when: fall_end}, {pred: lean, toward: back, agg: p90, min: 25, when: fall}], src: log}
+  - {id: fall.forward, label: Falls forward,
+     say: [fall forward, falls forward, teeter forward, teeters forward, face plant, pitches forward, topples forward, faceplant],
+     check: [{pred: travel, body: head, toward: front, min: 0.5, when: fall_end}, {pred: lean, toward: front, agg: p90, min: 25, when: fall}], src: log}
+  - {id: fall.sideways, label: Falls to her side, side: LR,
+     say: [falls sideways, falls to her left, falls to her right, topples sideways, tips over sideways, falls to the side],
+     check: {pred: travel, body: head, toward: left, sign_by_side: 1, min: 0.4, when: fall_end}, src: new}
+  - {id: fall.straight_down, label: Drops straight down in place,
+     say: [drops straight down, collapses in place, falls in place, crumples straight down, drops where she stands, sits straight down],
+     check: {pred: travel, body: pelvis, toward: back, min: -0.35, max: 0.35, when: fall_end}, src: bible}
+  - {id: fall.timber, label: 'Timber: rigid topple with straight hips and knees',
+     say: [timber, like a tree, statue topple, falls like a plank, rigid topple, tips over stiff, stiff fall],
+     check: [{pred: joint, joint: shin_L_flex, agg: max, max: 35, when: fall}, {pred: joint, joint: thigh_L_flex, agg: max, max: 40, when: fall}], src: bible}
+  - {id: fall.teeter, label: 'Teeter: hangs at the balance point before going over',
+     say: [teeter, teeters, wavers, sways before, hangs for a moment, balance point],
+     check: {pred: event_gap, a: ko, b: down, min: [0.6, 1.4]}, src: log}
+  - {id: fall.delayed, label: 'Delayed drop: stays up a beat, then goes',
+     say: [delayed, delayed reaction, a beat later, then drops, stands for a second then], check: {pred: event_gap, a: ko, b: down, min: [0.9, 2.5]}, src: new}
+  - {id: fall.instant, label: Drops immediately,
+     say: [drops instantly, instantly, immediately drops, goes down at once, out before she hits], check: {pred: event_gap, a: ko, b: down, max: [0.9, 0.45]}, src: new}
+  - {id: fall.sit_then_back, label: Lands on her seat first then rolls back (glutes before head),
+     say: [falls back on to her ass, sits down then, lands on her butt, glutes first, head doesn't hit the ground before, on her seat first, head before her glutes],
+     check: {pred: first_touch_gap, first: glutes, then: head, min: 0.04, when: take}, src: log}
+  - {id: fall.knees_first, label: Drops to her knees first,
+     say: [drops to her knees, knees first, falls to her knees, kneels then],
+     check: {pred: first_touch_gap, first: knees, then: chest, min: 0.04, when: take}, src: new}
+  - {id: fall.hands_no_catch, label: 'Hands do NOT break the fall (no protective reaction)',
+     say: [no attempt to break, doesn't catch herself, hands don't break the fall, no brace, without bracing],
+     check: {pred: contact_peak_bw, part: hands, max: 0.25, when: fall_end}, src: bible}
+  - {id: fall.spin, label: Body spins about vertical as it falls, side: LR,
+     say: [spins as she falls, corkscrews down, twists as she falls, pirouette, spins around],
+     check: {pred: yaw_change, sign_by_side: 1, min: [30, 180], when: fall}, src: new}
+  - {id: fall.no_spin, label: Little or no spin on the canvas,
+     say: [reduce the amount she spins, no spin, less spin, doesn't spin, without spinning, where's the spinning],
+     check: {pred: yaw_change, min: -35, max: 35, when: ground}, src: log}
+  - {id: fall.momentum_carries, label: 'Momentum carries through the shutdown (keeps travelling the way she was moving)',
+     say: [momentum carries, momentum survives, keeps moving, carried by her momentum, momentum sends her],
+     check: {pred: travel, body: pelvis, toward: back, min: 0.2, when: fall_end}, src: bible}
+  - {id: fall.over_own_legs, label: Folds down over her own legs (knees bend under her as she goes back),
+     say: [folds over her legs, legs fold under her as she falls, sits back onto her heels, collapses over her legs],
+     check: {pred: joint, joint: shin_L_flex, agg: max, min: 100, when: fall}, src: new}
+
+  # ---- ground contact ----
+  - {id: ground.head_bounce, label: Head bounces off the canvas,
+     say: [head bounce, head bounces, head rebounds, head hits the ground, head impact, head slams, head hits the canvas, head hits the mat],
+     check: [{pred: happened, event: 'touch:head', min: 1, when: take}, {pred: contact_peak_bw, part: head, min: [0.3, 1.5], when: take}], src: log}
+  - {id: ground.single_bounce, label: 'At most one head bounce',
+     say: [one bounce, single bounce, bounces once], check: {pred: impacts, part: head, max: 2, when: take}, src: log}
+  - {id: ground.no_head_hit, label: Head never hits the canvas hard,
+     say: [head doesn't hit, head never hits, head stays off, protects her head], check: {pred: contact_peak_bw, part: head, max: 0.3, when: take}, src: new}
+  - {id: ground.slide, label: Slides along the canvas after landing,
+     say: [slides along, skids, slides across the canvas, slides back], check: {pred: travel, body: pelvis, toward: back, min: [0.1, 0.5], when: ground}, src: log}
+  - {id: ground.roll_to_back, label: Is rolled over onto her back,
+     say: [rolls her on to her back, roll her on her back, turn her on her back, rolls onto her back, rolled over],
+     check: [{pred: roll_events, min: 1, when: ground}, {pred: facing, toward: up, min: 0.5, when: rest}], src: log}
+  - {id: ground.roll_to_front, label: Rolls onto her front,
+     say: [rolls onto her stomach, rolls onto her front, rolls face down, turns over face down],
+     check: [{pred: roll_events, min: 1, when: ground}, {pred: facing, toward: down, min: 0.5, when: rest}], src: new}
+  - {id: ground.subtle_roll, label: 'The roll is subtle (low speed, organic)',
+     say: [subtly turn, subtle roll, more subtle, way too much momentum, make it look organic, slightly roll],
+     check: {pred: speed, body: pelvis, agg: max, max: 1.2, when: ground}, src: log}
+  - {id: ground.rest_early, label: 'In final position with time to spare (default 3 s)',
+     say: [seconds of runtime left, with at least 3s, time left on the sim, settled early], check: {pred: time_left_after, event: rest, min: 3.0, when: take}, src: log}
+
+  # ---- final position ----
+  - {id: rest.supine, label: 'Finishes on her back, face up',
+     say: [on her back, on back, face up, supine, flat on her back, finish on her back, lying on her back],
+     check: [{pred: facing, body: chest, toward: up, min: 0.6, when: rest}, {pred: facing, body: pelvis, toward: up, min: 0.5, when: rest}], src: log}
+  - {id: rest.prone, label: 'Finishes on her stomach, face down',
+     say: [on her stomach, face down, prone, on her front, lays on her stomach, flat on her face],
+     check: {pred: facing, body: chest, toward: down, min: 0.6, when: rest}, src: log}
+  - {id: rest.side, label: Finishes on her side, side: LR,
+     say: [on her side, on her left side, on her right side, side lying, recovery position],
+     check: {pred: side_lying, toward: left, sign_by_side: 1, min: 0.6, when: rest}, src: log}
+  - {id: rest.not_side, label: Not on her side,
+     say: [on back not side, not on her side, not side], check: {pred: side_lying, toward: left, min: -0.5, max: 0.5, when: rest}, src: log}
+  - {id: rest.flat, label: Lies flat (chest low to the canvas),
+     say: [almost flat, lies flat, flat out, flattens out, flat on the canvas], check: {pred: height, body: chest, max: 0.22, when: rest}, src: log}
+  - {id: rest.seated, label: 'Ends sitting (against ropes/cage or slumped upright)',
+     say: [ends sitting, sitting against, seated, slumped sitting, sat against the ropes, sits against the cage],
+     check: [{pred: height, body: chest, min: 0.35, when: rest}, {pred: height, body: pelvis, max: 0.2, when: rest}], src: new}
+  - {id: rest.kneeling_folded, label: 'Ends folded over her knees (face down, hips high)',
+     say: [folded over her knees, kneeling face down, hips in the air, face down hips up, child's pose],
+     check: [{pred: height, body: pelvis, min: 0.25, when: rest}, {pred: facing, body: chest, toward: down, min: 0.3, when: rest}], src: new}
+  - {id: rest.head_turned, label: Head turned to one side at rest, side: LR,
+     say: [head turned at rest, face to the side, cheek down, head resting to the], check: {pred: joint, joint: neck_twist, sign_by_side: 1, min: 20, when: rest}, src: new}
+  - {id: rest.face_visible, label: 'Face must be visible to camera (not blocked by her own body)',
+     say: [face is visible, face visible, face must be visible, not blocked by body, can see her face, face not blocked],
+     layer: {camera_rule: face_visible}, note: needs the render-side visibility gate, src: log}

@@ -1,0 +1,158 @@
+family: trunk_hips_legs_feet
+title: Trunk, core, hips, legs, feet
+levers:
+  # ---- trunk ----
+  - {id: trunk.slump_forward, label: Trunk slumps forward (spine and chest flex), region: trunk,
+     say: [slump forward, slumps forward, body slumps, hunched forward, hunch forward, trunk folds forward, sag forward],
+     pose: {spine_flex: [0, 30], chest_flex: [0, 22], neck_flex: [0, 20]},
+     check: {pred: joint_sum, joints: [spine_flex, chest_flex], min: [3, 35], max: [15, 60]}, src: log}
+  - {id: trunk.hip_hinge, label: Folds at the hips (trunk stays straighter than a slump), region: leg, side: LR, default_side: both,
+     say: [hinge at the hips, hip hinge, folds at the waist, bends at the hips, jackknife, folds in half],
+     pose: {thigh_$S_flex: [5, 75]}, src: log}
+  - {id: trunk.back_arch, label: Back arches (extension), region: trunk,
+     say: [back arch, arches her back, spine arches, back bows, bridging],
+     pose: {spine_flex: [0, -18], chest_flex: [0, -14]}, src: log}
+  - {id: trunk.back_curl, label: Back curls forward (flexion) instead of arching, region: trunk,
+     say: [back curl, core crunch, crunching, curls up, abdominal crunch, core curl, body bend],
+     pose: {spine_flex: [0, 38], chest_flex: [0, 24]}, src: log}
+  - {id: trunk.upper_back_hunch, label: Upper back hunches up off the canvas, region: trunk,
+     say: [upper back hunch, hunch her upper back, upper back off the mat, hunching off canvas, shoulders lift off the mat, upper back off canvas],
+     pose: {chest_flex: [0, 28], neck_flex: [0, 18]},
+     check: {pred: height, body: chest, min: [0.14, 0.24]}, src: log}
+  - {id: trunk.rigid_plank, label: Trunk rigid as a board, region: trunk,
+     say: [rigid trunk, stiff as a board, plank, body rigid, like a statue, like a tree, timber, stiff body],
+     pose: {spine_flex: [0, 0], chest_flex: [0, 0], spine_lat: [0, 0], chest_lat: [0, 0]}, layer: {tone: [0.6, 1.0]},
+     check: {pred: range_of_motion, joint: spine_flex, max: [20, 6]}, src: bible}
+  - {id: trunk.limp, label: Trunk goes soft and folds with gravity (melt), region: trunk,
+     say: [trunk limp, body melts, melts, crumples, goes soft, folds up, body gives out, collapses in a heap],
+     layer: {tone: [0.25, 0.03]}, check: {pred: tone, regions: [trunk], max: [0.3, 0.1]}, src: bible}
+  - {id: trunk.side_bend, label: Trunk bends sideways, region: trunk, side: LR, mirror: true,
+     say: [side bend, bends sideways, leans to her, torso tilts, lateral bend, banana],
+     pose: {spine_lat: [0, 18], chest_lat: [0, 18]}, src: new}
+  - {id: trunk.twist, label: Trunk twists (shoulders turned relative to hips), region: trunk, side: LR, mirror: true,
+     say: [torso twist, trunk twists, shoulders turned, upper body rotates, corkscrew],
+     pose: {spine_twist: [0, 13], chest_twist: [0, 28]}, src: new}
+  - {id: trunk.whip_into_canvas, label: Sits down first then the upper body whips into the canvas, region: trunk,
+     say: [whips into the canvas, upper half whip, whips her back, like a whip, slams her head into the ground],
+     check: [{pred: first_touch_gap, first: glutes, then: head, min: 0.05, when: take},
+             {pred: contact_peak_bw, part: head, min: [0.5, 2.0], when: take}], src: log}
+  - {id: trunk.breathing, label: Unconscious breathing visible (chest heaves), region: trunk,
+     say: [breathing, heaving chest, heavy breathing, heaving breathing, chest heaves, unconscious breathing],
+     layer: {breath: {amp_deg: [1.0, 5.0], period: [4.5, 2.2]}},
+     check: {pred: oscillation, joints: [chest_flex], lo_hz: 0.15, hi_hz: 0.6, min: [0.3, 1.5]}, src: log}
+  - {id: trunk.breath_crunch, label: Core crunches and relaxes with each breath, region: trunk,
+     say: [crunching and relaxing, core crunching and relaxing, crunch with each breath, belly breathing],
+     layer: {breath: {spine_amp_deg: [1.0, 5.0]}},
+     check: {pred: oscillation, joints: [spine_flex], lo_hz: 0.15, hi_hz: 0.6, min: [0.3, 1.5]}, src: log}
+  - {id: trunk.breath_shoulders_still, label: Shoulders must not pump with the breath,
+     say: [shoulders moving weird with breath, shoulders pump, shoulders move with breath],
+     check: {pred: oscillation, joints: [upper_arm_L_abd, upper_arm_R_abd], lo_hz: 0.15, hi_hz: 0.6, max: 1.0}, src: log}
+  - {id: trunk.snore_hold, label: 'Breath pauses then resumes (long hold, big breath)', region: trunk,
+     say: [breath hold, breath catches, breath pauses, gasps then], layer: {breath: {pause_s: [1.0, 3.0]}}, src: new}
+
+  # ---- hips / pelvis ----
+  - {id: hips.thrust_up, label: Hips lift off the canvas (bridge), region: leg, side: LR, default_side: both,
+     say: [hips lift, hips thrust, hips rise off, bridge up, pelvis lifts],
+     pose: {thigh_$S_flex: [0, -18]}, check: {pred: height, body: pelvis, min: [0.14, 0.25]}, src: new}
+  - {id: hips.flat, label: Both sides of the back of the hips on the canvas,
+     say: [both sides of the back of her hips, hips touching the mat, hips flat, hips down, pelvis flat],
+     check: [{pred: height, body: pelvis, max: 0.16, when: rest}, {pred: facing, body: pelvis, axis: front, toward: up, min: 0.8, when: rest}], src: log}
+  - {id: hips.rotated, label: Hips rolled to one side while shoulders stay flat, side: LR,
+     say: [hips rolled to, hips twisted, pelvis turned, lower body twisted, hips rotated],
+     check: {pred: facing, body: pelvis, axis: left, toward: up, sign_by_side: -1, min: [0.2, 0.7]}, src: new}
+
+  # ---- legs: hips and knees ----
+  - {id: legs.extend_stiff, label: Legs straighten and stiffen (extensor posture), region: leg, side: LR, default_side: both,
+     say: [legs stiffen, legs straight, legs lock, stiff legs, legs extend, knees locked, legs rigid, legs tonic, keep legs tonic, legs go stiff],
+     pose: {thigh_$S_flex: [20, -3], shin_$S_flex: [30, 0]}, layer: {tone: [0.5, 1.0]},
+     check: {pred: joint, joint: shin_$S_flex, max: [35, 12]}, src: log}
+  - {id: legs.knee_bend, label: Knee bends, region: leg, side: LR,
+     say: [knee bend, knee bent, knee flex, leg bends, knee up, leg folds],
+     pose: {shin_$S_flex: [0, 120]}, src: new}
+  - {id: legs.knee_up, label: Knee drawn up toward the chest, region: leg, side: LR,
+     say: [knee drawn up, knee to chest, leg drawn up, knee pulls up, leg curls up],
+     pose: {thigh_$S_flex: [0, 100], shin_$S_flex: [0, 110]}, src: new}
+  - {id: legs.buckle, label: Knees buckle (legs give way under her), region: leg, side: LR, default_side: both,
+     say: [knees buckle, legs give out, legs give way, legs fold under, knees collapse, legs turn to jelly],
+     layer: {tone: [0.3, 0.02]}, check: {pred: joint, joint: shin_$S_flex, agg: max, min: [40, 110], when: fall}, src: bible}
+  - {id: legs.scissor, label: 'Legs scissor: one hip flexes while the other extends, legs drawn together', region: leg, side: LR, default_side: L,
+     say: [scissor legs, legs scissor, scissoring, legs start to scissor, legs cross over],
+     pose: {thigh_$S_flex: [0, 22], thigh_$O_flex: [0, -12], thigh_$S_abd: [0, -16], thigh_$O_abd: [0, -12], shin_$S_flex: [0, 6]},
+     check: {pred: joint_diff, a: thigh_$S_flex, b: thigh_$O_flex, min: [4, 30]}, src: log}
+  - {id: legs.scissor_flutter, label: Scissoring builds to a brief flutter at impact, region: leg,
+     say: [flutter, legs flutter, slight flutter, fluttering kick, legs flutter kick],
+     layer: {tremor: {hz: [3.0, 5.0], amp_deg: [1.5, 6.0], joints: [thigh_L_flex, thigh_R_flex], antiphase: true, decay_s: [0.6, 1.5]}},
+     check: {pred: oscillation, joints: [thigh_L_flex, thigh_R_flex], lo_hz: 2.5, hi_hz: 6.0, min: [0.3, 2.0]}, src: log}
+  - {id: legs.ankles_cross, label: Ankles cross, region: leg, side: LR, default_side: L,
+     say: [ankles cross, crossing ankles, ankles start to cross, crossed ankles, feet cross, legs crossed at the ankle],
+     pose: {thigh_L_abd: [0, -24], thigh_R_abd: [0, -24], thigh_$S_flex: [0, 6], thigh_$O_flex: [0, -6], thigh_L_twist: [0, 12], thigh_R_twist: [0, 12]},
+     check: {pred: rel_gap, a: foot_L, b: foot_R, frame: pelvis, axis: x, max: [0.10, 0.02]}, src: log}
+  - {id: legs.spread, label: Legs fall apart / splayed wide, region: leg, side: LR, default_side: both,
+     say: [legs splay, legs spread, legs fall open, legs apart, splayed legs, spread legs],
+     pose: {thigh_$S_abd: [5, 40]}, check: {pred: rel_gap, a: foot_L, b: foot_R, frame: pelvis, axis: x, min: [0.3, 0.8]}, src: new}
+  - {id: legs.frog, label: 'Knees out, feet together ("frog" / butterfly)', region: leg, side: LR, default_side: both,
+     say: [frog legs, butterfly legs, knees fall outward, knees flop open],
+     pose: {thigh_$S_abd: [5, 38], thigh_$S_twist: [0, 35], thigh_$S_flex: [0, 45], shin_$S_flex: [0, 95]}, src: new}
+  - {id: legs.figure_four, label: One leg bent with its foot by the other knee (figure four), region: leg, side: LR,
+     say: [figure four, figure 4, one leg bent across, foot by the other knee],
+     pose: {thigh_$S_abd: [5, 35], thigh_$S_twist: [0, 38], thigh_$S_flex: [0, 50], shin_$S_flex: [0, 110]}, src: new}
+  - {id: legs.folded_under, label: 'Leg(s) folded underneath her (knee bent, heel by the hip)', region: leg, side: LR,
+     say: [leg folded under, legs folded underneath, sitting on her heels, leg trapped under, knee folded back, heel to hip],
+     pose: {shin_$S_flex: [60, 148], thigh_$S_flex: [0, -10]}, check: {pred: joint, joint: shin_$S_flex, min: [70, 125], when: rest}, src: new}
+  - {id: legs.raise, label: Legs lift off the canvas, region: leg, side: LR, default_side: both,
+     say: [legs lift, legs raise, legs elevate, leg elevation, legs come up, feet lift off, legs in the air],
+     pose: {thigh_$S_flex: [0, 55]}, check: {pred: height, body: foot_$S, agg: max, min: [0.10, 0.45], max: [0.30, 0.9]}, src: log}
+  - {id: legs.stay_down, label: Feet stay near the canvas (no leg lift),
+     say: [legs stay down, reduce leg elevation, legs low, feet stay on the mat, no leg lift],
+     check: {pred: height, body: foot_L, agg: max, max: 0.30}, src: log}
+  - {id: legs.jolt, label: Legs jolt at a strike, region: leg,
+     say: [legs jolt, legs kick out, legs jump, legs jerk, legs bounce],
+     layer: {jolt: {regions: [leg_L, leg_R], deg: [4, 18]}}, check: {pred: jolt, regions: [leg_L, leg_R], min: [3, 14]}, src: log}
+  - {id: legs.rotate_out, label: Leg rolls outward (toes point away), region: leg, side: LR, default_side: both,
+     say: [leg rolls outward, feet turn out, toes point outward, legs externally rotated, duck feet],
+     pose: {thigh_$S_twist: [0, 36]}, src: new}
+  - {id: legs.rotate_in, label: Leg rolls inward (pigeon-toed), region: leg, side: LR, default_side: both,
+     say: [leg rolls inward, feet turn in, pigeon toed, toes point inward, knees knock, knock knees],
+     pose: {thigh_$S_twist: [0, -36]}, src: new}
+  - {id: legs.one_straight_one_bent, label: 'One leg stiff straight, the other bent (side = straight leg)', side: LR,
+     say: [one leg straight one bent, one leg stiff the other bent, one knee bent the other straight],
+     expands: [{id: legs.extend_stiff, side: $S}, {id: legs.knee_bend, side: $O, i: 0.6}],
+     check: {pred: joint_diff, a: shin_$O_flex, b: shin_$S_flex, min: [20, 90]}, src: new}
+  - {id: legs.stanky, label: 'Standing wobble: knees dip and catch, feet stutter ("chicken dance")', region: leg,
+     say: [stanky leg, chicken dance, wobbly legs, legs wobble, rubber legs, legs do a dance, stumbles on rubber legs],
+     layer: {stagger: {dips: [1, 4], depth_deg: [15, 45], hz: [2.0, 3.5]}}, note: needs the stagger-step controller, src: new}
+  - {id: legs.pedal, label: Slow alternating leg movement on the canvas (pedalling),
+     say: [pedalling, legs pedal, bicycle, legs slowly kick, running in place],
+     layer: {tremor: {hz: [0.6, 1.4], amp_deg: [6, 25], joints: [thigh_L_flex, thigh_R_flex], antiphase: true}},
+     check: {pred: oscillation, joints: [thigh_L_flex, thigh_R_flex], lo_hz: 0.4, hi_hz: 1.8, min: [1.5, 8]}, src: new}
+
+  # ---- ankles / feet / toes ----
+  - {id: feet.point, label: Feet point (plantarflex), region: leg, side: LR, default_side: both,
+     say: [feet point, toes point, pointed feet, pointed toes, feet extend, plantarflex],
+     pose: {foot_$S_dorsi: [0, -45]}, src: bible}
+  - {id: feet.flex_up, label: Feet pulled up toward the shins, region: leg, side: LR, default_side: both,
+     say: [feet flex up, feet pulled up, dorsiflex, toes pulled back toward shin],
+     pose: {foot_$S_dorsi: [0, 24]}, src: new}
+  - {id: feet.invert, label: Soles turn inward, region: leg, side: LR, default_side: both,
+     say: [feet turn inward, soles inward, feet invert, sickled feet, feet roll in],
+     pose: {foot_$S_inv: [0, 19]}, src: new}
+  - {id: feet.evert, label: Soles turn outward, region: leg, side: LR, default_side: both,
+     say: [soles outward, feet evert, feet roll out],
+     pose: {foot_$S_inv: [0, -19]}, src: new}
+  - {id: toes.curl, label: Toes curl under, side: LR, default_side: both,
+     say: [toes curl, curling toes, curled toes, toe curl, toes clench, toes scrunch],
+     layer: {toes: {deg: [15, 55]}}, src: log}
+  - {id: toes.splay, label: Toes fan out and extend upward, side: LR, default_side: both,
+     say: [toes splay, toes fan, toes spread, toes extend, big toe up], layer: {toes: {deg: [-10, -30], spread: [0.3, 1.0]}}, src: new}
+  - {id: toes.twitch, label: Toes twitch, side: LR, default_side: both,
+     say: [toes twitch, toes wiggle, toes flutter], layer: {toes: {twitch_hz: [3, 7]}}, src: new}
+  - {id: feet.heels_drum, label: Heels drum lightly on the canvas,
+     say: [heels drum, heels tap, feet drum, feet tapping, heel kicks the mat],
+     layer: {tremor: {hz: [4, 7], amp_deg: [1, 5], joints: [shin_L_flex, shin_R_flex]}},
+     check: {pred: impacts, part: feet, min_bw: 0.05, min: [2, 6]}, src: new}
+  - {id: feet.stay_planted, label: 'Feet stay planted while the body goes over them (timber)',
+     say: [feet stay planted, feet planted, pivots over her heels, falls over her feet, feet rooted],
+     check: {pred: travel, body: foot_L, toward: back, max: 0.25, when: fall}, src: bible}
+  - {id: feet.step_back, label: Takes a staggering step back before going down,
+     say: [step back, stumbles back, staggers back, backpedals, stutter step, takes a step],
+     check: {pred: travel, body: foot_L, toward: back, min: [0.15, 0.6], when: fall}, note: needs the stagger-step controller to drive, src: new}

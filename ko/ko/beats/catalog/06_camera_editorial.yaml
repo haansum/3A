@@ -1,0 +1,65 @@
+family: camera_editorial
+title: Camera, replays, editorial (house rules pre-applied; these are per-take adjustments)
+# All of these compile to the shot list. None are measured yet: they wait on the render-side
+# gates (face visibility, framing, occlusion). House rules always apply: no slow motion,
+# no camera shake, only the opponent's glove is ever rendered.
+levers:
+  - {id: cam.ref_pan, label: 'Referee pan: sweeps across the body as if checking her over, ends on her face',
+     say: [ref cam, referee camera, pans across as if a referee, checking her over, referee pan, ref pan], layer: {shot: ref_pan}, src: log}
+  - {id: cam.ref_other_side, label: Referee pan from the other side of the body,
+     say: [ref cam from other side, from the other side of body], layer: {shot: ref_pan, shot_args: {flip: true}}, src: log}
+  - {id: cam.ref_stop_after_rest, label: 'Referee cam stops about 1 s after she reaches the final position',
+     say: [ref cam stops, stops 1s after reaching final position], layer: {shot_args: {tail_s: 1.0}}, src: log}
+  - {id: cam.full_body, label: Full-body shot (not a zoom-in),
+     say: [full body shot, full body, not a zoom in, whole body in frame], layer: {shot: full_body}, src: log}
+  - {id: cam.orbit, label: Orbit around her,
+     say: [orbit, circles around her, orbiting, circle around], layer: {shot: orbit}, src: log}
+  - {id: cam.orbit_late, label: Replay starts orbiting partway through,
+     say: [start orbiting halfway, orbit around at the end, orbiting halfway through], layer: {shot_args: {orbit_from: 0.5}}, src: log}
+  - {id: cam.opponent_pov, label: Camera from where the opponent stood,
+     say: [where the opponent stood, opponent pov, opponent's point of view, from the opponent], layer: {shot: opponent}, src: log}
+  - {id: cam.underground, label: 'Underground angle (below the canvas, looking up; shows curled toes)',
+     say: [underground, below canvas, from under the mat, underground view, underground angle], layer: {shot: underground}, src: log}
+  - {id: cam.underground_full, label: Underground angle zoomed out to full body,
+     say: [underground angle zoomed out, underground full body], layer: {shot: underground, shot_args: {framing: full}}, src: log}
+  - {id: cam.underground_front, label: 'Underground angle facing her front-on',
+     say: [opposing her front on but from underground, underground front on], layer: {shot: underground, shot_args: {facing: front}}, src: log}
+  - {id: cam.face_zoom, label: 'Zoom into her face (never the back of the head)',
+     say: [zooms into face, zoom on her face, close on the face, face close-up], layer: {shot: tight}, src: log}
+  - {id: cam.zoom_out_end, label: Zoom out at the end of the final replay,
+     say: [zoom out at the end, zooms out more by the end, add a zoom out, zoom out during], layer: {shot_args: {zoom_out_end: [0.2, 0.6]}}, src: log}
+  - {id: cam.pan_toe_to_head, label: Pan from toes to head (or head-toe-head),
+     say: [pan from toe to head, toe to head, head to toe, pan up to face, pan up and down, pan over the body towards the head], layer: {shot_args: {pan: toe_to_head}}, src: log}
+  - {id: cam.pan_starts_at, label: Pan toward the head begins after a fraction of the replay,
+     say: [start panning after, after 40% of the replay], layer: {shot_args: {pan_from: 0.4}}, src: log}
+  - {id: cam.track_same_view, label: Keep tracking her from the same perspective until the end,
+     say: [track from the same perspective, extend this replay until the end, same perspective], layer: {shot_args: {until: end}}, src: log}
+  - {id: cam.replay_longer, label: 'Replay runs longer (percent or "until the tonic state relaxes")',
+     say: [replay longer, lasts longer, longer by, increase the length of, plays for longer, lasts 50% longer], layer: {shot_args: {length_scale: [1.2, 2.0]}}, src: log}
+  - {id: cam.replay_until_relaxed, label: Replay lasts until the tonic state has relaxed,
+     say: [last until the tonic state relaxes, until she relaxes], layer: {shot_args: {until: tone_relaxed}}, src: log}
+  - {id: cam.raise_for_face, label: Raise/move the camera so her face is visible,
+     say: [raise the camera, adjust camera so the face, move the camera so], layer: {camera_rule: face_visible}, src: log}
+  - {id: cam.low_angle, label: Low angle at canvas level,
+     say: [low angle, canvas level, mat level, ground level shot], layer: {shot: low}, src: new}
+  - {id: cam.overhead, label: Overhead / top-down shot,
+     say: [overhead, top down, bird's eye, from above], layer: {shot: overhead}, src: new}
+  - {id: cam.corner_cam, label: Fixed corner-post camera,
+     say: [corner camera, corner cam, post cam], layer: {shot: corner}, src: new}
+  - {id: cam.broadcast, label: 'Broadcast wide (the live angle)',
+     say: [broadcast angle, live angle, wide shot], layer: {shot: live}, src: new}
+  - {id: cam.side_profile, label: Side profile locked perpendicular to the fall line,
+     say: [side profile, profile shot, perpendicular to the fall], layer: {shot: profile}, src: new}
+  - {id: cam.feet_closeup, label: Close-up of feet/toes,
+     say: [close-up of her feet, toes close up, feet close-up], layer: {shot: feet}, src: new}
+  - {id: cam.hands_closeup, label: Close-up of hands,
+     say: [close-up of her hands, hands close up], layer: {shot: hands}, src: new}
+  - {id: cam.impact_angle, label: Replay angle chosen to show the strike landing,
+     say: [show the strike landing, angle on the impact, see the punch land], layer: {shot: impact}, src: new}
+  - {id: look.outfit, label: Outfit selection (asset),
+     say: [outfit, royal blue set, change her outfit, wearing], layer: {asset: outfit}, src: log}
+  - {id: look.eye_refraction, label: Eye material check (refraction artefacts),
+     say: [eyes are refracting weird, eye refraction, eyes look wrong], layer: {asset: eye_material_check}, src: log}
+  - {id: look.no_clipping, label: 'No clipping anywhere (face, eyes, shoulders, hands)',
+     say: [no clipping, fix clipping, face clipping, shoulder clipping, eye clipping, ensure there is no clipping], layer: {render_rule: no_clipping},
+     note: needs the render-mesh penetration gate, src: log}
