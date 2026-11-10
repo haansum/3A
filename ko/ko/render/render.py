@@ -254,6 +254,16 @@ def run(lock, bake_dir, sim_dir, out_dir):
     n = len(fr['t'])
     sc.frame_start, sc.frame_end = 1, n
     converted = [m.name for m in bpy.data.materials if principled(m)]
+    # a character file brings its own scene baggage: none of it belongs in the locked look
+    sc.render.use_compositing = False
+    sc.render.use_sequencer = False
+    try:
+        sc.render.use_freestyle = False
+    except Exception:
+        pass
+    for o in bpy.data.objects:
+        if o.type in ('LIGHT', 'CAMERA', 'GREASEPENCIL', 'GPENCIL'):
+            o.hide_render = True
 
     lockc = json.load(open(os.path.join(bake_dir, 'take.lock.json'))) if os.path.exists(
         os.path.join(bake_dir, 'take.lock.json')) else lock
@@ -283,6 +293,11 @@ def run(lock, bake_dir, sim_dir, out_dir):
     sc.render.image_settings.file_format = 'PNG'
     sc.render.use_motion_blur = bool(R['motion_blur'])
     sc.cycles.samples = R['samples']
+    sc.render.use_persistent_data = True     # keep textures and static geometry between frames
+    if R.get('max_subdiv') is not None:
+        sc.render.use_simplify = True
+        sc.render.simplify_subdivision_render = R['max_subdiv']
+    step = int(R.get('frame_step', 1))
     sc.cycles.use_adaptive_sampling = True
     try:
         sc.cycles.use_denoising = True
@@ -306,7 +321,7 @@ def run(lock, bake_dir, sim_dir, out_dir):
         os.makedirs(fdir, exist_ok=True)
         # live shot runs the whole take; replays start just before the hit
         f0 = 1 if si == 0 else max(1, int((t_ko - 0.5) * fps))
-        for f in range(f0, n + 1):
+        for f in range(f0, n + 1, step):
             fp = os.path.join(fdir, f'{f:05d}.png')
             if os.path.exists(fp) and os.path.getsize(fp) > 0:
                 continue
@@ -314,11 +329,11 @@ def run(lock, bake_dir, sim_dir, out_dir):
             sc.render.filepath = fp
             bpy.ops.render.render(write_still=True)
         vid = os.path.join(out_dir, f'{si:02d}_{name}.' + ('mkv' if lock['quality'] == 'full' else 'mp4'))
-        encode(os.path.join(fdir, '*.png'), vid, fps, lock['quality'] == 'full')
+        encode(os.path.join(fdir, '*.png'), vid, fps / step, lock['quality'] == 'full')
         if si == 0:                 # contact sheet for review before anyone watches the video
             subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-pattern_type', 'glob', '-i',
                             os.path.join(fdir, '*.png'), '-vf',
-                            f"select='not(mod(n,{max(1, n // 12)}))',scale=480:-1,tile=4x3",
+                            f"select='not(mod(n,{max(1, (n // step) // 12)}))',scale=480:-1,tile=4x3",
                             '-frames:v', '1', os.path.join(out_dir, 'contact_sheet.png')], check=True)
         for p in glob.glob(os.path.join(fdir, '*.png')):
             os.remove(p)

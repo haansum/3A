@@ -1,0 +1,9 @@
+character: freya
+arena: ring
+archetype: stiff_back_hook
+seed: 8
+quality: draft
+overrides:
+  sim: {perturb: 0.05}
+  strike: {impulse: 10.0}
+  arena: {rope_distance: 3.0, simulate_ropes: false}

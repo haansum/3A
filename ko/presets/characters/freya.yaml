@@ -1,0 +1,19 @@
+# Freya (owner-supplied rig, Rigify-style control rig, Blender 4.5 file). Local file only.
+# The file also contains explicit adult decal textures and anatomy controls; the pipeline
+# does not use them, and the outfit coverage gate must pass before the character is saved.
+name: freya
+source:
+  file: assets_cache/freya/Freya Danchro.blend
+  sha256: null
+mass: 50.0            # kg, assumed for a 1.47 m frame
+bone_map: {}
+outfit:
+  file: assets_cache/calvin_klein/Calvin Klien/calvin klein.blend
+  body: Body
+  bust_bone: DEF-breast.L
+  garments:
+    - {object: Tekken Bra, region: bust}
+    - {object: Tekken Thong, region: hips}
+  hide_collections: [OG Outfit]
+  cover_groups: [Nipple, Nipple.001, Vagina and Anus]
+  min_coverage: 0.98

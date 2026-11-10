@@ -27,7 +27,7 @@ def mark(d, lock):
 
 def fetch_character(char):
     dst = os.path.join(manifest.ROOT, char['source']['file'])
-    if not os.path.exists(dst):
+    if not os.path.exists(dst) and char['source'].get('url'):
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         print('fetching', char['source']['url'])
         urllib.request.urlretrieve(char['source']['url'], dst)
@@ -53,6 +53,12 @@ def build(take, quality=None, to='render', force=()):
                     mp = os.path.join(d, 'map.json')
                     json.dump(lock['character']['bone_map'], open(mp, 'w'))
                     argv += ['--map', mp]
+                if lock['character'].get('outfit'):
+                    oc = dict(lock['character']['outfit'])
+                    oc['file'] = os.path.join(manifest.ROOT, oc['file'])
+                    op = os.path.join(d, 'outfit.json')
+                    json.dump(oc, open(op, 'w'))
+                    argv += ['--outfit', op]
                 import_rig.main(argv)
             elif s == 'body':
                 from .body import gen_body

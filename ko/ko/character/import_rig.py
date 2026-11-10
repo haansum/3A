@@ -26,7 +26,7 @@ from .bonemap import CANON, SECONDARY, auto_map, owner_of_every_bone
 def load(src):
     ext = os.path.splitext(src)[1].lower()
     if ext == '.blend':
-        bpy.ops.wm.open_mainfile(filepath=src)
+        bpy.ops.wm.open_mainfile(filepath=src, use_scripts=False)   # never run embedded scripts
         return
     bpy.ops.wm.read_factory_settings(use_empty=True)
     if ext in ('.vrm', '.glb', '.gltf'):
@@ -98,6 +98,65 @@ def pick_armature():
     return max(arms, key=lambda a: (len(skinned_meshes(a)), len(a.data.bones)))
 
 
+def extract_deform_skeleton(arm):
+    """Control rigs (Rigify and relatives) deform the mesh through DEF bones that are driven by
+    hundreds of constraint/helper bones. Baking a simulation onto that is rig-specific, so
+    build a plain skeleton from the deform bones only (same rest pose, same names, so the
+    existing vertex groups bind unchanged), parent each bone to its nearest deform ancestor,
+    and point the meshes at it. The original rig stays in the file, untouched and unposed,
+    so shape-key drivers that read it keep their neutral values."""
+    src = arm.data.bones
+    deform = [b for b in src if b.use_deform]
+    names = {b.name for b in deform}
+
+    def parent_of(b):
+        a = b.parent
+        while a is not None:
+            if a.name in names:
+                return a.name
+            if a.name.startswith('ORG-') and 'DEF-' + a.name[4:] in names \
+                    and 'DEF-' + a.name[4:] != b.name:
+                return 'DEF-' + a.name[4:]
+            a = a.parent
+        return None
+
+    data = bpy.data.armatures.new('KO_skeleton')
+    ob = bpy.data.objects.new('KO_skeleton', data)
+    (arm.users_collection[0] if arm.users_collection else bpy.context.scene.collection).objects.link(ob)
+    ob.matrix_world = arm.matrix_world.copy()
+    for o in bpy.context.view_layer.objects:
+        o.select_set(False)
+    ob.hide_set(False)
+    bpy.context.view_layer.objects.active = ob
+    ob.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT')
+    eb = data.edit_bones
+    for b in deform:
+        e = eb.new(b.name)
+        e.head, e.tail = b.head_local, b.tail_local
+        e.matrix = b.matrix_local
+        e.length = b.length
+    for b in deform:
+        p = parent_of(b)
+        if p:
+            eb[b.name].parent = eb[p]
+            eb[b.name].use_connect = False
+    bpy.ops.object.mode_set(mode='OBJECT')
+    # how far the rig's displayed pose is from its rest pose (should be ~0 for a neutral file)
+    dev = max(((arm.pose.bones[b.name].matrix.to_translation()
+                - b.matrix_local.to_translation()).length for b in deform), default=0.0)
+    for o in bpy.data.objects:
+        if o.type == 'MESH':
+            for m in o.modifiers:
+                if m.type == 'ARMATURE' and m.object == arm:
+                    m.object = ob
+        if o.parent == arm and o.parent_type == 'BONE' and o.parent_bone in names:
+            mw = o.matrix_world.copy()
+            o.parent = ob
+            o.matrix_world = mw
+    return ob, dev
+
+
 def bone_table(arm):
     """{bone: parent}. For control rigs (Rigify) only the deform skeleton is considered,
     re-parented through the non-deform helpers."""
@@ -121,12 +180,23 @@ def main(argv=None):
     ap.add_argument('--out', required=True)
     ap.add_argument('--map', help='json {canonical: bone name} overrides')
     ap.add_argument('--name')
+    ap.add_argument('--preview-failed-outfit', action='store_true',
+                    help='save even if the coverage gate fails (for inspection only)')
+    ap.add_argument('--outfit', help='json: garments to fit and what to hide (see outfit.py)')
     a = ap.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     src_hash = hashlib.sha256(open(a.src, 'rb').read()).hexdigest()
     load(os.path.abspath(a.src))
 
     arm = pick_armature()
+    rig_note = None
+    nb = len(arm.data.bones)
+    nd = sum(b.use_deform for b in arm.data.bones)
+    if nb > 150 and nd < 0.6 * nb:              # a control rig, not a plain skeleton
+        src_name = arm.name
+        arm, dev = extract_deform_skeleton(arm)
+        rig_note = {'control_rig': src_name, 'bones': nb, 'deform_bones': nd,
+                    'pose_vs_rest_max_m': round(dev, 4)}
     table = bone_table(arm)
     override = json.load(open(a.map)) if a.map else None
     cmap, report = auto_map(table, override)
@@ -151,6 +221,35 @@ def main(argv=None):
     yaw = math.atan2(left.y, left.x)
     C = Matrix.Rotation(-yaw, 4, 'Z')
 
+    outfit_rep = None
+    if a.outfit:
+        from . import outfit as outfit_mod
+        ocfg = json.load(open(a.outfit))
+        # Remove the outfit being replaced from this working copy (the source file is never
+        # touched). Hiding is not enough: such rigs drive hide flags from their own UI drivers.
+        doomed = []
+        for cname in ocfg.get('hide_collections', []):
+            if cname in bpy.data.collections:
+                doomed += list(bpy.data.collections[cname].objects)
+        doomed += [bpy.data.objects[n] for n in ocfg.get('hide_objects', []) if n in bpy.data.objects]
+        for o in set(doomed):
+            bpy.data.objects.remove(o, do_unlink=True)
+        cand = [o for o in skinned_meshes(arm) if not o.hide_render]
+        body = bpy.data.objects[ocfg['body']] if ocfg.get('body') else \
+            max(cand, key=lambda o: len(o.data.vertices))
+        outfit_rep, _ = outfit_mod.fit(arm, body, head, ocfg, body.users_collection[0], owner)
+        print('[outfit]', json.dumps(outfit_rep))
+        if not outfit_rep['coverage_ok'] and not a.preview_failed_outfit:
+            raise SystemExit('outfit: coverage gate failed; garments do not cover the listed '
+                             'groups. Not saving this character.')
+    char_meshes = [o for o in skinned_meshes(arm) if not o.hide_render]
+    disabled = []
+    for ob in char_meshes:      # skin = shape keys + armature only (no subsurf/solidify shell)
+        for md in ob.modifiers:
+            if md.type != 'ARMATURE' and md.show_viewport:
+                md.show_viewport = False
+                disabled.append(md)
+    bpy.context.view_layer.update()
     dg = bpy.context.evaluated_depsgraph_get()
     verts, owners, mesh_names = [], [], []
     hidden = 0
@@ -177,7 +276,10 @@ def main(argv=None):
             acc = {}
             sec = 0.0
             for g in v.groups:
-                o = owner.get(gname.get(g.group))
+                gn_ = gname.get(g.group)
+                if gn_ not in owner:        # mask / selection groups are not bones: ignore
+                    continue
+                o = owner[gn_]
                 if o is None:
                     sec += g.weight
                 else:
@@ -191,6 +293,23 @@ def main(argv=None):
         mesh_names.append(ob.name)
         if ev:
             ev.to_mesh_clear()
+    for md in disabled:
+        md.show_viewport = True
+    # everything that is not the character (rig widgets, helper shapes) must never render
+    keep = set(o.name for o in char_meshes)
+    hidden_objs = []
+    for o in bpy.data.objects:
+        if o.type in ('MESH', 'CURVE', 'SURFACE', 'FONT', 'META') and o.name not in keep \
+                and not o.hide_render:
+            anc, is_child = o.parent, False
+            while anc is not None:
+                if anc == arm or anc.name in keep:
+                    is_child = True
+                    break
+                anc = anc.parent
+            if not is_child:
+                o.hide_render = True
+                hidden_objs.append(o.name)
     verts = np.concatenate(verts)
     owners = np.concatenate(owners)
     body = verts[owners >= 0]
@@ -231,7 +350,11 @@ def main(argv=None):
         'bone_tails': ends,
         'height': float(cverts[owners >= 0][:, 2].max()),
         'to_canonical': {'yaw': yaw, 'origin': origin.tolist(), 'scale': scale},
+        'rig': rig_note,
+        'outfit': outfit_rep,
+        'character_meshes': sorted(keep),
         'checks': {'facing_from_feet_agrees': facing_ok, 'meshes': mesh_names,
+                   'hidden_non_character_objects': len(hidden_objs),
                    'n_vertices': int(len(cverts)), 'n_body_vertices': int((owners >= 0).sum()),
                    'alpha_hidden_vertices': hidden},
     }
@@ -250,7 +373,9 @@ def main(argv=None):
                                 compress=True)
     print(json.dumps({'name': skel['name'], 'height_m': round(skel['height'], 3),
                       'scale': scale, 'yaw_deg': round(math.degrees(yaw), 1),
-                      'facing_ok': facing_ok, 'bone_map': cmap,
+                      'facing_ok': facing_ok, 'bone_map': cmap, 'rig': rig_note,
+                      'spine_chain': report['spine_chain'],
+                      'hidden_non_character_objects': len(hidden_objs),
                       'verts_per_body': {CANON[i]: int((owners == i).sum())
                                          for i in range(len(CANON))},
                       'unowned_vertices': int((owners < 0).sum()),

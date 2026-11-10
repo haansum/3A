@@ -23,10 +23,12 @@ STAGE_CODE = {
 }
 QUALITY = {
     'draft': {'engine': 'CYCLES', 'samples': 12, 'res': [640, 360], 'fps': 30,
-              'motion_blur': False, 'dof': False, 'shots': ['live', 'tight']},
+              'motion_blur': False, 'dof': False, 'shots': ['live', 'tight'],
+              'frame_step': 2, 'max_subdiv': 1},     # 15 fps, real-time playback
     'full': {'engine': 'CYCLES', 'samples': 192, 'res': [1920, 1080], 'fps': 30,
              'motion_blur': True, 'dof': True,
-             'shots': ['live', 'referee', 'opponent', 'orbit', 'tight']},
+             'shots': ['live', 'referee', 'opponent', 'orbit', 'tight'],
+             'frame_step': 1, 'max_subdiv': None},
 }
 
 
@@ -74,6 +76,7 @@ def resolve(take_path, quality=None):
         lock['character']['source']['sha256'] = hashlib.sha256(open(src, 'rb').read()).hexdigest()
     k = {}
     k['character'] = sha([lock['character']['source'], lock['character'].get('bone_map'),
+                          lock['character'].get('outfit'),
                           code_hash('character')])[:12]
     k['body'] = sha([k['character'], lock['character']['mass'], code_hash('body')])[:12]
     k['sim'] = sha([k['body'], lock['arena'], lock['sim'], lock['motion'], lock.get('strike'),

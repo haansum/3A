@@ -19,7 +19,7 @@ PARENT = {'pelvis': None, 'spine': 'pelvis', 'chest': 'spine', 'neck': 'chest', 
           'thigh_R': 'pelvis', 'shin_R': 'thigh_R', 'foot_R': 'shin_R'}
 
 # bones (and meshes/materials) that are secondary motion, never part of the sim body
-SECONDARY = re.compile(r'(hair|skirt|cloth|coat|cape|tail|ribbon|sec_|_sec|spring|bust|breast|'
+SECONDARY = re.compile(r'(hair|skirt|cloth|coat|cape|tail|ribbon|sec_|_sec|spring|'
                        r'(^|[-_. ])ears?([-_. ]|$)|accessor|hood|sleeve|wing)', re.I)
 HELPER = re.compile(r'^(ik|mch|org|ctrl|wgt|vis|pole|target)[-_.]|[-_.](ik|pole|target)\b', re.I)
 
@@ -95,6 +95,26 @@ def auto_map(bones, override=None):
     out['pelvis'] = find_center([r'^c?_?hips?$', r'pelvis', r'hips?', r'^spine$', r'root'])
     out['head'] = find_center([r'^c?_?head$', r'head'])
     out.update({k: v for k, v in override.items() if k in CANON})
+    if not out.get('head') and out.get('pelvis'):
+        # Rigify-style numbered spine (spine, spine.001 ... spine.006): the head is the end of
+        # the main chain. Follow, from the pelvis, the spine-named child with the deepest
+        # subtree (side branches such as belly helpers are shallow).
+        kids = {}
+        for n, par in bones.items():
+            kids.setdefault(par, []).append(n)
+
+        def depth_below(n):
+            return 1 + max((depth_below(c) for c in kids.get(n, [])), default=0)
+
+        cur = out['pelvis']
+        while True:
+            nxt = [c for c in kids.get(cur, []) if c in cand and cand[c][1] is None
+                   and cand[c][0].startswith('spine')]
+            if not nxt:
+                break
+            cur = max(nxt, key=depth_below)
+        if cur != out['pelvis']:
+            out['head'] = cur
 
     missing = [k for k in CANON if k not in ('spine', 'chest', 'neck') and not out.get(k)]
     if missing:
