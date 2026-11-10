@@ -37,13 +37,18 @@ def run(cfg, char_dir, out_dir=None, record=True):
     fwd = np.array([0.0, -1.0, 0.0])
     rng = np.random.default_rng(sim.get('seed', 0))
     sig = sim.get('perturb', 0.0)       # relative std of strike impulse/direction/timing
-    st_cfg = cfg.get('strike')
-    if st_cfg:
-        st_cfg = dict(st_cfg)
-        st_cfg['impulse'] = st_cfg['impulse'] * (1 + sig * rng.standard_normal())
-        st_cfg['dir'] = (np.array(st_cfg['dir'], float) / np.linalg.norm(st_cfg['dir'])
-                         + sig * rng.standard_normal(3)).tolist()
-        st_cfg['t'] = st_cfg['t'] + 0.2 * sig * rng.standard_normal()
+    strikes = []
+    for i, st in enumerate(([cfg['strike']] if cfg.get('strike') else []) + list(cfg.get('strikes') or [])):
+        st = dict(st)
+        st.setdefault('name', 'ko_strike' if i == 0 else f'followup_{i}')
+        st['impulse'] = st['impulse'] * (1 + sig * rng.standard_normal())
+        st['dir'] = (np.array(st['dir'], float) / np.linalg.norm(st['dir'])
+                     + sig * rng.standard_normal(3)).tolist()
+        if 't' in st and not st.get('after'):
+            st['t'] = st['t'] + 0.2 * sig * rng.standard_normal()
+        st['ko'] = st.get('ko', i == 0)
+        strikes.append(st)
+    strike_log = []
 
     # initial pose: reference at t=0, feet on the canvas
     q0, _, _, _ = ref.sample(0.0)
@@ -60,7 +65,6 @@ def run(cfg, char_dir, out_dir=None, record=True):
     rope_c = scene.ROPE_DEFAULT['transverse_damp'] if not cfg['arena'].get('rope') else \
         dict(scene.ROPE_DEFAULT, **cfg['arena']['rope'])['transverse_damp']
     rope_prev = d.xpos[rope_ids].copy() if len(rope_ids) else None
-    head = m.body(cfg['strike'].get('body', 'head')).id if cfg.get('strike') else None
     br = ctl_cfg.get('breath', {'period': 4.0, 'amp_deg': 1.5})
 
     def step(t, settle=False):
@@ -68,21 +72,37 @@ def run(cfg, char_dir, out_dir=None, record=True):
         q, qd, adv, vadv = ref.sample(max(t, 0.0))
         q_cmd = ctl.pose_vec(q)
         qd_cmd = ctl.rate_vec(qd)
-        st = st_cfg
         d.qfrc_applied[:] = 0
         struck = False
-        if st and not settle and st['t'] <= t < st['t'] + st.get('duration', 0.015):
-            dirv = np.array(st['dir'], float)
-            dirv /= np.linalg.norm(dirv)
-            if st.get('frame', 'world') == 'head':
-                dirv = d.xmat[head].reshape(3, 3) @ dirv
-            F = st['impulse'] / st.get('duration', 0.015) * dirv
-            pt = d.xipos[head] + d.xmat[head].reshape(3, 3) @ np.array(st.get('offset', [0, 0, 0]))
-            mujoco.mj_applyFT(m, d, F, np.zeros(3), pt, head, d.qfrc_applied)
-            struck = True
-        if st and not settle and ctl.t_ko is None and t >= st['t'] + st.get('ko_delay', 0.01):
-            ctl.trigger_ko(t, q_cmd)
-            mujoco.mj_forward(m, d)
+        for st in strikes:
+            if settle:
+                break
+            if 't0' not in st:              # resolve the start time once its clock exists
+                if st.get('after'):
+                    if st['after'] in ctl.events:
+                        st['t0'] = ctl.events[st['after']] + st.get('t', 0.0)
+                else:
+                    st['t0'] = st['t']
+            if 't0' not in st:
+                continue
+            dur = st.get('duration', 0.015)
+            hb = m.body(st.get('body', 'head')).id
+            if st['t0'] <= t < st['t0'] + dur:
+                dirv = np.array(st['dir'], float)
+                dirv /= np.linalg.norm(dirv)
+                if st.get('frame', 'world') == 'head':
+                    dirv = d.xmat[hb].reshape(3, 3) @ dirv
+                pt = d.xipos[hb] + d.xmat[hb].reshape(3, 3) @ np.array(st.get('offset', [0, 0, 0]))
+                mujoco.mj_applyFT(m, d, st['impulse'] / dur * dirv, np.zeros(3), pt, hb, d.qfrc_applied)
+                struck = True
+                if 'logged' not in st:
+                    st['logged'] = True
+                    ctl.events[st['name']] = t
+                    strike_log.append({'name': st['name'], 't': t, 'point': pt.tolist(),
+                                       'dir': dirv.tolist(), 'prop': st.get('prop')})
+            if st['ko'] and ctl.t_ko is None and t >= st['t0'] + st.get('ko_delay', 0.01):
+                ctl.trigger_ko(t, q_cmd)
+                mujoco.mj_forward(m, d)
         breath = np.radians(br['amp_deg']) * np.sin(2 * np.pi * t / br['period'])
         tone = ctl.apply(d, t, q_cmd, qd_cmd, breath)
         cap = 3.0 if settle else cfg['motion'].get('assist_cap', 0.15)
@@ -158,6 +178,7 @@ def run(cfg, char_dir, out_dir=None, record=True):
     out['rope_names'] = np.array([m.body(b).name for b in rope_ids])
     out['mass'] = np.array(spec['mass'])
     out['events'] = np.array(json.dumps(ctl.events))
+    out['strikes'] = np.array(json.dumps(strike_log))
     out['dt'] = np.array(dt)
     if out_dir and record:
         os.makedirs(out_dir, exist_ok=True)

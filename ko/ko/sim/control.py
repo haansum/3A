@@ -140,10 +140,15 @@ class Controller:
                 target[sel] = (1 - w) * target[sel] + w * pv[sel]
         tone = tone_r[self.reg]
         tr = ko.get('tremor')
-        if tr:   # tremor grows as tone drains, scaled by what tone is left
-            fatigue = min(1.0, dt / tr.get('onset', 1.0))
-            target = target + np.radians(tr['amp_deg']) * fatigue * np.sqrt(tone) * np.sin(
-                2 * np.pi * tr['hz'] * t + self.tremor_phase)
+        for e in ([tr] if isinstance(tr, dict) else (tr or [])):
+            t0 = self.events.get(e['after']) if e.get('after') else self.t_ko
+            if t0 is None or t < t0:
+                continue
+            grow = min(1.0, (t - t0) / e.get('onset', 1.0))
+            amp = np.radians(e['amp_deg']) * grow * np.sqrt(tone)
+            if e.get('regions'):
+                amp = amp * np.isin(self.reg, [REGIONS.index(r) for r in e['regions']])
+            target = target + amp * np.sin(2 * np.pi * e['hz'] * t + self.tremor_phase)
         return tone, target, tone_r
 
     # -- per step --------------------------------------------------------------------------

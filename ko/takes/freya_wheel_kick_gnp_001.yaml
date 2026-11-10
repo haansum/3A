@@ -1,0 +1,8 @@
+character: freya
+arena: ring
+archetype: wheel_kick_gnp
+seed: 2
+quality: draft
+overrides:
+  sim: {perturb: 0.05}
+  arena: {rope_distance: 3.0, simulate_ropes: false}

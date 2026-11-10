@@ -56,6 +56,28 @@ POSES = {
     'decorticate': {'upper_arm_L_abd': -75, 'upper_arm_L_flex': 30, 'forearm_L_flex': 135,
                     'upper_arm_R_abd': -75, 'upper_arm_R_flex': 30, 'forearm_R_flex': 135,
                     'hand_L_flex': 50, 'hand_R_flex': 50},
+    # wheel-kick GNP archetype
+    'loose_guard_asym': {   # guard sags but hands stay up; one elbow opens, the other closes
+        'upper_arm_L_abd': -66, 'upper_arm_L_flex': 52, 'forearm_L_flex': 84, 'hand_L_flex': 50,
+        'upper_arm_R_abd': -72, 'upper_arm_R_flex': 30, 'forearm_R_flex': 138, 'hand_R_flex': 55},
+    'slump_forward': {'spine_flex': 9, 'chest_flex': 7, 'neck_flex': 14, 'head_flex': 5,
+                      'spine_lat': 0, 'chest_lat': 0, 'spine_twist': 0, 'chest_twist': 0},
+    'fencing_mid': {'upper_arm_L_abd': -40, 'upper_arm_L_flex': 62, 'forearm_L_flex': 40,
+                    'hand_L_flex': 55, 'upper_arm_L_twist': 25,
+                    'upper_arm_R_abd': -62, 'upper_arm_R_flex': 42, 'forearm_R_flex': 142,
+                    'hand_R_flex': 60, 'upper_arm_R_twist': 25},
+    'shoulders_forward': {'chest_flex': 20, 'spine_flex': 8, 'neck_flex': 12, 'head_flex': 4},
+    'scissor_legs': {'thigh_L_flex': 8, 'thigh_L_abd': -12, 'shin_L_flex': 4, 'foot_L_dorsi': -35,
+                     'thigh_R_flex': -6, 'thigh_R_abd': -10, 'shin_R_flex': 0, 'foot_R_dorsi': -35},
+    'ankles_crossed': {'thigh_L_flex': 3, 'thigh_L_abd': -22, 'thigh_L_twist': 12, 'shin_L_flex': 6,
+                       'foot_L_dorsi': -45, 'foot_L_inv': 15,
+                       'thigh_R_flex': -5, 'thigh_R_abd': -22, 'thigh_R_twist': 12, 'shin_R_flex': 0,
+                       'foot_R_dorsi': -45, 'foot_R_inv': 15},
+    'fencing_max': {'upper_arm_L_abd': -8, 'upper_arm_L_flex': 68, 'forearm_L_flex': 0,
+                    'hand_L_flex': 65, 'upper_arm_L_twist': 35,
+                    'upper_arm_R_abd': -48, 'upper_arm_R_flex': 50, 'forearm_R_flex': 148,
+                    'hand_R_flex': 68, 'upper_arm_R_twist': 35},
+    'shoulders_max': {'chest_flex': 24, 'spine_flex': 5, 'neck_flex': 18, 'head_flex': 6},
     'curl_core': {'spine_flex': 25, 'chest_flex': 18, 'neck_flex': 25},
 }
 

@@ -64,13 +64,20 @@ def resolve(take_path, quality=None):
     char = _yaml('presets', 'characters', take['character'] + '.yaml')
     arena = _yaml('presets', 'arenas', take['arena'] + '.yaml')
     arch = _yaml('presets', 'archetypes', take['archetype'] + '.yaml')
-    cfg = deep_merge(arch, take.get('overrides'))
+    house = _yaml('presets', 'house.yaml') if os.path.exists(os.path.join(ROOT, 'presets', 'house.yaml')) else {}
+    cfg = deep_merge(deep_merge({'bake': house.get('bake', {})}, arch), take.get('overrides'))
     cfg['arena'] = deep_merge(arena, (take.get('overrides') or {}).get('arena'))
     cfg['arena']['rope_y'] = -float(cfg['arena']['rope_distance'])
     cfg['sim']['seed'] = take.get('seed', 0)
     q = quality or take.get('quality', 'draft')
+    rcfg = dict(QUALITY[q])
+    hr = house.get('render', {})
+    rcfg['shots'] = (take.get('shots') or hr.get('shots_' + q) or rcfg['shots'])
+    rcfg['replay_tail_s'] = hr.get('replay_tail_s', 1.0)
+    for k_, v_ in (take.get('render') or {}).items():
+        rcfg[k_] = v_
     lock = {'take': os.path.splitext(os.path.basename(take_path))[0],
-            'character': char, 'quality': q, 'render': QUALITY[q], **cfg}
+            'character': char, 'quality': q, **cfg, 'render': rcfg}
     src = os.path.join(ROOT, char['source']['file'])
     if os.path.exists(src):
         lock['character']['source']['sha256'] = hashlib.sha256(open(src, 'rb').read()).hexdigest()
@@ -80,10 +87,14 @@ def resolve(take_path, quality=None):
                           code_hash('character')])[:12]
     k['body'] = sha([k['character'], lock['character']['mass'], code_hash('body')])[:12]
     k['sim'] = sha([k['body'], lock['arena'], lock['sim'], lock['motion'], lock.get('strike'),
+                    lock.get('strikes'),
                     lock['controller'], code_hash('sim')])[:12]
     k['qa'] = sha([k['sim'], lock.get('outcome'), code_hash('qa')])[:12]
-    k['bake'] = sha([k['sim'], k['character'], code_hash('bake')])[:12]
-    k['render'] = sha([k['bake'], lock['arena'], lock['render'], code_hash('render')])[:12]
+    k['bake'] = sha([k['sim'], k['character'], lock.get('bake'), lock['render']['fps'],
+                     lock['character'].get('face'),
+                     code_hash('bake')])[:12]
+    k['render'] = sha([k['bake'], lock['arena'], lock['render'], lock.get('strikes'),
+                       code_hash('render')])[:12]
     lock['keys'] = k
     lock['hash'] = sha(lock)[:12]
     return lock

@@ -7,6 +7,10 @@ source:
   sha256: null
 mass: 50.0            # kg, assumed for a 1.47 m frame
 bone_map: {}
+face:
+  gaze_up: 0.52         # look-key strength leaving about a third of the iris visible (set by eye)
+  gaze_side: 0.35
+  ko_keys: {mouth_sad: 0.5, mouth_A: 0.3}   # slack, removes her default smirk
 outfit:
   file: assets_cache/calvin_klein/Calvin Klien/calvin klein.blend
   body: Body

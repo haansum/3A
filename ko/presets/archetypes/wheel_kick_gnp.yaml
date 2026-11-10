@@ -1,0 +1,65 @@
+# Wheel kick clips the jaw as she gives ground. Loose asymmetric guard, slight forward slump
+# while the body teeters backward. Head bounce -> tonic posture intensifies (slight tremor,
+# scissoring legs, shoulders forward). One follow-up shot on the ground -> maximum intensity
+# (toes curl, ankles cross, upper-body tremor).
+# Every impulse, tone level and timing here is tuned by eye; nothing is footage-validated.
+name: wheel_kick_gnp
+sim: {dt: 0.002, duration: 7.4, settle: 0.6}
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.30, pose: stance, advance: 0.0}
+      - {t: 0.75, pose: retreat, advance: -0.30}
+      - {t: 1.5, pose: retreat, advance: -0.30}
+strikes:
+  - name: wheel_kick
+    t: 0.58
+    body: head
+    impulse: 7.0                 # N s; a clip, not a full connection
+    duration: 0.012
+    dir: [-1.0, 0.25, 0.15]      # heel travelling across from her left
+    frame: world
+    offset: [0.0, -0.085, -0.075]   # tip of the jaw: mostly spins the head
+    ko: true
+  - name: followup_1
+    after: head_impact
+    t: 1.0                       # house rule: follow-up lands 1 s after she hits the canvas
+    body: head
+    impulse: 5.0
+    duration: 0.012
+    dir: [-0.45, 0.0, -0.9]      # punch from above
+    frame: world
+    offset: [0.0, -0.06, -0.03]
+    prop: glove
+    ko: false
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: stiff
+    off_ramp: 0.04
+    residual: {neck: 0.20, trunk: 0.08, arm: 0.035, leg: 0.035}
+    phases:
+      # 1. on the feet: partial tone, loose guard, slump
+      - {t: 0.0, rise: 0.05, hold: 3.0, fade: 0.5, regions: [leg_L, leg_R], tone: 0.75, pose: extensor_legs}
+      - {t: 0.0, rise: 0.06, hold: 3.0, fade: 0.5, regions: [trunk, neck], tone: 0.75, pose: slump_forward}
+      - {t: 0.0, rise: 0.10, hold: 3.0, fade: 0.5, regions: [arm_L, arm_R], tone: 0.55, pose: loose_guard_asym}
+      # 2. head bounce: intensifies
+      - {after: head_impact, t: 0.03, rise: 0.10, hold: 4.0, fade: 2.0, regions: [arm_L, arm_R], tone: 0.80, pose: fencing_mid}
+      - {after: head_impact, t: 0.03, rise: 0.15, hold: 4.0, fade: 2.0, regions: [leg_L, leg_R], tone: 0.85, pose: scissor_legs}
+      - {after: head_impact, t: 0.03, rise: 0.15, hold: 4.0, fade: 2.0, regions: [trunk, neck], tone: 0.80, pose: shoulders_forward}
+      # 3. follow-up shot: maximum
+      - {after: followup_1, t: 0.02, rise: 0.08, hold: 2.4, fade: 3.0, regions: [arm_L, arm_R], tone: 1.0, pose: fencing_max}
+      - {after: followup_1, t: 0.02, rise: 0.12, hold: 2.4, fade: 3.0, regions: [leg_L, leg_R], tone: 1.0, pose: ankles_crossed}
+      - {after: followup_1, t: 0.02, rise: 0.10, hold: 2.4, fade: 3.0, regions: [trunk, neck], tone: 1.0, pose: shoulders_max}
+    tremor:
+      - {after: head_impact, hz: 9.0, amp_deg: 0.8, onset: 0.4}
+      - {after: followup_1, hz: 8.0, amp_deg: 2.4, onset: 0.3, regions: [trunk, neck, arm_L, arm_R]}
+bake:
+  toe_curl: {after: followup_1, rise: 0.25, deg: 50}
+outcome:
+  name: teeter_back_gnp

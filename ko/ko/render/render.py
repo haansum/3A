@@ -211,10 +211,36 @@ def make_cameras(lock, fr, root, coll, fps):
 
     cam('live', (5.8, mid[1] + 1.2, 4.0), 55, target=mid + [0, 0, -0.45])
     cam('tight', (2.3, mid[1] + 1.6, 1.0), 60, follow=track)
+    # referee pan (house style): stands beside where she comes to rest, follows the fall, then
+    # pans over the body from the feet and ends on her face. Placed on the side her face is
+    # turned to, so the face is never hidden behind the body.
+    n = len(pel)
+    ev = dict(json.loads(str(fr['events']))) if 'events' in fr else {}
+    hq = fr['head_quat'][-1] if 'head_quat' in fr else np.array([1.0, 0, 0, 0])
+    w_, x_, y_, z_ = hq
+    front = -np.array([2 * (x_ * y_ - z_ * w_), 1 - 2 * (x_ * x_ + z_ * z_), 2 * (y_ * z_ + x_ * w_)])
+    axis = head[-1] - rest
+    axis[2] = 0
+    axis /= max(np.linalg.norm(axis), 1e-6)
+    nrm = np.array([-axis[1], axis[0], 0.0])
+    if front @ nrm < 0 or (abs(front @ nrm) < 0.2 and nrm[0] < 0):
+        nrm = -nrm
+    feet = 0.5 * (fr['foot_L'][-1] + fr['foot_R'][-1]) if 'foot_L' in fr else rest - axis * 0.8
+    body_mid = 0.5 * (feet + head[-1])
+    i_pan0 = int(min(n - 2, (ev.get('followup_1', ev.get('head_impact', 0.0)) + 0.9) * fps))
+    i_pan1 = max(i_pan0 + 1, n - int(1.0 * fps))
+    aim = track.copy()
+    for i in range(i_pan0, n):
+        u = min(1.0, (i - i_pan0) / max(1, i_pan1 - i_pan0))
+        u = u * u * (3 - 2 * u)
+        pan = feet + (head[-1] + [0, 0, 0.03] - feet) * u
+        b_ = min(1.0, (i - i_pan0) / (0.5 * fps))          # ease from follow into the pan
+        aim[i] = (1 - b_) * track[i] + b_ * pan
+    cam('ref_pan', tuple(body_mid + nrm * 1.75 + np.array([0, 0, 1.7 - body_mid[2]])), 50,
+        follow=smooth_path(aim, fps, 0.25))
     cam('referee', (-1.6, y0 + 2.4, 1.6), 50, follow=track)
     cam('opponent', (0.5, y0 + 0.25, 1.5), 24, follow=track)
     orb = cam('orbit', (3.0, y0 + 0.4, 1.3), 85, follow=np.repeat(rest[None] + [0, 0, 0.2], len(pel), 0))
-    n = len(pel)
     for f in (0, n - 1):                       # quarter orbit around the rest position, eased
         a = math.radians(-20 + 90 * f / max(1, n - 1))
         orb.location = (rest[0] + 3.2 * math.cos(a), rest[1] + 3.2 * math.sin(a), 1.3)
@@ -244,7 +270,7 @@ def encode(frames_glob, out, fps, lossless):
                     'glob', '-i', frames_glob, *codec, out], check=True)
 
 
-def run(lock, bake_dir, sim_dir, out_dir):
+def run(lock, bake_dir, sim_dir, out_dir, stills=False):
     R = lock['render']
     fps = R['fps']
     fr = np.load(os.path.join(bake_dir, 'frames.npz'))
@@ -285,6 +311,30 @@ def run(lock, bake_dir, sim_dir, out_dir):
         md.frame_start, md.forward_axis, md.up_axis = 1, 'POS_Y', 'POS_Z'
     lights(root, coll)
     shots = make_cameras(lock, fr, root, coll, fps)
+    # opponent: only the glove is ever rendered (house rule), one per strike that asks for it
+    for st in (json.loads(str(fr['strikes'])) if 'strikes' in fr else []):
+        if st.get('prop') != 'glove':
+            continue
+        u_, v_ = np.meshgrid(np.linspace(0, 2 * np.pi, 16, endpoint=False), np.linspace(0.12, np.pi - 0.12, 9))
+        pts = np.stack([0.062 * np.sin(v_) * np.cos(u_), 0.062 * np.sin(v_) * np.sin(u_),
+                        0.085 * np.cos(v_)], -1).reshape(-1, 3)
+        faces = [(r * 16 + c, r * 16 + (c + 1) % 16, (r + 1) * 16 + (c + 1) % 16, (r + 1) * 16 + c)
+                 for r in range(8) for c in range(16)]
+        gm = bpy.data.meshes.new('glove')
+        gm.from_pydata(pts.tolist(), [], faces)
+        gm.materials.append(mat('KO_glove', (0.25, 0.005, 0.005), 0.4))
+        for poly in gm.polygons:
+            poly.use_smooth = True
+        gl = add(bpy.data.objects.new('glove_' + st['name'], gm), root, coll)
+        dvec, pt = np.array(st['dir']), np.array(st['point'])
+        gl.rotation_euler = Vector(dvec).to_track_quat('Z', 'Y').to_euler()
+        fhit = st['t'] * fps + 1
+        for df, back in ((-0.22, 0.75), (0.0, 0.09), (0.06, 0.09), (0.40, 0.70)):
+            gl.location = pt - dvec * back
+            gl.keyframe_insert('location', frame=fhit + df * fps)
+        for fch, hide in ((1, True), (fhit - 0.24 * fps, False), (fhit + 0.42 * fps, True)):
+            gl.hide_render = hide
+            gl.keyframe_insert('hide_render', frame=max(1, fch))
 
     sc.render.engine = R['engine']
     sc.render.resolution_x, sc.render.resolution_y = R['res']
@@ -314,7 +364,24 @@ def run(lock, bake_dir, sim_dir, out_dir):
     bpy.ops.wm.save_mainfile()
 
     seg = []
-    t_ko = lock['strike']['t'] if lock.get('strike') else 0
+    ev_t = dict(json.loads(str(fr['events']))) if 'events' in fr else {}
+    t_ko = float(fr['t_ko']) if 't_ko' in fr else 0.0
+    if stills:
+        # look check: a handful of stills per shot at the take's key moments, minutes not tens
+        # of minutes. Catches framing, occlusion, face and prop problems before the video.
+        keys_t = [t_ko + 0.45] + [ev_t[k] + d for k, d in (('head_impact', 0.25), ('followup_1', -0.03),
+                                                           ('followup_1', 1.6)) if k in ev_t] + [n / fps - 0.1]
+        tiles = []
+        for name in R['shots']:
+            sc.camera = shots[name]
+            for kt in keys_t:
+                f = int(min(n, max(1, kt * fps + 1)))
+                fp = os.path.join(out_dir, f'still_{name}_{f:04d}.png')
+                sc.frame_set(f)
+                sc.render.filepath = fp
+                bpy.ops.render.render(write_still=True)
+                tiles.append(fp)
+        R = dict(R, shots=[])
     for si, name in enumerate(R['shots']):
         sc.camera = shots[name]
         fdir = os.path.join(out_dir, 'frames', name)
@@ -338,6 +405,30 @@ def run(lock, bake_dir, sim_dir, out_dir):
         for p in glob.glob(os.path.join(fdir, '*.png')):
             os.remove(p)
         seg.append(vid)
+    # face check (house rule: the face must be readable; ~30% of the pupil showing): one frame
+    # straight down her line of sight, late in the hold
+    if 'head_quat' in fr:
+        fi = min(n - 1, int((ev_t.get('followup_1', ev_t.get('head_impact', t_ko)) + 1.2) * fps))
+        w_, x_, y_, z_ = fr['head_quat'][fi]
+        front = -np.array([2 * (x_ * y_ - z_ * w_), 1 - 2 * (x_ * x_ + z_ * z_), 2 * (y_ * z_ + x_ * w_)])
+        up_h = np.array([2 * (x_ * z_ + y_ * w_), 2 * (y_ * z_ - x_ * w_), 1 - 2 * (x_ * x_ + y_ * y_)])
+        cd = bpy.data.cameras.new('face_check')
+        cd.lens = 85
+        fc = add(bpy.data.objects.new('cam_face_check', cd), root, coll)
+        eye_pt = fr['head'][fi] + up_h * 0.07 + front * 0.05
+        fc.location = tuple(eye_pt + front * 0.6)
+        look_at(fc, tuple(eye_pt))
+        sc.camera = fc
+        sc.frame_set(fi + 1)
+        sc.render.filepath = os.path.join(out_dir, 'face_check.png')
+        bpy.ops.render.render(write_still=True)
+    if stills:
+        cols = len(keys_t)
+        ins = sum([['-i', t_] for t_ in tiles], [])
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', *ins, '-filter_complex',
+                        f"concat=n={len(tiles)}:v=1:a=0,scale=480:-1,tile={cols}x{len(tiles) // cols}",
+                        '-frames:v', '1', os.path.join(out_dir, 'stills_sheet.png')], check=True)
+        return
     lst = os.path.join(out_dir, 'cut.txt')
     open(lst, 'w').write(''.join(f"file '{os.path.basename(s)}'\n" for s in seg))
     cut = os.path.join(out_dir, f"{lock['take']}_{lock['quality']}_{lock['hash']}.mp4")

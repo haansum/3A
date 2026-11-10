@@ -53,7 +53,7 @@ def check(sim_path, lock):
     load = np.zeros(len(t))                          # impacts = fast changes in total load
     np.add.at(load, cs, cf)
     hard = np.nonzero(np.abs(load[cw:] - load[:-cw]) > 0.25 * W)[0] + cw
-    for s in np.concatenate([hard, np.nonzero(z['struck'])[0]]):
+    for s in np.concatenate([hard, np.nonzero(z['struck'])[0]]).astype(int):
         excused[max(0, s - cw):s + cw + w] = True
     bad = (dv > TH['spike_rad_s']) & ~excused[w:]
     add(1, 'unexplained_velocity_spikes', not bad.any(), int(bad.sum()), 0,
@@ -150,6 +150,58 @@ def check(sim_path, lock):
             # ms after first touch, by which time the head has already slowed)
             hv = np.linalg.norm(np.diff(head_p[max(0, ih - 30):ih + 1], axis=0), axis=1) / dt
             rep['metrics']['head_impact_speed_m_s'] = round(float(hv.max()), 2)
+
+    if oc.get('name') == 'teeter_back_gnp':
+        import json as _json
+        ev = _json.loads(str(z['events']))
+        jn = [str(n) for n in z['joint_names']]
+        tone_m = z['tone'].mean(axis=1)
+        need = ('head_impact', 'followup_1')
+        val = {'events_in_order': all(k in ev for k in need) and t_ko < ev.get('head_impact', -1) < ev.get('followup_1', -1)}
+        if val['events_in_order']:
+            ih, i_f = int(ev['head_impact'] / dt), int(ev['followup_1'] / dt)
+            ik0 = int(t_ko / dt)
+
+            def R(i, body):
+                w, x, y, zz = z['xquat'][i, bn.index(body)]
+                return np.array([[1 - 2 * (y * y + zz * zz), 2 * (x * y - zz * w), 2 * (x * zz + y * w)],
+                                 [2 * (x * y + zz * w), 1 - 2 * (x * x + zz * zz), 2 * (y * zz - x * w)],
+                                 [2 * (x * zz - y * w), 2 * (y * zz + x * w), 1 - 2 * (x * x + y * y)]])
+            el = np.degrees(q[:, [jn.index('forearm_L_flex'), jn.index('forearm_R_flex')]])
+            wr = np.degrees(q[:, [jn.index('hand_L_flex'), jn.index('hand_R_flex')]])
+            sp = np.degrees(q[:, jn.index('spine_flex')] + q[:, jn.index('chest_flex')])
+            mid = (ik0 + ih) // 2
+            Rp = R(len(t) - 1, 'pelvis')                    # ankles crossed, judged in HER frame
+            fl = Rp.T @ (z['xpos'][-1, bn.index('foot_L')] - z['xpos'][-1, bn.index('pelvis')])
+            fr_ = Rp.T @ (z['xpos'][-1, bn.index('foot_R')] - z['xpos'][-1, bn.index('pelvis')])
+            i_c = min(i_f + int(1.5 / dt), len(t) - 1)
+            Rc = R(i_c, 'pelvis')
+            flc = Rc.T @ (z['xpos'][i_c, bn.index('foot_L')] - z['xpos'][i_c, bn.index('pelvis')])
+            frc = Rc.T @ (z['xpos'][i_c, bn.index('foot_R')] - z['xpos'][i_c, bn.index('pelvis')])
+            val.update({
+                'standing_elbow_asymmetry_deg': round(float(el[mid, 1] - el[mid, 0]), 1),
+                'standing_wrist_flex_deg': round(float(wr[mid].mean()), 1),
+                'standing_trunk_slump_deg': round(float(sp[mid]), 1),
+                'trunk_tips_backward': round(float(R(ih - 10, 'chest')[1, 2]), 2),
+                'tone_standing': round(float(tone_m[mid]), 2),
+                'tone_after_head_impact': round(float(tone_m[ih + 150:i_f - 10].mean()), 2),
+                'tone_after_followup': round(float(tone_m[i_f + 100:i_f + 600].mean()), 2),
+                'ankle_gap_after_followup_m': round(float(flc[0] - frc[0]), 3),   # <= 0 means crossed
+                'face_up_at_rest': round(float(-R(len(t) - 1, 'chest')[2, 1]), 2),
+                'max_foot_height_after_followup_m': round(float(z['xpos'][i_f:, [bn.index('foot_L'), bn.index('foot_R')], 2].max()), 2),
+            })
+            ok = (val['standing_elbow_asymmetry_deg'] >= 15 and val['standing_wrist_flex_deg'] >= 15
+                  and 8 <= val['standing_trunk_slump_deg'] <= 30 and val['trunk_tips_backward'] >= 0.3
+                  and val['tone_standing'] < val['tone_after_head_impact'] < val['tone_after_followup']
+                  and val['ankle_gap_after_followup_m'] <= 0.02 and val['face_up_at_rest'] >= 0.5
+                  and val['max_foot_height_after_followup_m'] <= 0.30)
+        else:
+            ok = False
+        add(1, 'outcome_teeter_back_gnp', ok, val,
+            {'standing_elbow_asymmetry_deg': '>=15', 'standing_wrist_flex_deg': '>=15',
+             'standing_trunk_slump_deg': '8..30 (slight)', 'trunk_tips_backward': '>=0.3',
+             'tone': 'standing < after head impact < after follow-up',
+             'ankle_gap_after_followup_m': '<=0.02 (crossed)', 'max_foot_height_after_followup_m': '<=0.30', 'face_up_at_rest': '>=0.5'})
 
     # 2. motion quality ---------------------------------------------------------------------
     pen_rope = -cd[b_rope].min() * 1000 if b_rope.any() else 0.0

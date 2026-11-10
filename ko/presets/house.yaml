@@ -1,0 +1,10 @@
+# House style: standing rules from the owner's instruction log. Merged under every take, so
+# they never need restating in a note. Left/right is always HER left/right.
+render:
+  shots_draft: [live, ref_pan]
+  shots_full: [live, ref_pan, full_body, orbit, opponent, underground]
+  replay_tail_s: 1.0          # replays run until she has settled, plus this
+bake:
+  gaze: {after: ko, rise: 0.12, up_deg: 30, side_deg: 20, side: her_left}   # ~30% of pupil showing
+  face_keys: {mouth_A: 0.3}   # slack jaw; eyes stay open
+editorial: {slow_motion: false, camera_shake: false, opponent_visible: glove_only}

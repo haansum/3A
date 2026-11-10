@@ -108,6 +108,8 @@ def main(argv=None):
     b.add_argument('--to', default='render', choices=STAGES)
     b.add_argument('--force', action='append', default=[],
                    help='stage to rebuild, "all", or "noqa" to continue past a failed QA gate')
+    st = sub.add_parser('stills', help='cheap look check: key-moment stills per shot + face check')
+    st.add_argument('take')
     i = sub.add_parser('import', help='lock any rig file as a character and report the bone map')
     i.add_argument('src')
     i.add_argument('--name', required=True)
@@ -116,6 +118,13 @@ def main(argv=None):
     if a.cmd == 'build':
         _, _, ok = build(a.take, a.quality, a.to, a.force)
         sys.exit(0 if ok else 2)
+    if a.cmd == 'stills':
+        lock, dirs, ok = build(a.take, None, 'bake', ['noqa'])
+        from .render import render
+        out = os.path.join(manifest.ROOT, 'build', 'stills', lock['keys']['render'])
+        os.makedirs(out, exist_ok=True)
+        render.run(lock, dirs['bake'], dirs['sim'], out, stills=True)
+        print('[stills]', out)
     if a.cmd == 'import':
         from .character import import_rig
         out = os.path.join(manifest.ROOT, 'build', 'import_preview', a.name)
