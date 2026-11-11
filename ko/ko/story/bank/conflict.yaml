@@ -1,0 +1,76 @@
+# Why it is personal. Every grievance is invented context; the story must make the reader
+# believe it with ONE checkable detail (an object, a date, a sum, a place).
+axis: conflict
+relationship:
+  former_teammates: trained in the same room for years; one left
+  coach_swap: one now trains under the other's former coach
+  mentor_student: one taught the other; the student got the bigger contract
+  sisters_in_law: family by marriage, holidays in the same house
+  twins_gym: two rival gyms on the same street, raised to hate the other sign
+  rematch_robbed: first fight ended in a decision one of them never accepted
+  rematch_quick: first fight ended in under a minute; one has lived inside that minute
+  never_met: strangers until the contract, so one of them manufactured a reason
+  online_only: a year of posts and replies, first time in the same room
+  childhood: same town, same bus, different sides of one old story
+  roommates: shared an apartment during the lean years; one moved out owing
+  sparring_story: one tells a story about dropping the other in sparring; the other says it never happened
+  title_gatekeeper: the veteran everyone must beat, and the one who is tired of being a step
+  employer: one used to work the front desk at the other's gym
+  national_team: wrestled or boxed for the same squad; one made the trip, one was the alternate
+  corner_betrayal: one's cornerman used to hold pads for the other
+  short_notice: one is replacing the other's friend who withdrew
+  promoter_favorite: one gets the poster; the other gets the early weigh-in slot
+  translator: they do not share a language; everything passes through a third person who softens it
+  same_nickname: both have used the same ring name; only one can keep it
+  old_loan: a specific sum, lent for a specific thing, never repaid
+  training_camp_guest: one was invited to help the other prepare for someone else, and took notes
+  judge_daughter: one's parent sat on the commission that ruled on the other
+  retired_returning: one retired, the other said good riddance on camera, and now the retirement is over
+grievance:
+  left_before_title: she left the gym three weeks before the team's first title fight
+  took_the_sign: she took the old gym's neon sign when it closed and hung it in her own
+  sold_the_tape: she gave sparring footage to an opponent's camp
+  the_van: she drove the team van home from a tournament and left the rest at the venue
+  borrowed_gloves: she still fights in gloves she borrowed and never returned
+  funeral_missed: she did not come to the coach's memorial; she posted from a beach that day
+  wedding_speech: she told the sparring story as a toast at the other's wedding
+  name_on_wall: her name was painted over on the gym's champions wall
+  weight_miss: she missed weight for their first booking and kept half the purse anyway
+  the_tap: she says the other tapped in a scrimmage; no one else in the room will say
+  walkout_song: she took the walkout song the other has used since the amateurs
+  sponsor_poach: she signed the local sponsor the other had for six years
+  handshake_refused: she refused a handshake in front of the other's students
+  interview_quote: she called the other "a good first test" on a broadcast
+  the_kid: she recruited the other's best young student
+  corner_stool: she was the one holding the stool the night the other lost, and said something
+  ranking_jump: she got the ranking spot by fighting once that year
+  the_nickname: she gave the other a nickname as a joke and it followed her for a decade
+  fake_injury: she pulled out of their first date with an injury and was filmed dancing that weekend
+  the_belt_photo: she posed with the other's belt at a party and the photo is still up
+  stolen_combo: she wins with a combination the other drilled into her
+  unpaid_camp: she never paid her share of a training camp rental
+  parking_spot: it started with a parking spot at the gym and nobody remembers that now
+  the_draw: their first fight was a draw and she celebrated like a win
+  thanked_everyone_else: she thanked forty people after her title win and left out one
+  ghost_coach: she claims to be self-taught; the other taught her to stand
+  the_dog: she kept the dog when the apartment split
+  commentary_seat: she did guest commentary on the other's loss and laughed once
+  late_replacement_insult: she said she would rather fight "anyone with a pulse"; the other is the anyone
+  hometown_gate: she moved away, came back, and sells more tickets in the other's town
+stakes:
+  - a first title
+  - keeping a title nobody thinks she earned
+  - a contract that pays for the gym's lease
+  - the last fight on a deal that will not be renewed
+  - a ranking spot and nothing else
+  - a debut in front of everyone she grew up with
+  - nothing official, which makes it worse
+  - a bonus she has already spent
+  - a retirement she wants to choose herself
+  - proving the first one was not luck
+  - a visa that depends on staying signed
+  - the right to keep the name
+  - her coach's last night in a corner
+  - whether she is still who the poster says
+  - a win streak the promotion built a season around
+  - getting back to even after two losses

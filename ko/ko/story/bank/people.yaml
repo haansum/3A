@@ -1,0 +1,28 @@
+# Names: deliberately mixed origins, none of the names language models default to.
+# A name is retired for 30 stories after use.
+axis: people
+given: [Odalys, Brenna, Tsering, Ilse, Marisol, Kezia, Noor, Agnieszka, Thandiwe, Rumi, Soledad, Maren, Yevgenia,
+        Ottilie, Chiamaka, Linh, Reyhan, Sunniva, Dalisay, Petra, Ingrid, Xiomara, Hadley, Mirela, Oksana, Wren,
+        Zofia, Amaru, Greta, Paloma, Sigrun, Bao, Delphine, Nilufar, Ximena, Roisin, Anouk, Kalinda, Tamsin, Yara,
+        Fenna, Idalia, Marguerite, Shirin, Lotte, Citlali, Henrike, Asel, Briseis, Nadezhda]
+family: [Okafor, Varga, Lindqvist, Castellanos, Nakashima, Brennan, Dlamini, Petrov, Aguilar, Haugen, Moreau, Tran,
+         Kowalczyk, Reyes, Abernathy, Solheim, Mbeki, Carrow, Ishikawa, Devlin, Quispe, Halloran, Baptiste, Zielinski,
+         Toivonen, Marchetti, Osei, Rasmussen, Villanueva, Kaczmarek, Fontaine, Adeyemi, Sorensen, Montoya, Hartigan,
+         Bui, Lazar, Echeverria, Nyberg, Calloway]
+nickname_style: [none, 'a job she used to have', 'her hometown', 'something a coach called her once', 'an animal nobody would pick',
+                 'a mistake from her first fight that stuck', 'her own choice and it shows', 'given by the opponent and now official']
+style:      # how she fights; colours what she would mock and be mocked for
+  - pressure boxer who walks through shots
+  - counter-striker who needs you to lead
+  - wrestler who learned to punch late
+  - kicker with a karate base and low hands
+  - grinder who wins ugly decisions
+  - knockout artist with a short gas tank
+  - technician everyone calls boring
+  - brawler who has never been taught, only fought
+  - southpaw who relies on one weapon
+  - veteran with every trick and slower feet
+  - prospect who has never been behind in a fight
+  - late-notice replacement with nothing to lose
+temperament: [quiet and literal, funny and cruel, earnest, performing for cameras, tired, superstitious, bitter,
+              polite to a fault, impatient, rehearsed, raw, amused by everything]

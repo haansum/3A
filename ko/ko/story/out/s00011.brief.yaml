@@ -1,0 +1,74 @@
+id: s00011
+seed: 11
+axes:
+  setting: faceoff_rooftop
+  relationship: sparring_story
+  grievance: fake_injury
+  stakes: a first title
+  register: comedian
+  counter_register: whisper
+  arc: slow_boil
+  moment: first face-off
+  pov: close third on the target
+  form: alternating one-line paragraphs, hers and hers
+  opening_move: a lie someone tells
+  ending: end on the object
+  sensory_anchor: bus brakes
+  who_falls: target
+  result_meaning: cruelty rewarded and nobody likes it
+  length_words: 120
+  talker_style: technician everyone calls boring
+  talker_temperament: amused by everything
+  target_style: wrestler who learned to punch late
+  target_temperament: bitter
+names:
+- Yara
+- Osei
+- Wren
+- Sorensen
+setting:
+  place: promotional face-off on a parking-garage roof
+  detail: wind keeps taking the backdrop
+people:
+- role: talker
+  name: Yara Osei
+  style: technician everyone calls boring
+  temperament: amused by everything
+  nickname: a mistake from her first fight that stuck
+- role: target
+  name: Wren Sorensen
+  style: wrestler who learned to punch late
+  temperament: bitter
+  nickname: her own choice and it shows
+relationship: one tells a story about dropping the other in sparring; the other says it never happened
+grievance: she pulled out of their first date with an injury and was filmed dancing that weekend
+stakes: a first title
+talk:
+  talker_register: 'comedian: lands jokes for the room; the target has to stand inside the laughter'
+  target_register: 'whisper: public face neutral; the real line is said off-mic at the staredown'
+arc:
+  name: slow_boil
+  beats:
+  - politeness with effort
+  - one detail slips
+  - the detail is answered
+  - neither can retreat
+moment: first face-off
+pov: close third on the target
+form: alternating one-line paragraphs, hers and hers
+first_sentence_is: a lie someone tells
+ending: end on the object
+sensory_anchor: bus brakes
+result:
+  who_falls: target
+  meaning: cruelty rewarded and nobody likes it
+length_words: 120
+banned_here:
+- hands
+- heavy
+- never
+- face
+- shrug
+- still
+do_not_open_with: []
+recent_phrases_to_avoid: []

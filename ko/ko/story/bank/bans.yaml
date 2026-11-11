@@ -1,0 +1,57 @@
+# Always banned: phrases that fight fiction and language models both default to.
+# The lint rejects a story containing any of them (case-insensitive, word stems).
+always:
+  - the air was thick
+  - you could cut the tension
+  - a mix of
+  - couldn't help but
+  - little did she know
+  - something shifted
+  - a testament to
+  - time seemed to slow
+  - the world narrowed
+  - the crowd roared
+  - eyes locked
+  - locked eyes
+  - steely
+  - a ghost of a smile
+  - smirk
+  - let out a breath she didn't know
+  - sent a shiver
+  - electric
+  - palpable
+  - the weight of
+  - years of
+  - in that moment
+  - this was personal
+  - it wasn't just a fight
+  - not just a fight
+  - more than a fight
+  - everything she had worked for
+  - blood, sweat
+  - warrior
+  - destiny
+  - fire in her eyes
+  - like a predator
+  - heart pounded
+  - heart hammered
+  - jaw tightened
+  - jaw clenched
+  - fists clenched
+  - whispered barely
+  - the calm before the storm
+  - storm
+  - tapestry
+  - symphony
+  - dance of
+  - she knew one thing
+  - one thing was certain
+  - only one of them
+# content boundary (owner's standing rule): never in any story
+boundary: [blood, bleed, bleeding, bloody, concuss, concussion, brain, fracture, broken nose, broken jaw, unconscious for,
+           seizure, hospital, stretcher, coma, slur]
+# Rotating bans: each brief also forbids a few of these ordinary crutches, so no two stories
+# lean on the same connective tissue.
+crutch: [suddenly, slowly, finally, just, almost, really, quiet, silence, stare, glare, smile, laugh, nod, shrug,
+         breath, eyes, hands, looked, turned, felt, knew, remember, always, never, "as if", "like a", cold, hot,
+         heavy, small, voice, room, moment, second, step, still, back, face, name, word]

@@ -1,0 +1,73 @@
+id: s00012
+seed: 12
+axes:
+  setting: between_rounds
+  relationship: judge_daughter
+  grievance: funeral_missed
+  stakes: a contract that pays for the gym's lease
+  register: silence
+  counter_register: prophecy
+  arc: kindness_refused
+  moment: between rounds
+  pov: close third on the target
+  form: a single long paragraph then one short line
+  opening_move: a question
+  ending: cut on the bell, before any strike
+  sensory_anchor: a generator
+  who_falls: target
+  result_meaning: cruelty rewarded and nobody likes it
+  length_words: 200
+  talker_style: wrestler who learned to punch late
+  talker_temperament: impatient
+  target_style: late-notice replacement with nothing to lose
+  target_temperament: amused by everything
+names:
+- Hadley
+- Ishikawa
+- Henrike
+- Moreau
+setting:
+  place: on the stool between rounds
+  detail: ice bag sweating through a towel
+people:
+- role: talker
+  name: Hadley Ishikawa
+  style: wrestler who learned to punch late
+  temperament: impatient
+  nickname: none
+- role: target
+  name: Henrike Moreau
+  style: late-notice replacement with nothing to lose
+  temperament: amused by everything
+  nickname: given by the opponent and now official
+relationship: one's parent sat on the commission that ruled on the other
+grievance: she did not come to the coach's memorial; she posted from a beach that day
+stakes: a contract that pays for the gym's lease
+talk:
+  talker_register: 'silence: says almost nothing; one sentence, late, that ends the exchange'
+  target_register: 'prophecy: describes the fight in future tense as if already filed'
+arc:
+  name: kindness_refused
+  beats:
+  - genuine olive branch
+  - taken as weakness
+  - withdrawn for good
+moment: between rounds
+pov: close third on the target
+form: a single long paragraph then one short line
+first_sentence_is: a question
+ending: cut on the bell, before any strike
+sensory_anchor: a generator
+result:
+  who_falls: target
+  meaning: cruelty rewarded and nobody likes it
+length_words: 200
+banned_here:
+- smile
+- back
+- finally
+- shrug
+- voice
+- moment
+do_not_open_with: []
+recent_phrases_to_avoid: []

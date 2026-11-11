@@ -1,0 +1,84 @@
+# How the talk sounds and how the heat builds. Registers are techniques, not vocabularies.
+axis: voice
+register:
+  ledger: lists exact facts, dates and sums, flat tone; the cruelty is in the accuracy
+  kindness: speaks gently, as if consoling her; pity as the weapon
+  comedian: lands jokes for the room; the target has to stand inside the laughter
+  prophecy: describes the fight in future tense as if already filed
+  inventory: itemizes what the other has (coach, belt, nickname) and who really owns each
+  correction: repeatedly fixes the other's version of events, one detail at a time
+  silence: says almost nothing; one sentence, late, that ends the exchange
+  borrowed_words: quotes the other's own old lines back to her, with dates
+  host: treats the other as a guest in her building, offers her things
+  teacher: explains the other's flaws to her as if giving a lesson she paid for
+  bored: answers a different question, checks the time, will not grant importance
+  confession: admits something true and ugly about herself first, then turns it
+  translator_gap: says it in a language the other half-understands; the softened version arrives late
+  crowd_work: never addresses her, only the audience, about her, while she stands there
+  nostalgia: tells a warm memory of them both and lets it curdle in the last clause
+  accountant: talks only about money (purse, tickets, what the other is worth per minute)
+  whisper: public face neutral; the real line is said off-mic at the staredown
+  wounded: the talker is the hurt one and cannot stop showing it
+arc:        # shape of the emotional build; beats are instructions, not sentences
+  slow_boil: [politeness with effort, one detail slips, the detail is answered, neither can retreat]
+  first_blood_early: [hardest line comes first, the rest is the target deciding what to do with it]
+  mask_slip: [performance for cameras, an unscripted reaction, the performer loses the room]
+  role_reversal: [aggressor in control, target finds the one true thing, aggressor now defending]
+  shared_laugh: [hostility, an involuntary shared laugh at an old joke, both hate that it happened]
+  the_wait: [nothing said for most of the scene, pressure through objects and timing, one line]
+  escalating_receipts: [claim, counter-claim with proof, larger proof, proof nobody should have]
+  third_party: [a coach or official tries to steer it, makes it worse, becomes the audience]
+  private_public: [quiet private exchange, then the public version where both pretend, reader knows]
+  kindness_refused: [genuine olive branch, taken as weakness, withdrawn for good]
+  overreach: [talker winning, pushes one line past what the room accepts, room turns]
+  countdown: [a clock is running (scale, walk, bell), each exchange shorter than the last]
+  aftermath_first: [open on the silence after the worst line, then show how it was reached]
+  misheard: [a line is misheard or mistranslated, the wrong version is the one that sticks]
+moment:     # where in the fight week the scene sits
+  [contract signing, first face-off, open workout, media day, weigh-in, the night before, morning of,
+   warm-up, the walk, referee instructions, first exchange of the fight, between rounds, final ten seconds before the finish]
+pov:
+  - close third on the talker
+  - close third on the target
+  - close third on a cornerman who knows both
+  - first person, the target, past tense
+  - first person, the talker, present tense
+  - the referee or official, limited to what is audible
+  - a camera operator who only sees what is in frame
+  - second person addressed to the loser, afterward
+  - a transcript with stage directions (no interior at all)
+  - the younger teammate watching and choosing a side
+form:
+  - one continuous scene, no time jump
+  - two short scenes with a hard cut; the second re-reads the first
+  - starts mid-sentence in the argument
+  - built around one object that changes hands or meaning
+  - a list (things she said / things she brought / things on the table) that breaks into scene
+  - dialogue-heavy, almost no description
+  - no quoted speech at all; everything reported
+  - counted down by a clock or scale reading
+  - a single long paragraph then one short line
+  - alternating one-line paragraphs, hers and hers
+opening_move:   # what the first sentence must be
+  [an object, a line of speech, a number, a sound, a smell, a place name, a time of day, a lie someone tells,
+   a small physical action, a rule being read aloud, a question, something missing that should be there]
+ending:
+  - cut on the bell, before any strike
+  - cut on the walk to the center
+  - end on the line she does not answer
+  - end on the object
+  - end one second before the result, with the result's first motion only
+  - end on a third person's reaction
+  - end on what the winner does not feel
+  - end with the loser's last clear thought, mid-sentence
+  - end on a sound
+  - end on the scale, clock or scorecard number
+result_meaning:   # what the knockout means, given who falls
+  talker_falls:  [hubris answered, the room goes quiet for the wrong person, the line outlives the fight, she was right and lost anyway]
+  target_falls:  [the prophecy filed as written, cruelty rewarded and nobody likes it, mercy came too late, nothing was settled]
+sensory_anchor:   # one recurring non-visual detail; use it at most three times
+  [liniment, a failing fluorescent tube, wet tape, the scale's click, a crowd heard through a wall, gum, an ice machine,
+   feedback from a cheap mic, new canvas paint, a zipper, hand-wrap velcro, a folding chair, rain on a metal roof,
+   somebody's phone alarm, a mouthguard case snapping, bus brakes, a generator, popcorn, chlorine, cold coffee,
+   a camera shutter, the cut-man's tin opening, flip-flops on concrete, an announcer testing levels,
+   a radiator, a child asking a question, cicadas, a vending machine, plastic sheeting, a prayer said quietly]

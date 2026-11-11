@@ -1,0 +1,73 @@
+id: s00013
+seed: 13
+axes:
+  setting: bus
+  relationship: old_loan
+  grievance: thanked_everyone_else
+  stakes: a ranking spot and nothing else
+  register: kindness
+  counter_register: wounded
+  arc: private_public
+  moment: contract signing
+  pov: the younger teammate watching and choosing a side
+  form: alternating one-line paragraphs, hers and hers
+  opening_move: a sound
+  ending: end on a sound
+  sensory_anchor: wet tape
+  who_falls: talker
+  result_meaning: she was right and lost anyway
+  length_words: 200
+  talker_style: wrestler who learned to punch late
+  talker_temperament: rehearsed
+  target_style: late-notice replacement with nothing to lose
+  target_temperament: superstitious
+names:
+- Wren
+- Nakashima
+- Fenna
+- Quispe
+setting:
+  place: promotion shuttle bus
+  detail: only two seats left and they are together
+people:
+- role: talker
+  name: Wren Nakashima
+  style: wrestler who learned to punch late
+  temperament: rehearsed
+  nickname: something a coach called her once
+- role: target
+  name: Fenna Quispe
+  style: late-notice replacement with nothing to lose
+  temperament: superstitious
+  nickname: something a coach called her once
+relationship: a specific sum, lent for a specific thing, never repaid
+grievance: she thanked forty people after her title win and left out one
+stakes: a ranking spot and nothing else
+talk:
+  talker_register: 'kindness: speaks gently, as if consoling her; pity as the weapon'
+  target_register: 'wounded: the talker is the hurt one and cannot stop showing it'
+arc:
+  name: private_public
+  beats:
+  - quiet private exchange
+  - then the public version where both pretend
+  - reader knows
+moment: contract signing
+pov: the younger teammate watching and choosing a side
+form: alternating one-line paragraphs, hers and hers
+first_sentence_is: a sound
+ending: end on a sound
+sensory_anchor: wet tape
+result:
+  who_falls: talker
+  meaning: she was right and lost anyway
+length_words: 200
+banned_here:
+- nod
+- back
+- like a
+- slowly
+- name
+- as if
+do_not_open_with: []
+recent_phrases_to_avoid: []
