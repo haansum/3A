@@ -1,0 +1,94 @@
+{
+ "id": "s00060",
+ "seed": 60,
+ "shape": "aftermath",
+ "attempts": [
+  {
+   "n": 1,
+   "words": 475,
+   "fails": [
+    "banned_in_this_brief: still"
+   ]
+  },
+  {
+   "n": 2,
+   "words": 476,
+   "fails": []
+  }
+ ],
+ "plan": {
+  "nickname": "the Mole",
+  "detail": "Fort Wayne Open, 2017: Laleh took the van keys from Coach Dunleavy's bag, and the four she left behind each paid $61 for a Greyhound seat home",
+  "round_time": "Round 2, 1:47",
+  "opener": [
+   {
+    "p": 0.35,
+    "text": "Seven. Eight. Twenty-two dollars a seat up there, kids. That's about a dollar a second."
+   },
+   {
+    "p": 0.25,
+    "text": "Six. Seven. Somebody tell the Mole she got paid by the round and only worked one and a half."
+   },
+   {
+    "p": 0.2,
+    "text": "Eight. Nine. Hold onto your stubs. Those are worth more now than they were at the door."
+   },
+   {
+    "p": 0.2,
+    "text": "Five. Six. Her whole purse comes to about forty dollars a minute tonight. Write that down."
+   }
+  ],
+  "personal": [
+   {
+    "p": 0.35,
+    "text": "Sixty-one dollars for a Greyhound seat out of Fort Wayne, and she billed me for it every year for nine years. I just settled it in one minute forty-seven."
+   },
+   {
+    "p": 0.25,
+    "text": "Your coach told you about the van. Four seats, sixty-one apiece, two hundred forty-four dollars. That's the most she ever charged anybody, and she charged me."
+   },
+   {
+    "p": 0.2,
+    "text": "Dunleavy kept the Greyhound receipt in his gear bag to show me what I owed. She trains in his old gym now and that receipt is still the most she ever earned."
+   },
+   {
+    "p": 0.2,
+    "text": "She rode nine hours on a sixty-one-dollar ticket from Fort Wayne so she'd have something to tell you about me. That was the best investment she ever made. Tonight it stopped paying."
+   }
+  ],
+  "closer": [
+   {
+    "p": 0.35,
+    "text": "I'm not staying for the reading. I don't work overtime."
+   },
+   {
+    "p": 0.25,
+    "text": "Keep the change, Mole. I'll take the van."
+   },
+   {
+    "p": 0.2,
+    "text": "Dunleavy said this belt was worth more than she was. Turns out he had the number right."
+   },
+   {
+    "p": 0.2,
+    "text": "Your next lesson with her should cost less. Ask for a discount."
+   }
+  ]
+ },
+ "chosen": {
+  "opener": {
+   "text": "Six. Seven. Somebody tell the Mole she got paid by the round and only worked one and a half.",
+   "p": 0.25
+  },
+  "personal": {
+   "text": "Your coach told you about the van. Four seats, sixty-one apiece, two hundred forty-four dollars. That's the most she ever charged anybody, and she charged me.",
+   "p": 0.25
+  },
+  "closer": {
+   "text": "Dunleavy said this belt was worth more than she was. Turns out he had the number right.",
+   "p": 0.2
+  }
+ },
+ "status": "accepted",
+ "usage": {}
+}

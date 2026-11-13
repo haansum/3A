@@ -15,6 +15,79 @@ write prose to the brief. A lint then rejects text that echoes earlier stories.
 Your job is the part code cannot do: make two invented people feel like they have known
 each other for ten years, in under 300 words.
 
+## 0. The default shape: finish first, talk as the payload
+
+The generator's default output is no longer a lead-up scene. It is a three-part piece, 360
+to 540 words, with parts separated by a line holding only `*`:
+
+1. **Lead-up**: at most three sentences. Who they are to each other, the one thing that was
+   done, what is at stake. Nothing else about the fight.
+2. **The finish**: the knockout as the simulation shows it, described fact by fact.
+3. **Aftermath and talk**: at least half the words. What the room does, then the rubbing-in.
+   Three lines are chosen by code from the writer's candidates: an opener, the personal one,
+   a closer.
+
+    python -m ko.story.generate --seed 60 --count 5                 # aftermath shape (default)
+    python -m ko.story.generate --seed 60 --take takes/beats/x.yaml # describe a real take's finish
+    python -m ko.story.generate --seed 60 --set tone=measured --set speaker=caller
+    python -m ko.story.generate --seed 60 --shape leadup            # the older scene-before-the-fight shape
+
+The writer's instructions for this shape are `ko/story/writer_prompt_aftermath.md`. Sections
+3 to 6 below describe the older `leadup` shape and its brief; the craft rules in sections 4
+and 5 apply to both.
+
+**Where the finish comes from.** With `--take`, the facts are read off that take's beat sheet
+in order, so the prose describes the animation. Without it, `finish.py` draws a finish from
+the lever catalog (strike, where it lands, fall, two posture facts, two effects while she is
+out, how she rests, her eyes, optional follow-ups, one thing she does coming round) and also
+emits `sim_prose`, a line `ko.beats.parse` can turn into a beat sheet for that finish.
+
+**Why finishes stop repeating** (`bank/finish_prose.yaml`):
+
+| Piece | Count | Use |
+| --- | --- | --- |
+| Lenses | 18 | One governs how the whole finish is told: by sound, by the clock, one body part, from the floor, as a machine losing power, as the referee sees it, and so on |
+| Phase seeds | 78 | One small observation for each of six phases: arrival, contact, the instant she goes, the fall, the landing, the first still second |
+| Sounds | 14 | One thing heard |
+| Renderings | about 330 across 110 facts | Each fact arrives with one way a ringside viewer might see it, rotated by memory, so "arms.fencing" is not described the same way twice running |
+| Banned stock phrases | 53 | Rejected in the finish by the lint: trees, sacks, rag dolls, lights, switches, naps, "crumpled", "thud", and the rest |
+
+**Effects that sell it.** A new lever family, `ko_effects` (46 levers, in
+`ko/beats/catalog/08_ko_effects.yaml` and `docs/LEVERS.md`), lists observable signs
+consistent with the posturing: snoring and its late onset, one huge first breath, lips
+fluttering, cheeks puffing, breath hitching, a groan, breath whistling round the mouthguard,
+jaw working, lip smacking, mumbling, slow blinks, eyes open throughout, an arm that stays
+raised and sinks in stages, hands pawing at air, fingers fanning or rippling, wrists curling
+in, a guard that comes back up while she is out, a glove tapping the canvas, a shrug that
+holds, a single shudder, knees quivering, feet paddling, toes fanning, heels digging, the
+back bowing and letting go, the head lifting and dropping; and coming round: grabbing or
+fighting the referee, sitting up too fast, legs not answering, the wrong corner, asking what
+round it is, arguing the stoppage, keeping her guard up on the stool, wiping her mouth,
+pushing help away, a confused smile, studying her gloves. They are written as observation
+only. Most are prose-only for now: the sim needs the face, finger, toe and breath layers
+before it can show them.
+
+**Tone.** `tone` is drawn: underground 75%, measured 25%. Underground is the voice of an
+unsanctioned, knockout-hungry circuit: young, fast, funny-cruel, sharper than a street-clip
+caption and looser than a broadcast. It may clown the way she fell and the pose she is in;
+then it gets personal. Three registers exist for it: `roast_the_pose`, `receipts` (phone
+culture as evidence) and `house_mic` (the circuit's caller). The speaker is the winner 84%
+of the time, the caller 8%, the loser's corner, the loser later, or the winner's corner the
+rest.
+
+**The talk bank.** `ko/story/examples/trash_talk.yaml` holds 385 lines across 29 registers,
+tagged `when` (before / after) and `tone` (measured / underground); 349 are post-knockout,
+125 underground. The generator shows the writer six per piece, matching the tone, from
+registers the piece does not use. Every line in the file counts as used text.
+
+**Details that sell the event.** Each brief draws five observed details (clock, referee,
+corners, room, body) from `bank/aftermath.yaml`, plus who the talk is aimed at, what the
+speaker is doing while she says it, when, and how the piece ends.
+
+**Limits that still hold.** No blood, injury detail or medical vocabulary; no slurs; nothing
+about looks, race, religion, sexuality or disability; nothing sexual; fictional adults only.
+Jokes about how she fell and what her body is doing are in.
+
 ## 2. Running it
 
 **Normal use: the generator does the whole loop.**

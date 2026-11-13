@@ -31,8 +31,8 @@ OUT = os.path.join(HERE, 'out')
 MODEL = 'claude-opus-5-5'
 
 
-def system_prompt():
-    return open(os.path.join(HERE, 'writer_prompt.md')).read()
+def system_prompt(shape='leadup'):
+    return open(os.path.join(HERE, 'writer_prompt_aftermath.md' if shape == 'aftermath' else 'writer_prompt.md')).read()
 
 
 def technique_examples(brief, seed, n=4):
@@ -40,17 +40,23 @@ def technique_examples(brief, seed, n=4):
     idea of a register without offering lines that fit. Rotated by seed."""
     d = yaml.safe_load(open(os.path.join(HERE, 'examples', 'trash_talk.yaml')))
     used = {brief['axes']['register'], brief['axes']['counter_register']}
-    regs = [r for r in d if r not in used]
+    after = brief.get('shape') == 'aftermath'
+    regs = [r for r in d if r not in used and (not after or any(e.get('tone') == brief.get('tone') and e.get('when') == 'after' for e in d[r]))]
+    n = 6 if after else n
     rng = np.random.default_rng(seed)
     out = []
     for r in rng.choice(regs, n, replace=False):
-        e = d[str(r)][int(rng.integers(len(d[str(r)])))]
+        pool = [e for e in d[str(r)] if (e.get('when') == 'after') == after and e.get('tone', 'measured') == brief.get('tone', 'measured')] \
+            or [e for e in d[str(r)] if (e.get('when') == 'after') == after] or d[str(r)]
+        e = pool[int(rng.integers(len(pool)))]
         out.append(f'- {r} (context: {e["ctx"]}): {e["line"]}')
     return '\n'.join(out)
 
 
 def brief_text(brief):
-    keep = {k: v for k, v in brief.items() if k not in ('axes', 'names', 'seed', 'id')}
+    keep = {k: v for k, v in brief.items() if k not in ('axes', 'names', 'seed', 'id', 'sim_prose', 'shape')}
+    if 'finish' in keep:                    # the writer needs the fact and the image, not the lever ids
+        keep = dict(keep, finish=dict(keep['finish'], facts_in_order=[{k: v for k, v in f.items() if k != 'lever'} for f in keep['finish']['facts_in_order']]))
     return yaml.safe_dump(keep, sort_keys=False, width=110, allow_unicode=True)
 
 
@@ -83,6 +89,35 @@ FIX_ASK = '''The story was checked mechanically and rejected:
 Rewrite the whole story so every check passes. Keep the brief, the specifics and the chosen line. Return only the story text.'''
 
 
+CAND_ASK_AFTER = '''BRIEF
+{brief}
+Examples of other registers, for technique only. Do not reuse a line, a sentence shape or an object from them:
+{examples}
+
+Step 1 of 2. Do not write the piece yet.
+First decide three specifics: the nickname or ring name in play; the one checkable detail of the grievance (a number, object, date or place); the exact round and time of the finish.
+Then write candidates for the three lines the speaker says afterward, {n} for each slot:
+- opener: the first thing said. Small, almost offhand.
+- personal: the grievance named exactly and tied to what just happened on the canvas.
+- closer: what she leaves the room with.
+Within a slot make the candidates genuinely different in what they attack and how they are built. For each give p: your honest estimate of the probability that you would have written that line if asked for only one. Within each slot the p values sum to 1.
+
+Return only JSON: {{"nickname": str, "detail": str, "round_time": str, "opener": [{{"p": number, "text": str}}, ...], "personal": [...], "closer": [...]}}'''
+
+WRITE_ASK_AFTER = '''BRIEF
+{brief}
+Specifics already decided:
+- nickname: {nickname}
+- grievance detail: {detail}
+- round and time: {round_time}
+
+The three lines have been chosen for you. Use each exactly as written, once, in the third part, in this order:
+- opener: {opener}
+- personal: {personal}
+- closer: {closer}
+
+Step 2 of 2. Write the piece now: lead-up, a line with only *, the finish, a line with only *, the aftermath and talk. Return only the text.'''
+
 # ---- writers -----------------------------------------------------------------------------
 class ApiWriter:
     """Anthropic SDK. The system prompt is stable, so it is cached across stories."""
@@ -91,13 +126,13 @@ class ApiWriter:
         import anthropic
         self.anthropic = anthropic
         self.client = anthropic.Anthropic()
-        self.model, self.effort = model, effort
+        self.model, self.effort, self.shape = model, effort, 'leadup'
         self.usage = {'input': 0, 'output': 0, 'cache_read': 0}
 
     def _call(self, messages, max_tokens, schema=None):
         a = self.anthropic
         kw = dict(model=self.model, max_tokens=max_tokens, messages=messages,
-                  system=[{'type': 'text', 'text': system_prompt(), 'cache_control': {'type': 'ephemeral'}}],
+                  system=[{'type': 'text', 'text': system_prompt(self.shape), 'cache_control': {'type': 'ephemeral'}}],
                   output_config={'effort': self.effort},
                   betas=['server-side-fallback-2026-07-01'], fallbacks='default')
         try:
@@ -134,7 +169,15 @@ class ApiWriter:
             detail: str
             hands: str
             candidates: list[Cand]
-        return self._call([{'role': 'user', 'content': user}], 4000, Plan)
+
+        class PlanAfter(BaseModel):
+            nickname: str
+            detail: str
+            round_time: str
+            opener: list[Cand]
+            personal: list[Cand]
+            closer: list[Cand]
+        return self._call([{'role': 'user', 'content': user}], 6000, PlanAfter if self.shape == 'aftermath' else Plan)
 
     def write(self, turns):
         return self._call(turns, 4000)
@@ -144,11 +187,11 @@ class CmdWriter:
     """Any command that reads a prompt on stdin and prints a reply."""
 
     def __init__(self, cmd, timeout=300):
-        self.cmd, self.timeout = cmd, timeout
+        self.cmd, self.timeout, self.shape = cmd, timeout, 'leadup'
         self.usage = {}
 
     def _run(self, turns):
-        prompt = system_prompt() + '\n\n' + '\n\n'.join(
+        prompt = system_prompt(self.shape) + '\n\n' + '\n\n'.join(
             ('' if t['role'] == 'user' else 'YOUR PREVIOUS ANSWER:\n') + t['content'] for t in turns)
         r = subprocess.run(self.cmd, shell=True, input=prompt, capture_output=True, text=True, timeout=self.timeout)
         if r.returncode != 0:
@@ -169,19 +212,27 @@ class CmdWriter:
 
 
 # ---- the loop ------------------------------------------------------------------------------
-def one(seed, writer, take=None, sets=None, max_attempts=3, n_cand=5, accept=True, log=print):
+def _norm(t):
+    return re.sub(r'\s+', ' ', t.lower().replace('\u201c', '"').replace('\u201d', '"').replace('\u2019', "'").replace('\u2018', "'")).strip()
+
+
+def one(seed, writer, take=None, sets=None, max_attempts=3, n_cand=5, accept=True, log=print, shape='aftermath'):
     os.makedirs(OUT, exist_ok=True)
-    brief = draw.draw(seed, sets, take)
+    after = shape == 'aftermath'
+    writer.shape = shape
+    brief = (draw.draw_aftermath if after else draw.draw)(seed, sets, take)
     sid = brief['id']
     yaml.safe_dump(brief, open(os.path.join(OUT, sid + '.brief.yaml'), 'w'), sort_keys=False, width=110, allow_unicode=True)
-    rec = {'id': sid, 'seed': seed, 'attempts': []}
+    rec = {'id': sid, 'seed': seed, 'shape': shape, 'attempts': []}
     bt = brief_text(brief)
-    plan = None
+    slots = ('opener', 'personal', 'closer') if after else ('candidates',)
+    plan, lines = None, {}
     for _ in range(2):                      # candidates: one retry if malformed or all rejected
-        plan = writer.candidates(CAND_ASK.format(brief=bt, examples=technique_examples(brief, seed), n=n_cand))
-        if plan and len(plan.get('candidates') or []) >= 4:
+        plan = writer.candidates((CAND_ASK_AFTER if after else CAND_ASK).format(
+            brief=bt, examples=technique_examples(brief, seed), n=4 if after else n_cand))
+        if plan and all(len(plan.get(k) or []) >= 4 for k in slots):
             try:
-                line = chooser.choose(plan['candidates'], seed, brief)
+                lines = {k: chooser.choose(plan[k], seed + i, brief) for i, k in enumerate(slots)}
                 break
             except SystemExit as e:
                 rec.setdefault('candidate_rejects', []).append(str(e))
@@ -191,8 +242,12 @@ def one(seed, writer, take=None, sets=None, max_attempts=3, n_cand=5, accept=Tru
         json.dump(rec, open(os.path.join(OUT, sid + '.log.json'), 'w'), indent=1)
         log(f'{sid}: FAILED at candidates')
         return rec
-    rec.update({'plan': plan, 'chosen_line': line['text'], 'chosen_p': line['p']})
-    turns = [{'role': 'user', 'content': WRITE_ASK.format(brief=bt, line=line['text'], **{k: plan[k] for k in ('nickname', 'detail', 'hands')})}]
+    rec.update({'plan': plan, 'chosen': {k: {'text': v['text'], 'p': v['p']} for k, v in lines.items()}})
+    if after:
+        ask = WRITE_ASK_AFTER.format(brief=bt, **{k: plan[k] for k in ('nickname', 'detail', 'round_time')}, **{k: v['text'] for k, v in lines.items()})
+    else:
+        ask = WRITE_ASK.format(brief=bt, line=lines['candidates']['text'], **{k: plan[k] for k in ('nickname', 'detail', 'hands')})
+    turns = [{'role': 'user', 'content': ask}]
     story, ok = None, False
     for k in range(max_attempts):
         story = writer.write(turns)
@@ -201,8 +256,10 @@ def one(seed, writer, take=None, sets=None, max_attempts=3, n_cand=5, accept=Tru
             break
         res = lint.check(brief, story)
         fails = [f"{r['check']}: {r['detail']}" for r in res if not r['pass']]
-        if line['text'].strip().strip('"').lower()[:40] not in story.lower().replace('“', '"').replace('”', '"').replace('’', "'"):
-            fails.append('chosen_line: the chosen line is missing or was altered; use it exactly')
+        body = _norm(story)
+        for name, ln in lines.items():
+            if _norm(ln['text']).strip('"')[:40] not in body:
+                fails.append(f'chosen_line ({name}): missing or altered; use it exactly: {ln["text"]}')
         rec['attempts'].append({'n': k + 1, 'words': len(story.split()), 'fails': fails})
         if not fails:
             ok = True
@@ -217,7 +274,7 @@ def one(seed, writer, take=None, sets=None, max_attempts=3, n_cand=5, accept=Tru
         with open(draw.LEDGER, 'a') as f:
             f.write(json.dumps({'id': sid, 'axes': brief['axes'], 'names': brief['names'], **lint.stats(story)}) + '\n')
     json.dump(rec, open(os.path.join(OUT, sid + '.log.json'), 'w'), indent=1)
-    log(f"{sid}: {rec['status']} ({len(rec['attempts'])} attempt(s)); line p={line['p']}; {path}")
+    log(f"{sid}: {rec['status']} ({len(rec['attempts'])} attempt(s)); line p={[v['p'] for v in lines.values()]}; {path}")
     return rec
 
 
@@ -232,6 +289,8 @@ def main(argv=None):
     ap.add_argument('--model', default=MODEL)
     ap.add_argument('--effort', default='medium')
     ap.add_argument('--max-attempts', type=int, default=3)
+    ap.add_argument('--shape', choices=['aftermath', 'leadup'], default='aftermath',
+                    help='aftermath: brief lead-up, the finish, then the talk (default). leadup: the scene before the fight')
     ap.add_argument('--dry', action='store_true', help='do not record accepted stories in the ledger')
     a = ap.parse_args(argv)
     used = {q['id'] for q in draw.ledger()}
@@ -241,7 +300,7 @@ def main(argv=None):
         if f's{s:05d}' in used:
             print(f's{s:05d}: seed already used, skipped')
             continue
-        done.append(one(s, w, a.take, dict(x.split('=', 1) for x in a.set), a.max_attempts, accept=not a.dry))
+        done.append(one(s, w, a.take, dict(x.split('=', 1) for x in a.set), a.max_attempts, accept=not a.dry, shape=a.shape))
     n = sum(r['status'] == 'accepted' for r in done)
     print(f'{n} of {len(done)} accepted' + (f"; tokens {w.usage}" if w.usage else ''))
     return 0 if n == len(done) else 2

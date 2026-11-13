@@ -1,0 +1,307 @@
+# Bank for writing the finish. Purpose: stop every knockout being described the same way.
+# The brief draws ONE lens, one seed per phase, one sound, and one rendering for each fact.
+# Everything here is a seed for an image, never a sentence to copy. Left/right are HERS.
+# Observation only: what a person at ringside sees and hears. No causes, no anatomy terms.
+axis: finish_prose
+
+lenses:           # the governing way of seeing this finish; pick the sentences to suit it
+  sound_first: tell it mostly by ear; what each thing sounded like, and what went quiet
+  clock: tell it by time; count the beats between the strike, the fall and the landing
+  one_part: follow a single body part (a hand, a foot, the chin) from start to finish and let the rest happen around it
+  from_the_floor: from canvas level; feet, knees, the underside of things, the mat coming up
+  from_her_corner: as her own corner sees it, a half second behind and unwilling
+  the_striker: from inside the one who threw it; what the limb felt, what she stopped needing to do
+  inventory: a flat list of what stopped working, in order
+  machine: as a mechanism losing power; switches, slack, load, things running down
+  puppet: as weight and strings; what was holding her up and what let go first
+  building: as a structure coming down; what was load-bearing
+  crowd_lag: the room reacts late, in sections; the event is told through who understood when
+  the_referee: by what the referee does and how fast he decides
+  replay: told once at speed in a single sentence, then again piece by piece
+  understatement: dry and small; the less said, the worse it is
+  comedy: funny first and brutal underneath; the timing of a pratfall with none of the mercy
+  animal: movement described through animals, never more than once per image
+  weather_ban: everything concrete and indoor; no storms, no lightning, no thunder
+  commentator: called live by someone who has seen a hundred of these and still enjoys it
+
+phases:
+  arrival:        # the strike on its way
+    - she is looking at the wrong hand
+    - it starts from outside what she is watching
+    - the hip turns before anything else does
+    - it comes over the top of her own punch
+    - she has just finished doing something clever
+    - the striker's back foot leaves a wet print
+    - it is thrown at half speed and that is why it lands
+    - she is mid-breath, mouth open
+    - her lead foot is in the air
+    - she nods at something her corner said
+    - it is the same shot that missed twice
+    - the setup is a shrug of the shoulder
+    - it travels a very short distance
+    - she steps into the place it is already going
+    - her guard is high and it comes under the elbow line
+    - she blinks and it is the wrong blink
+  contact:        # the moment it lands
+    - a flat sound, like a book dropped on a table
+    - a click more than a thud
+    - the head turns and the body does not get the message
+    - sweat leaves her hair in a ring
+    - the mouthguard shows for an instant
+    - her feet are still set to throw
+    - the striker's limb is already on its way back
+    - it lands with the part that is not padded
+    - her chin goes one way and her eyes stay
+    - a sound the cheap seats hear a moment late
+    - the glove leaves a clean dry patch on a wet cheek
+    - nothing dramatic; a nudge in exactly the wrong place
+    - her head makes a short hard quarter turn
+    - both her heels come off the floor
+  switch:         # the instant she goes out
+    - the eyes are open and nobody is using them
+    - the hands forget what they were for
+    - her face goes smooth, all the effort gone out of it
+    - the knees get a different instruction from the hips
+    - she keeps the expression she had a second ago
+    - like a screen that is on but showing nothing
+    - the fight goes out of the shoulders first
+    - the mouth stays set as if still biting down
+    - everything she was doing stops halfway
+    - whatever was holding the posture lets go of the middle and grips the ends
+    - she is still standing and already absent
+    - the next punch she was going to throw never arrives
+  fall:           # on the way down
+    - nothing reaches for the floor
+    - she goes over her own heels
+    - the hands stay where the guard left them
+    - the fall has no bend in it
+    - she sits into a chair that is not there
+    - she turns as she goes, like something unscrewing
+    - the knees go first and the rest follows them down
+    - her own momentum picks the direction
+    - one foot stays planted too long
+    - slow at the top, fast at the bottom
+    - she folds at one hinge only
+    - the head is the last thing to be told
+    - she tips like a ladder
+    - a short drop, straight down, onto herself
+  landing:        # reaching the canvas
+    - the ring floor booms under the canvas
+    - shoulder blades, then the back of the head, a beat apart
+    - the heels come up when the shoulders go down
+    - a cloud of resin dust in the lights
+    - the ropes shiver though nobody touched them
+    - the canvas gives and gives back
+    - she arrives all at once, flat
+    - hip, elbow, cheek, in that order
+    - the sound of a mattress dropped from a height
+    - one bounce, small, and then nothing
+    - the logo paint leaves a mark on her shoulder
+    - her hair lands a moment after she does
+  stillness:      # the first second after
+    - the only thing moving is her chest
+    - one glove is still closing
+    - the referee's shoes arrive in the picture
+    - a foot ticks like a clock
+    - she holds a pose nobody would choose
+    - her eyes are on a corner of the ceiling
+    - the body keeps a shape, like something set
+    - the tension leaves in an order, feet then knees then hands
+    - a long breath comes out of her that she did not take
+    - the winner's shadow is across her and does not move
+
+sounds:
+  - the first snore, loud enough to reach the timekeeper
+  - a wet rattle on the breath in
+  - breath whistling around the mouthguard
+  - the canvas creaking under small movements
+  - a glove squeaking against the mat
+  - heels knocking twice on the boards
+  - the ropes ticking as they settle
+  - a low hum on her breath out
+  - the referee's knees hitting the floor
+  - one clear word from the second row
+  - nothing at all for a full second
+  - her own corner's bucket going over
+  - the timekeeper's hammer, late
+  - teeth clicking on the mouthguard
+
+# lever id -> ways a ringside viewer would put it. One is drawn per fact.
+renderings:
+  strike.hook: [a short bent-arm punch that comes round the side of her guard, the fist arrives from where her glove is not, 'a hook: elbow high, thrown from the hip, no wind-up']
+  strike.cross: [a straight punch down the middle between her gloves, the rear hand sent the shortest way there is, a straight shot that passes her own jab going the other way]
+  strike.overhand: [a looping punch that comes down over her lead shoulder, 'the big arcing one, dropped over the top of her guard', an overhand that she sees late because it comes from above her eyeline]
+  strike.uppercut: [a punch that rises between her forearms, 'an uppercut from the waist, straight up the centre', the short one that comes up under the chin from where she cannot look]
+  strike.elbow: [a short elbow across the gap, 'the point of the elbow, thrown inside punching range', an elbow that travels six inches]
+  strike.head_kick: [a round kick with the shin arriving above her shoulder, the shin swung up and across like a door closing, 'a high kick; she drops her hand to block the body and it goes over']
+  strike.wheel_kick: [a spinning kick with the heel coming round from behind the striker, 'a back turned, then a heel arriving from the blind side', the heel carried round a full turn and into the side of her jaw]
+  strike.front_kick: [a straight kick with the ball of the foot rising under the chin, a snapped front kick up the middle, 'a foot where a jab would be, only longer']
+  strike.knee: [a knee rising as she ducks in, 'the knee brought up through the middle to meet her on the way down', a step and a lifted knee timed to her level change]
+  strike.backfist: [a turning strike with the back of the fist arriving sideways, 'a spin, then knuckles from the wrong direction', the back of the glove whipped round at the end of a turn]
+  hit.jaw_tip: [it touches only the very point of the chin, it finds the last inch of the jaw, the contact is small and all on the tip]
+  hit.clips_jaw: [it only clips the point of the jaw and that is enough, 'not flush; a clip, a tick on the chin as it goes by', it barely touches her and turns her head like a tap]
+  hit.temple: [it lands high on the side of the head by the eye, 'above the ear, on the flat of the temple', it catches her on the side of the head where the guard has a gap]
+  hit.forehead: [it lands high and drives the head straight back, 'on the hairline; the head goes back like a lid', high on the brow and all push]
+  hit.clip: [a glancing touch rather than a full connection, it skims her and still does the job, more brush than blow]
+  hit.flush: [it lands square with nothing taken off it, 'full, clean, all of it', the whole of it arrives at once and stays a moment]
+  fall.backward: [she goes over backward, 'back she goes, heels first', she tips away from it and keeps tipping]
+  fall.forward: [she pitches forward onto her front, 'she goes down the way she was facing, toward the one who hit her', forward, face leading]
+  fall.sideways: [she goes over to one side, she topples toward her own shoulder, she leans and the lean does not stop]
+  fall.straight_down: [she drops straight down where she stands, 'down, not over; onto her own feet', she comes down in place like a dropped coat]
+  fall.timber: [nothing bends on the way down, 'rigid from heels to head, one piece', she falls the way a plank falls when you let go of the top]
+  fall.teeter: [she hangs at the tipping point before she goes, 'for a moment she is balanced on her heels at an angle nobody stands at', she sways once and the second sway is the fall]
+  fall.delayed: [she stays up a full beat after it lands and then goes, 'she takes it, stands there, and only then leaves', a pause on her feet long enough to make people think she is fine]
+  fall.instant: [she is going down before the striker has finished the motion, no pause at all between the touch and the drop, down in the same instant it lands]
+  fall.sit_then_back: [she lands on her seat first and the top half follows it back, 'she sits, hard, and then the rest of her lies down fast', hips to the floor first and then the shoulders and head thrown back after them]
+  fall.knees_first: [she drops to both knees and goes on from there, 'knees, then the rest', she kneels without meaning to and keeps going]
+  fall.spin: [she turns as she falls, 'a slow half-turn on the way down, like something unscrewing', the shot spins her and she goes down still turning]
+  arms.fencing: ['one arm shoots out straight and stays there while the other folds up tight to her chest', 'one hand pointing at the lights with the elbow locked, the other curled in under her chin', 'her arms take two different poses at once, one reaching and one tucked, and hold them']
+  arms.both_extended: [both arms go out straight in front of her and lock, 'two arms held up stiff off the canvas, reaching at nothing', her arms stay up after she is down as if somebody had asked her to hold them there]
+  arms.both_flexed: [both arms draw up tight against her chest with the wrists bent, 'elbows in, fists under her chin, held hard', her arms fold in on themselves and clamp]
+  arms.drop_limp: [her arms simply fall, 'both hands drop as if the strings were cut', the gloves hit her own thighs on the way down]
+  arms.guard_frozen: [her hands stay exactly where the guard left them, 'she is out with her guard still up, perfect and useless', the gloves keep their place by her cheeks all the way to the floor]
+  arms.starfish: [her arms are flung wide, 'both arms thrown out flat, palms up', arms out to either side as if measuring the ring]
+  arms.loose_guard: [the guard sags an inch but the hands stay up, 'her hands are still raised and nobody is holding them there', the gloves droop from the cheekbones to the collarbones and stop]
+  legs.extend_stiff: [both legs lock out straight, 'knees locked, legs like two rails', her legs go rigid from hip to heel]
+  legs.buckle: [her knees give in both directions at once, 'the legs fold up under her like a camp bed', the knees unlock and nothing replaces them]
+  legs.scissor: ['one leg lifts and crosses while the other presses down, like blades closing', 'her legs slide past each other, one up, one back', the legs draw together and cross slowly at the thigh]
+  legs.ankles_cross: [her ankles cross one over the other and stay, 'her feet fold over each other, neat as a person asleep on a sofa', one ankle climbs over the other and locks there]
+  legs.one_straight_one_bent: ['one leg locked straight, the other bent up at the knee', one knee points at the lights while the other leg lies flat and rigid, her legs disagree about what to do]
+  legs.folded_under: [one leg is folded underneath her with the heel by her hip, 'she lands on her own shin, the foot trapped under her seat', a knee bent back the way you sit to tie a shoe]
+  trunk.rigid_plank: [her whole body is one stiff piece, 'you could have picked her up by the heels', rigid through the middle like something left out in the cold]
+  trunk.limp: [the middle of her goes soft and she pours down, 'no shape left in her; she lies the way a dropped towel lies', everything loosens at once]
+  trunk.slump_forward: [her chest sinks and her shoulders round forward over her own belt, 'she slumps in the middle while still on her feet, chin heading for her chest', the top half bows a little as if to look at something on the floor]
+  trunk.back_curl: [her back rounds and her chin comes toward her knees, 'she curls up off the canvas an inch, as if starting a sit-up she will not finish', a slow crunch in the stomach that lifts her shoulders and holds]
+  trunk.back_arch: [her back lifts off the canvas in a bow, 'her spine arches so that light shows under the small of her back', she bridges for a moment on shoulders and heels]
+  trunk.upper_back_hunch: [her shoulders and upper back hunch up off the mat, the tops of her shoulders lift toward her ears and come off the canvas, she is braced on the back of her head and her hips with the shoulders hovering]
+  neck.chin_up: [her chin tips up toward the lights, 'head back, throat long, crown pressed into the mat', the chin lifts as if somebody had asked her to look at the ceiling]
+  neck.chin_tuck: [her chin pulls down hard onto her chest, 'head lifted off the mat, looking at her own knees without seeing them', chin tucked as if still guarding it]
+  neck.limp: [her head lolls wherever gravity takes it, 'the neck has nothing in it; the head rolls and stops', her head goes with the last push and stays]
+  neck.turn: [her head is turned hard to one side, 'cheek to the canvas, looking along the floor', her face ends up pointing at her own shoulder]
+  neck.head_off_mat: [her head hovers an inch above the canvas and will not go down, 'neck straining, head held up off the mat by nothing she is doing on purpose', the back of her head never quite touches]
+  feet.point: [her feet point like a dancer's, 'toes driven down, insteps stretched', both feet go long and hard]
+  toes.curl: [her toes curl under, 'the toes clench down as if gripping the edge of something', toes scrunched tight inside nothing]
+  fx.toes_fan: [her toes spread apart and the big toe lifts, 'toes fanned wide like a hand held up to say stop', the big toe stands up on its own]
+  wrist.flex: [her wrists bend down and the hands hang from them, 'both wrists hooked, gloves pointing at the floor', the hands curl in at the wrist like a bird's feet]
+  fx.wrist_curl_in: [both wrists curl in and turn the gloves toward her chest, 'her hands fold in at the wrist and turn over, knuckles to her own breastbone', wrists bent and twisted inward as if holding a small thing against her]
+  hand.half_fist: [her hands are half closed, 'neither fist nor open; fingers bent as if round a rail', loosely curled gloves]
+  hand.fist: [her fists stay clenched, 'still making fists', both hands balled tight with nothing to hit]
+  fx.fingers_fan: [her fingers fan out stiff inside the gloves and then slowly close, 'fingers spread like a starfish and hold', each finger stands apart from the next]
+  fx.fingers_piano: [her fingers ripple one after another, 'the fingers move in a row as if on piano keys', a little running flicker along the knuckles]
+  fx.hands_paw: [her hands paw slowly at the air, 'she reaches for a rope that is two metres away', the gloves open and close on nothing]
+  fx.arm_float: [one arm stays raised in the air long after the rest of her is still, 'an arm left standing up on its own like a flag somebody forgot', her hand hangs above her and does not come down]
+  fx.arm_sink_stages: [the raised arm comes down a notch at a time, 'the arm drops, catches, drops again', it lowers in steps like something on a ratchet]
+  fx.guard_ghost: [her hands drift back up into a guard while she is still out, 'on the canvas, eyes gone, and the gloves come up to her cheeks by themselves', she guards against nothing]
+  fx.glove_tap: [one glove pats the canvas over and over, 'her hand taps the mat, soft and regular, like someone keeping time', a small steady slap of leather]
+  fx.shrug_hold: [her shoulders jump up by her ears and stay there, 'a shrug that does not come back down', shoulders hitched high as if against cold]
+  shoulder.roll_forward: [her shoulders roll forward and in, 'the shoulders curl toward each other across her chest', she rounds through the top of her back as if hugging herself without arms]
+  dyn.tremor: [a fine shiver runs through her, 'she trembles all over, small and quick, like an engine idling', a quiver you can see best in the laces of her gloves]
+  dyn.tremor_upper: [her arms and shoulders tremble, 'the shake is all in the top half; the gloves blur a little', her raised hands vibrate]
+  fx.shudder: [one long shudder runs down her from shoulders to feet and stops, 'she shivers once, head to heels', a single wave goes through her]
+  fx.knee_quiver: [her locked knees quiver, 'the kneecaps jump', her straight legs hum with a small fast shake]
+  fx.foot_paddle: [her feet go on walking slowly while she lies there, 'the legs make two or three slow steps on their back', she paddles at the canvas as if still circling]
+  fx.heel_dig: [her heels dig and push at the canvas, 'she tries to stand through the floor, heels scraping', the heels drag two short lines in the resin]
+  feet.stay_planted: [her feet never move from where they were, 'she goes over her own heels like a hinge', the soles stay flat on the canvas until the last moment]
+  fx.back_bow_release: [her back bows up and then lets go all at once, 'she arches, holds it, and drops flat', a bridge that collapses]
+  fx.head_lift_drop: [her head comes up an inch and is set back down, 'she lifts her head as if to look and loses it again', the head rises, wavers, returns]
+  fx.snore: [she begins to snore, 'a long sawing breath, in and out, loud in the quiet', the sound of somebody deeply asleep on their back]
+  fx.snore_late: ['silence first; then, a second later, the snore', she is quiet just long enough for the room to worry and then the rasp starts, the first loud breath comes late]
+  fx.first_breath: [one enormous breath lifts her whole chest, 'she takes a breath like someone surfacing', the ribs rise once, hugely, and settle]
+  fx.lip_flutter: [her lips flutter on each breath out, 'she blows through loose lips like a horse', a soft puttering from her mouth]
+  fx.cheek_puff: [her cheeks fill and empty with each breath, 'the cheeks puff out round on the exhale', she breathes like someone blowing on soup]
+  fx.breath_hitch: [her breath catches twice before it evens out, 'in, in, and then out', a stutter in the breathing]
+  fx.groan: [a low sound comes out with her breath, 'she hums a single note on the way out', an untidy groan that is not a word]
+  fx.mouthguard_whistle: [her breath whistles round the mouthguard, 'a thin whistle on every exhale', the gum shield turns her breathing into a note]
+  fx.jaw_work: [her jaw works slowly from side to side, 'she chews at nothing', the mouthguard shifts as her jaw grinds across it]
+  fx.lip_smack: [her mouth opens and closes, 'her lips smack softly, like someone tasting something', she mouths at the air]
+  fx.tongue_guard: [the mouthguard slides half out between her lips, 'the gum shield sits crooked, mostly outside her mouth', she has pushed the mouthguard out and it hangs there]
+  fx.mumble: [she is saying something and none of it is words, 'a mutter, busy and blurred', she talks to somebody who is not there]
+  fx.slow_blink: [she blinks slowly and far apart, 'one long heavy blink', her lids come down and take their time coming up]
+  fx.eyes_open_out: [her eyes stay open the whole time, 'wide open and looking at nothing', the eyes are the worst part because they never close]
+  fx.eyes_come_back: [her eyes drift down from the ceiling and find the lights and then a face, 'the eyes come back in stages', you can watch her return behind them]
+  fx.track_late: [her eyes follow a moving hand a beat behind it, 'she watches the finger and arrives late each time', her gaze lags like a bad connection]
+  eyes.gaze_up_corner: [her eyes are rolled up and off to one side with a rim of white under them, 'she is looking at a high corner of the room', the gaze is fixed up and away over her own brow]
+  eyes.rolled_up: [her eyes roll straight up until mostly white shows, 'the irises have gone up under the lids', only the bottom edge of each eye has any colour in it]
+  eyes.vacant_forward: [she stares straight ahead at nothing, 'eyes open, level, and empty', she is looking through whoever is in front of her]
+  eyes.lids_half: [her eyelids hang half closed, 'heavy-lidded, as if very bored', the lids droop to the middle of the eye and stay]
+  face.jaw_slack: [her mouth hangs a little open, 'the jaw has dropped and the mouthguard shows', lips parted and loose]
+  face.teeth_clenched: [her teeth are clamped on the mouthguard, 'jaw locked, biting down on nothing', the muscles at the hinge of her jaw stand out]
+  ground.head_bounce: [the back of her head meets the canvas and comes up again once, 'her head knocks on the floor and bounces, small and final', 'two sounds: shoulders, then head']
+  ground.slide: [she slides a little way along the canvas after she lands, 'her momentum carries her a foot across the mat on her back', she skids and leaves a damp track]
+  ground.no_head_hit: [her head is set down without a knock, 'the head never really hits; it arrives last and softly', her shoulders take the landing and the head just follows]
+  rest.supine: [she ends flat on her back facing the lights, 'on her back, squared up to the ceiling', laid out face up]
+  rest.prone: [she ends face down, 'on her front with one cheek on the canvas', flat on her stomach]
+  rest.side: [she ends on her side, 'on her side like someone asleep', lying along one shoulder and one hip]
+  rest.seated: [she ends sitting, 'sat down against the ropes with her chin on her chest', upright by accident]
+  rest.kneeling_folded: [she ends folded over her own knees, 'kneeling with her forehead on the mat and her hips in the air', bowed down over her shins]
+  follow.punch: [one more lands while she is already on the canvas, 'a follow-up shot arrives before the referee does', the winner adds one to be sure]
+  tone: [her whole body tightens another notch, 'every part of the pose she is in gets harder and smaller', the stiffness climbs]
+  wake.grabs_ref: [she takes hold of the referee's leg and will not let go, 'she hugs his shin like a post', her first act on returning is to grab the wrong person]
+  wake.fights_ref: [she tries to tie up the referee as if he were the opponent, 'she comes round fighting and it is the ref she is fighting', she shoots for the referee's hips]
+  wake.sits_too_fast: [she sits bolt upright and is eased back down, 'up too quick, hands on her shoulders, down again', she pops up like something on a spring]
+  wake.legs_dont_answer: [she tries to stand and her legs do not answer, 'she gets one foot under her and it writes its own plan', up, a stagger, a hand on the rope, down]
+  wake.wrong_corner: [she walks to the wrong corner, 'she heads for the other stool and has to be turned round', she goes to sit with the people who just beat her]
+  wake.asks: [she asks what round it is, 'the first thing she says is a question and it is the wrong one', she asks if she won]
+  wake.argues: [she tells the referee she is fine before she knows where she is, 'she protests the stoppage to the doctor', she argues on instinct]
+  wake.keeps_guard: [on the stool her hands are still up, 'she will not lower her guard for the doctor', sitting down and still defending]
+  wake.wipes_mouth: [she wipes her mouth with her glove again and again, 'the same swipe across the lips, five or six times', she keeps checking her mouth]
+  wake.pushes_help: [she pushes the helping hands away, 'she bats at the doctor like someone woken too early', she wants nobody touching her]
+  wake.smile: [she smiles a small puzzled smile at nothing, 'a polite confused grin up at the lights', she looks pleased and has no reason to be]
+  wake.looks_at_gloves: [she stares at her own gloves as if they were somebody else's, 'she turns her hands over and studies them', she looks at the gloves for an explanation]
+
+# Never in a finish. These are what models (and commentators) reach for first.
+banned_finish_phrases:
+  - like a tree
+  - like a sack
+  - sack of potatoes
+  - like a ton of bricks
+  - lights out
+  - out cold
+  - out like a light
+  - goodnight
+  - good night
+  - stiff as a board
+  - like a rag doll
+  - ragdoll
+  - crumple
+  - crumpled
+  - in a heap
+  - folded like
+  - lawn chair
+  - like a marionette
+  - strings cut
+  - strings were cut
+  - felled
+  - timber
+  - hit the canvas
+  - before she hit
+  - never saw it coming
+  - didn't see it coming
+  - time slowed
+  - slow motion
+  - sickening
+  - thud
+  - went limp
+  - eyes rolled back
+  - face-plant
+  - faceplant
+  - sent her crashing
+  - crashing to
+  - like a puppet
+  - switched off
+  - switch was flipped
+  - flipped a switch
+  - shut down
+  - lifeless
+  - unconscious before
+  - asleep before
+  - devastating
+  - vicious
+  - brutal
+  - thunderous
+  - picture-perfect
+  - textbook
+  - right on the button
+  - put her to sleep
+  - took a nap
+  - nap time

@@ -1,0 +1,107 @@
+family: ko_effects
+title: Knockout effects (observable signs consistent with posturing; proposed, need owner approval)
+# Things a ringside viewer sees or hears while a fighter is out and as she comes round.
+# All are described as observation only: no cause is named and nothing here is a diagnosis.
+# Most need the face, finger, toe and breath layers before they can be driven or measured.
+levers:
+  # ---- breath and sound ----
+  - {id: fx.snore, label: 'Snoring: loud, slow, rasping breaths while she is out',
+     say: [snoring, snores, snore, sawing logs, rasping breath, loud breathing], layer: {breath: {amp_deg: [3, 6], period: [3.5, 2.6]}, sound: snore}, src: new}
+  - {id: fx.snore_late, label: Snoring starts a beat after she lands (silence first then the sound),
+     say: [snoring starts late, then the snoring, silence then snoring], layer: {sound: snore, phase_delay_s: [0.8, 2.5]}, src: new}
+  - {id: fx.first_breath, label: One huge first breath that lifts the whole chest,
+     say: [first big breath, huge breath, chest lifts once, gasps in], layer: {breath: {pause_s: [1.0, 2.5]}}, src: new}
+  - {id: fx.lip_flutter, label: Lips flutter on each breath out,
+     say: [lips flutter, lips blow, lip flutter, blowing through her lips, horse lips], layer: {face: {lip_flutter: [0.3, 1.0]}}, src: new}
+  - {id: fx.cheek_puff, label: Cheeks fill and empty with each breath,
+     say: [cheeks puff out, cheeks fill, puffing], layer: {face: {cheek_puff: [0.3, 1.0]}}, src: new}
+  - {id: fx.breath_hitch, label: Breath catches in short hitches before it evens out,
+     say: [breath hitches, hitching breath, stuttering breath, breath catches twice], layer: {breath: {hitch: [1, 4]}}, src: new}
+  - {id: fx.groan, label: A low involuntary groan on the breath out,
+     say: [groans, low groan, moan on the exhale, hums], layer: {sound: groan}, src: new}
+  - {id: fx.mouthguard_whistle, label: Breath whistles around the mouthguard,
+     say: [whistles through the mouthguard, breath whistles, whistling breath], layer: {sound: whistle}, src: new}
+  # ---- mouth and jaw ----
+  - {id: fx.jaw_work, label: Jaw works slowly side to side as if chewing,
+     say: [jaw works, chewing, jaw grinding, chews at nothing, jaw moves side to side], layer: {face: {jaw_side_cycle_hz: [0.4, 1.2]}}, src: new}
+  - {id: fx.lip_smack, label: Lips smack or open and close like a fish,
+     say: [lip smacking, lips smack, mouth opens and closes, fish mouth], layer: {face: {breath_jaw: [0.3, 0.8]}}, src: new}
+  - {id: fx.tongue_guard, label: Tongue pushes the mouthguard half out,
+     say: [pushes the mouthguard out, mouthguard slides out, spits the mouthguard], layer: {asset: mouthguard}, src: new}
+  - {id: fx.mumble, label: Mumbles words that are not words,
+     say: [mumbles, mumbling, talking nonsense, slurred words, babbles], layer: {sound: mumble}, src: new}
+  # ---- eyes ----
+  - {id: fx.slow_blink, label: 'Slow, heavy blinks far apart',
+     say: [slow blink, blinks slowly, heavy blink, long blinks], layer: {face: {blink_period_s: [2.0, 5.0]}}, src: new}
+  - {id: fx.eyes_open_out, label: Eyes stay open the whole time she is out,
+     say: [eyes stay open, eyes open the whole time, out with her eyes open, staring while out], layer: {face: {lids_wide: [0.4, 0.9]}}, src: new}
+  - {id: fx.track_late, label: Eyes follow a moving hand a beat behind it,
+     say: [eyes follow late, tracking late, eyes a beat behind, follows the finger slowly], src: new}
+  - {id: fx.eyes_come_back, label: 'Eyes drift down from the upward stare and find the lights, then a face',
+     say: [eyes come back, eyes come down, eyes return, eyes find the lights], layer: {gaze: {up_deg: [30, 0], side_deg: [20, 0]}}, src: new}
+  - {id: fx.one_lid, label: One eyelid sits lower than the other, side: LR,
+     say: [one lid lower, one eye half shut, lopsided lids], src: new}
+  # ---- arms and hands ----
+  - {id: fx.arm_float, label: A raised arm stays up in the air on its own long after she lands, side: LR,
+     say: [arm stays up, arm floats, arm hangs in the air, arm stuck up, arm still raised], region: arm,
+     pose: {upper_arm_$S_flex: [40, 95], forearm_$S_flex: [40, 5]}, layer: {hold_s: [3.0, 6.0]}, src: new}
+  - {id: fx.arm_sink_stages, label: The raised arm comes down in stages (drops and catches and drops), side: LR,
+     say: [arm sinks in stages, arm drops in steps, arm ratchets down, arm lowers a notch at a time], src: new}
+  - {id: fx.hands_paw, label: Hands paw slowly at the air as if reaching for a rope or a guard,
+     say: [paws at the air, hands paw, reaching at nothing, grabbing air, hands search], layer: {fingers: {grasp_hz: [0.4, 1.0]}}, src: new}
+  - {id: fx.fingers_fan, label: Fingers fan out stiff then slowly close,
+     say: [fingers fan out, fingers spread stiff, fingers star, fingers open wide], layer: {fingers: {curl: [0, 0], spread: [0.5, 1.0]}}, src: new}
+  - {id: fx.fingers_piano, label: Fingers ripple one after another (like playing a piano),
+     say: [fingers ripple, piano fingers, fingers drum the air, fingers flicker], layer: {fingers: {twitch_hz: [2, 6]}}, src: new}
+  - {id: fx.wrist_curl_in, label: Both wrists curl in and the hands turn toward the chest,
+     say: [wrists curl in, hands turn in, wrists hook inward, hands fold to her chest], region: arm, side: LR, default_side: both,
+     pose: {hand_$S_flex: [0, 65], hand_$S_twist: [0, 50]}, src: new}
+  - {id: fx.guard_ghost, label: 'Hands come back up into a guard while she is still out (fighting on instinct)',
+     say: [guard comes back up, still has her hands up, guarding while out, ghost guard, hands return to guard], region: arm,
+     pose: {forearm_L_flex: [60, 125], forearm_R_flex: [60, 125], upper_arm_L_flex: [20, 50], upper_arm_R_flex: [20, 50]}, src: new}
+  - {id: fx.glove_tap, label: One glove taps the canvas over and over, side: LR,
+     say: [glove taps the canvas, hand pats the mat, tapping the canvas, glove pats], src: new}
+  - {id: fx.shrug_hold, label: Shoulders hitch up toward the ears and stay there,
+     say: [shoulders hitch up, shrug and hold, shoulders stuck up by her ears, frozen shrug], note: needs clavicle joint, src: new}
+  # ---- trunk and legs ----
+  - {id: fx.shudder, label: One long shudder runs down the whole body then stops,
+     say: [shudder runs through, full body shudder, one long shiver, shiver runs down her], layer: {tremor: {hz: [7, 9], amp_deg: [1.5, 4.0], onset: [0.2, 0.1]}}, src: new}
+  - {id: fx.knee_quiver, label: Locked knees quiver, region: leg,
+     say: [knees quiver, knees shake, locked knees trembling, legs vibrate], layer: {tremor: {hz: [8, 10], amp_deg: [0.8, 3.0], regions: [leg_L, leg_R]}}, src: new}
+  - {id: fx.foot_paddle, label: Feet paddle slowly as if walking while lying down,
+     say: [feet paddle, walking on her back, feet still walking, legs walk in place, running on her back],
+     layer: {tremor: {hz: [0.8, 1.6], amp_deg: [6, 20], joints: [thigh_L_flex, thigh_R_flex], antiphase: true}}, src: new}
+  - {id: fx.toes_fan, label: Toes spread wide and the big toe lifts,
+     say: [toes fan out, toes spread wide, big toe lifts, toes splay up], layer: {toes: {deg: [-10, -30], spread: [0.4, 1.0]}}, src: new}
+  - {id: fx.heel_dig, label: Heels dig and push as if trying to stand through the floor,
+     say: [heels dig in, heels push, pushing with her heels, heels scrape the canvas], src: new}
+  - {id: fx.back_bow_release, label: Back bows up off the canvas then lets go all at once,
+     say: [back bows then drops, arches then lets go, bridge then collapse], region: trunk, pose: {spine_flex: [0, -18], chest_flex: [0, -12]}, layer: {hold_s: [0.8, 0.3], fade_s: [0.4, 0.1]}, src: new}
+  - {id: fx.head_lift_drop, label: Head lifts an inch off the canvas and is set back down,
+     say: [head lifts and drops, head comes up an inch, head rises then falls back, lifts her head and loses it], region: neck,
+     pose: {neck_flex: [0, 25]}, layer: {hold_s: [0.6, 0.3], fade_s: [0.5, 0.2]}, src: new}
+  # ---- coming round ----
+  - {id: wake.grabs_ref, label: Grabs the referee's leg and holds on,
+     say: [grabs the referee's leg, hugs the ref's leg, holds the referee's ankle, clings to the ref], note: needs a referee prop or body, src: new}
+  - {id: wake.fights_ref, label: 'Tries to tie up or take down the referee, still fighting',
+     say: [tries to wrestle the referee, shoots on the ref, still fighting the ref, takes the referee down], note: needs a referee body, src: new}
+  - {id: wake.sits_too_fast, label: Sits up too fast and is eased back down,
+     say: [sits up too fast, sits bolt upright, pops up and is eased back], src: new}
+  - {id: wake.legs_dont_answer, label: 'Tries to stand and the legs do not answer (stumbles, sits again)',
+     say: [legs don't answer, tries to stand and can't, stands and stumbles, legs gone when she stands, stanky on the way up], note: needs the stagger-step controller, src: new}
+  - {id: wake.wrong_corner, label: Walks to the wrong corner,
+     say: [walks to the wrong corner, heads for the wrong stool, goes to the other corner], src: new}
+  - {id: wake.asks, label: 'Asks what happened, what round it is, or whether she won',
+     say: [asks what happened, asks what round, asks if she won, did I win], layer: {sound: speech}, src: new}
+  - {id: wake.argues, label: Argues the stoppage with no idea what she is arguing about,
+     say: [argues the stoppage, protests to the referee, says she's fine, I'm fine I'm fine], layer: {sound: speech}, src: new}
+  - {id: wake.keeps_guard, label: Keeps her hands up on the stool as if the fight is still on,
+     say: [hands still up on the stool, still guarding on the stool, won't lower her hands], src: new}
+  - {id: wake.wipes_mouth, label: Wipes her mouth with the glove again and again,
+     say: [wipes her mouth, keeps wiping her mouth, glove across her mouth], src: new}
+  - {id: wake.pushes_help, label: Pushes the helping hands away,
+     say: [pushes them away, shoves the doctor off, bats the hands away, won't be helped], src: new}
+  - {id: wake.smile, label: A small confused smile at nothing,
+     say: [confused smile, smiles at nothing, dazed smile, grins up at the lights], layer: {face: {smile: [0.2, 0.6]}}, src: new}
+  - {id: wake.looks_at_gloves, label: Stares at her own gloves as if they belong to someone else,
+     say: [looks at her gloves, stares at her hands, studies her own gloves], src: new}

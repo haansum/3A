@@ -1,0 +1,105 @@
+# Axes for the 'aftermath' story shape: brief lead-up, the finish, then the talk.
+axis: aftermath
+speaker:            # who does the talking afterward; weights sum to 1
+  winner: 0.84
+  caller: 0.08            # the circuit's caller on the house mic does the talking; the winner lets him
+  loser_corner: 0.03      # the beaten fighter's cornerman answers back
+  loser_later: 0.03       # the beaten fighter, upright again, gets the last word
+  winner_corner: 0.02     # the winner says nothing; her cornerman says it for her
+tone:               # how the talk sounds; weights sum to 1
+  underground: 0.75       # young, fast, funny-cruel; an unsanctioned circuit that came for knockouts
+  measured: 0.25          # cold, exact, grown-up
+aimed_at:           # who the talk is addressed to
+  - her, down on the canvas, whether or not she can hear it
+  - her corner, by name
+  - the camera on the apron
+  - the crowd, the part that came for the other one
+  - the microphone in the post-fight interview, with her still in the building
+  - the referee, as if filing a report
+  - their old coach in the second row
+  - nobody; said aloud to herself, and picked up by a ringside mic
+  - her, quietly, as she is helped to the stool
+  - the commentator who picked against her
+  - the empty space where the other's supporters were standing
+  - the other's students in the cheap seats
+delivery:           # what the speaker is doing while she says it
+  - crouched beside her, forearms on knees, in no hurry
+  - walking a slow lap of the ring, never looking down
+  - standing over her with gloves on hips until the referee moves her
+  - back turned, climbing the ropes, said over the shoulder
+  - sitting on the canvas a few feet away, cross-legged, as if they were alone
+  - leaning on the top rope above the other corner
+  - kneeling to pick up something that fell (a mouthguard, a towel) and holding on to it
+  - refusing to celebrate; arms down, voice level
+  - taking the tape off her own gloves with her teeth between sentences
+  - holding the other's corner stool, which she carried over herself
+  - at the centre of the ring with the belt not yet on, waiting for it
+  - half out through the ropes, one foot on the apron, deciding to stay and finish the thought
+  - being pulled away by her own corner and talking past them
+  - counting along with the referee under her breath, then over him
+timing:
+  - before the referee has finished waving it off
+  - in the quiet after the wave-off, before the bell is rung
+  - while the doctor is still crossing the ring
+  - as the other's eyes come back and start to track
+  - once the other is sitting up and the stool has arrived
+  - during the official announcement, over the announcer
+  - ninety seconds later, on the microphone
+  - on the way out, passing the other corner
+closer_ends_on:     # how the last line of the story lands
+  - the closer line itself, nothing after it
+  - the loser's corner having no answer
+  - the winner leaving before the result is read
+  - the crowd's reaction, which is not what the winner wanted
+  - a small courtesy that makes it worse
+  - the object from the grievance, returned or kept
+  - the loser's first word once she can speak
+  - the referee's instruction, ignored
+# Details that sell the event. Each brief draws one from each of five groups; the writer must
+# use all five, each once, in her own words. They are seeds, not sentences.
+details:
+  clock:
+    - "the round and time are announced: pick an exact minute and second and use it twice"
+    - the ten-second clapper had just gone
+    - the timekeeper stands up before the referee has moved
+    - the scoreboard clock keeps running for several seconds after it is over
+    - it ends inside the first minute of a round both corners expected to be quiet
+    - the bell is rung three times because nobody heard the first two
+    - the round card is still being carried around the ring apron
+    - the official time is read wrong and corrected
+  referee:
+    - the referee slides in on his knees and is a beat late
+    - the referee waves once and then keeps a hand on the winner's chest
+    - the referee takes out the mouthguard and holds it without knowing where to put it
+    - the referee points the winner to a neutral corner and she does not go
+    - the referee starts a count and abandons it at three
+    - the referee looks to the doctor before he looks at either fighter
+    - the referee steps over one of them to reach the other
+    - the referee says the loser's first name, twice, close to her ear
+  corners:
+    - the loser's cornerman is through the ropes before the wave-off, towel still on his shoulder
+    - the loser's corner does not move at all for a long breath
+    - the winner's coach is already looking at the next fight's bracket
+    - somebody in the loser's corner drops the bucket
+    - the loser's second kneels and unties her boots first, for something to do
+    - the winner's corner tries to lift her and she will not be lifted
+    - the cut-man folds his towel in half and in half again
+    - a cornerman holds the stool the wrong way up
+  room:
+    - one section goes silent while another is still cheering a fight that has ended
+    - somebody near the front says a single flat word that carries
+    - a phone light stays on her the whole time
+    - the house music starts early and is cut off
+    - the commentator talks over his partner and then stops
+    - a child in the second row asks a clear question
+    - the loser's supporters start putting their coats on
+    - a plastic cup rolls down the aisle steps, one at a time
+  body:
+    - the winner's hands are still up when it is over, as if nobody told them
+    - the winner looks at her own glove before she looks at the other woman
+    - the loser's glove is the last thing to stop moving
+    - the winner steps back exactly as far as she was taught to and no farther
+    - the canvas gives a hollow sound the cheap seats can hear
+    - the loser's foot stays hooked under the bottom rope
+    - the winner breathes out through her nose, once, long
+    - the sweat line on the canvas shows where each of them was standing

@@ -1,0 +1,94 @@
+{
+ "id": "s00062",
+ "seed": 62,
+ "shape": "aftermath",
+ "attempts": [
+  {
+   "n": 1,
+   "words": 523,
+   "fails": [
+    "length: 525 words, brief asks 360"
+   ]
+  },
+  {
+   "n": 2,
+   "words": 395,
+   "fails": []
+  }
+ ],
+ "plan": {
+  "nickname": "Soledad \"Kindly\" Mwangi, a ring name she chose herself and puts on everything; Ines fights as \"The Valet\" after her old job parking cars at the casino",
+  "detail": "Ines took her daughter Pia out of Soledad's Tuesday 4:15 kids' class without a word; Pia's gi stayed on peg nine",
+  "round_time": "Round 2, 0:47 (read first as 1:47, then corrected)",
+  "opener": [
+   {
+    "p": 0.35,
+    "text": "Ref, first of all, thank you. You got there. Eventually."
+   },
+   {
+    "p": 0.25,
+    "text": "Thank you, sir, for coming over. Both of those last two, you were on your way. I saw you. On your way."
+   },
+   {
+    "p": 0.2,
+    "text": "And thank you to her corner for the towel. Beautiful towel. Never left his shoulder."
+   },
+   {
+    "p": 0.2,
+    "text": "Thank you, Ines, for keeping your hands that low. Honestly. It made my night so easy."
+   }
+  ],
+  "personal": [
+   {
+    "p": 0.35,
+    "text": "You took Pia out of my four-fifteen without a word, Ines. So thank you for teaching me how it's done. Tonight I didn't say a word either. Twice."
+   },
+   {
+    "p": 0.25,
+    "text": "She knelt first. Pia used to do that every Tuesday, bow at the door. Then one Tuesday no bow, no text, just peg nine with a gi on it. Thank you for the bow, Ines. Took you a year."
+   },
+   {
+    "p": 0.2,
+    "text": "Hands up, eyes front, flat on her back with a perfect guard. I taught that to Pia at four-fifteen on Tuesdays. Nice to see somebody in the family kept it."
+   },
+   {
+    "p": 0.2,
+    "text": "For the record, Pia's gi is still on peg nine. Nobody told me she wasn't coming back. Ref, you were late too, but at least you showed up."
+   }
+  ],
+  "closer": [
+   {
+    "p": 0.3,
+    "text": "That's everything. Thank you for everything, Ines. Truly. Peg nine's still open on Tuesdays."
+   },
+   {
+    "p": 0.25,
+    "text": "Report ends. Fighter thanked. Kids' class resumes Tuesday at four-fifteen. She knows where the door is."
+   },
+   {
+    "p": 0.25,
+    "text": "Tell Pia her spot's still hers. Free for any kid whose mom just learned to stay down."
+   },
+   {
+    "p": 0.2,
+    "text": "Dario says thanks, by the way. He taught you to wait on the towel. He watched this one from my corner."
+   }
+  ]
+ },
+ "chosen": {
+  "opener": {
+   "text": "And thank you to her corner for the towel. Beautiful towel. Never left his shoulder.",
+   "p": 0.2
+  },
+  "personal": {
+   "text": "Hands up, eyes front, flat on her back with a perfect guard. I taught that to Pia at four-fifteen on Tuesdays. Nice to see somebody in the family kept it.",
+   "p": 0.2
+  },
+  "closer": {
+   "text": "Tell Pia her spot's still hers. Free for any kid whose mom just learned to stay down.",
+   "p": 0.25
+  }
+ },
+ "status": "accepted",
+ "usage": {}
+}

@@ -1,94 +1,1576 @@
-# Trash-talk examples, two per register. Each is tied to an invented grievance from the bank.
-# They demonstrate a TECHNIQUE. Never reuse a line, a sentence shape or an object from here:
-# the lint counts these as already-used text.
-# What makes them land: one checkable detail, said plainly, by someone who has kept it a long time.
+# Trash-talk bank. Technique examples, grouped by register.
+#   when:  before = said before the fight; after = said over the result (rubbing it in)
+#   tone:  measured = cold, exact, grown-up; underground = young, fast, funny-cruel, the voice of an
+#          unsanctioned circuit: sharper than a street clip caption, looser than a broadcast
+#   ctx:   the invented history or the visible detail the line is built on
+# These teach how a line is BUILT. Never reuse a line, a sentence shape or an object from here:
+# the lint counts every line in this file as already-used text.
 ledger:
-  - ctx: she left the gym three weeks before the team's first title fight
-    line: "March ninth you cleaned out locker fourteen. March thirtieth we fought for the belt with a kid holding the bucket. I'm not angry. I'm reading you the calendar."
-  - ctx: she never paid her share of a training camp rental
-    line: "Eleven hundred and forty dollars, split six ways, and five of us paid. I kept the receipt in my gear bag three years so I'd have something to hand you tonight."
+- when: before
+  tone: measured
+  ctx: she left the gym three weeks before the team's first title fight
+  line: March ninth you cleaned out locker fourteen. March thirtieth we fought for the belt with a kid holding the bucket. I'm not angry. I'm reading you the calendar.
+- when: before
+  tone: measured
+  ctx: she never paid her share of a training camp rental
+  line: Eleven hundred and forty dollars, split six ways, and five of us paid. I kept the receipt in my gear bag three years so I'd have something to hand you tonight.
+- when: after
+  tone: measured
+  ctx: she left the gym three weeks before the title fight
+  line: Twenty-one days. That's how early you left. Tonight took one minute and nine seconds. I've now spent less time on you than you spent on your notice.
+- when: after
+  tone: measured
+  ctx: she never paid her share of a camp rental
+  line: One hundred and ninety dollars. I wrote it on my wrist tape tonight, under the glove. You can read it when they cut it off.
+- when: after
+  tone: measured
+  ctx: she missed weight for their first booking and kept half the purse
+  line: You were two and a quarter pounds over in Tulsa and kept eleven thousand. Tonight you made weight. I wanted that noted somewhere, so I noted it.
+- when: after
+  tone: measured
+  ctx: she drove the team van home and left the rest at the venue
+  line: Four hundred and twelve miles. Six of us on a bench outside a closed arena. I counted mile markers on the bus. I've just finished counting.
+- when: after
+  tone: measured
+  ctx: their first fight was a draw and she celebrated like a win
+  line: First fight, three cards, one of them even. This one has no cards. I'd like the record to show I asked for less paperwork.
+- when: after
+  tone: measured
+  ctx: she changed the gym locks while the other was away
+  line: The locksmith's invoice was dated the fourteenth. I fought on the fifteenth. I kept the old key. It opens nothing. Neither do you, now.
+- when: after
+  tone: measured
+  ctx: she borrowed the other's car for a weigh-in and returned it empty
+  line: Quarter tank when you took it. Empty when it came back. Odometer up eighty-eight miles. I'm telling you the numbers because you only ever respected numbers.
+- when: after
+  tone: measured
+  ctx: she sold the other used shin guards as new
+  line: Sixty-five dollars, cash, in the car park, March. The strap was already stitched twice. I wore them tonight. That's what hit you.
+- when: after
+  tone: measured
+  ctx: she raised the gym's rent the month the other turned professional
+  line: Rent went from nine hundred to fourteen hundred the week I signed. That's five hundred a month for thirty-one months. Somebody check my adding. She can't just now.
+- when: after
+  tone: measured
+  ctx: she posted the scorecards from their fight every year on the anniversary
+  line: Four anniversaries. Four posts. Twenty-nine, twenty-eight. You'll have something new to put up next year. Round one, two minutes and six.
+- when: after
+  tone: measured
+  ctx: she took a deposit to teach a seminar and did not turn up
+  line: Thirty kids paid twenty dollars each to see you. Two o'clock, a Saturday. I taught it for you. I've taught this one for you as well.
+- when: after
+  tone: measured
+  ctx: she thanked forty people after her title win and left out one
+  line: Forty names in ninety seconds. I timed the clip. Tonight you got eighty-one seconds, and I only needed the one name.
+- when: after
+  tone: underground
+  ctx: unpaid camp fee
+  line: A hundred and ninety. That's what you owed. I'd say we're even but I'm not good at math and I'm feeling greedy.
+- when: after
+  tone: underground
+  ctx: she left three weeks before the title fight
+  line: Three weeks early you left. Tonight you left early again. At least you're consistent.
+- when: after
+  tone: underground
+  ctx: the van
+  line: Four hundred miles I rode a bus because of you. You just went four feet. Straight down. Feels about fair.
+- when: after
+  tone: underground
+  ctx: the rent
+  line: You raised my rent five hundred. I just lowered your whole property value.
+- when: after
+  tone: underground
+  ctx: she missed weight and kept the purse
+  line: You missed weight by two pounds in Tulsa. Tonight you made weight and missed everything else.
 kindness:
-  - ctx: the veteran everyone must beat
-    line: "Nobody will say it to you, so I will, because I like you: they book you because you lose well. You make people look good. That's a real skill. Go home and be proud of it."
-  - ctx: a debut in front of everyone she grew up with
-    line: "Your mother is in row two. I saw her. I'm going to try to make it quick, for her, and if it isn't quick I want you to know that part was you."
+- when: before
+  tone: measured
+  ctx: the veteran everyone must beat
+  line: 'Nobody will say it to you, so I will, because I like you: they book you because you lose well. You make people look good. That''s a real skill. Go home and be proud of it.'
+- when: before
+  tone: measured
+  ctx: a debut in front of everyone she grew up with
+  line: Your mother is in row two. I saw her. I'm going to try to make it quick, for her, and if it isn't quick I want you to know that part was you.
+- when: after
+  tone: measured
+  ctx: the veteran everyone must beat
+  line: Don't get up for me. Really. You've been getting up for other people's careers for nine years. Have this one lying down.
+- when: after
+  tone: measured
+  ctx: a debut in front of everyone she grew up with
+  line: They all came. Look how many. That's a lovely thing, to have that many people see you try. Somebody tell her that when she can hear it.
+- when: after
+  tone: measured
+  ctx: she claimed to be self-taught
+  line: It's all right. Nobody teaches that part. I'd have shown you, if you'd stayed. I'd have shown you everything. That's the sad bit.
+- when: after
+  tone: measured
+  ctx: she recruited the other's best young student
+  line: Tell the girl she can come back. I mean it. I'm not angry with her. She was sixteen and somebody promised her things. I know the somebody.
+- when: after
+  tone: measured
+  ctx: the last fight on a deal that will not be renewed
+  line: I asked them to keep you on the roster. I did. I said she's good for the young ones to learn against. They said they'd think about it.
+- when: after
+  tone: measured
+  ctx: she told the sparring story as a toast at the wedding
+  line: Easy. Easy. Give her room. She told a story about me once at a nice occasion. I'd hate for anyone to tell one about her at this one.
+- when: after
+  tone: measured
+  ctx: she called the other 'a good first test'
+  line: You were right, you know. You were a good first test. I learned a lot. I'm grateful. I'd say it to your face but it's pointed the other way.
+- when: after
+  tone: measured
+  ctx: she got the ranking spot by fighting once that year
+  line: You rest. You've earned a rest, one fight a year is hard on a person. Take next year too.
+- when: after
+  tone: measured
+  ctx: one taught the other; the student got the bigger contract
+  line: You did well, kid. Better than I thought. That's not nothing, coming from me. Stay down a second and let it be a compliment.
+- when: after
+  tone: measured
+  ctx: she said she would rather fight anyone with a pulse
+  line: Shh. It's fine. You asked for anyone, and they sent you someone. That's the system working. Nobody's fault.
+- when: after
+  tone: measured
+  ctx: she moved away and came back selling more tickets in the other's town
+  line: You brought so many people home with you. I want to thank them for coming. It's a long drive back. Somebody see they get coffee.
+- when: after
+  tone: underground
+  ctx: debut at home
+  line: Aw. No, don't get up, your mom's filming. Let her get the good angle.
+- when: after
+  tone: underground
+  ctx: the gatekeeper
+  line: You did so good. You did. You lasted way longer than I told people you would. I said thirty seconds.
+- when: after
+  tone: underground
+  ctx: a good first test
+  line: It's okay. Some tests you just don't study for.
+- when: after
+  tone: underground
+  ctx: the kid
+  line: Tell the kid it's not her fault she picked wrong. She's sixteen. You're thirty-one. What's your excuse?
+- when: after
+  tone: underground
+  ctx: late replacement
+  line: Thanks for coming, though. For real. Somebody had to.
 comedian:
-  - ctx: she pulled out with an injury and was filmed dancing that weekend
-    line: "She tore something Thursday and by Saturday it had healed enough for a conga line. I've asked the commission to test the DJ."
-  - ctx: she claims to be self-taught; the other taught her to stand
-    line: "Self-taught. I love that. I taught her in my own garage and apparently I was so good she didn't notice."
+- when: before
+  tone: measured
+  ctx: she pulled out with an injury and was filmed dancing that weekend
+  line: She tore something Thursday and by Saturday it had healed enough for a conga line. I've asked the commission to test the DJ.
+- when: before
+  tone: measured
+  ctx: she claims to be self-taught; the other taught her to stand
+  line: Self-taught. I love that. I taught her in my own garage and apparently I was so good she didn't notice.
+- when: after
+  tone: measured
+  ctx: she pulled out with an injury and was filmed dancing that weekend
+  line: Ref, check she's not at a wedding. Last time she went down like that there was a buffet.
+- when: after
+  tone: measured
+  ctx: she claims to be self-taught
+  line: Self-taught. You can tell. Nobody else would have taught her to do that with her chin.
+- when: after
+  tone: measured
+  ctx: she walked out to the other's song
+  line: They played my song for her and she still came in late. Now she's missing the second verse.
+- when: after
+  tone: measured
+  ctx: she did guest commentary on the other's loss and laughed once
+  line: Somebody get her a headset. She loves to call these. Go on, what round is it? Take your time.
+- when: after
+  tone: measured
+  ctx: she called the other's comeback a reunion tour
+  line: Reunion tour. That's what she called it. Well, that was the encore, and she didn't stay for it.
+- when: after
+  tone: measured
+  ctx: the promoter's favourite gets the poster
+  line: She's on the poster twice. Front and back. Tonight they can use the back.
+- when: after
+  tone: measured
+  ctx: she registered the other's ring name as a trademark
+  line: She owns the name, legally. I checked. So technically that's me down there. I'd like to apologise to my fans.
+- when: after
+  tone: measured
+  ctx: she gave the other a nickname as a joke and it stuck for a decade
+  line: Ten years she's called me the Intern. Somebody tell her the Intern locked up tonight. Lights off, alarm set.
+- when: after
+  tone: underground
+  ctx: a year of posts and replies
+  line: first time in the same room
+- when: after
+  tone: measured
+  ctx: she asked at a press event whether the other had been tested lately
+  line: 'She wanted me tested. Fine. Test this: is that the canvas, or is that the canvas? Take all the time you need.'
+- when: after
+  tone: measured
+  ctx: she seated the other at the back of her wedding by the kitchen door
+  line: She sat me by the kitchen at her wedding. Lovely day. I notice I've got the better seat tonight.
+- when: after
+  tone: measured
+  ctx: one used to work the front desk at the other's gym
+  line: I used to sign her in. Name, time, signature. I've just signed her out.
+- when: after
+  tone: underground
+  ctx: she danced after pulling out
+  line: Last time she was this loose there was a DJ.
+- when: after
+  tone: underground
+  ctx: self-taught
+  line: Self-taught. Should've asked for a refund.
+- when: after
+  tone: underground
+  ctx: the poster
+  line: She's on the poster looking tough. Somebody Photoshop the eyes. Make 'em match.
+- when: after
+  tone: underground
+  ctx: reunion tour
+  line: Reunion tour's cancelled. Refunds at point of purchase. Which is her face.
+- when: after
+  tone: underground
+  ctx: the trademark
+  line: She trademarked my name. Okay. Trademark that.
+- when: after
+  tone: underground
+  ctx: the wedding seating
+  line: You sat me by the kitchen. I sat you by the canvas. We're both terrible hosts.
+- when: after
+  tone: underground
+  ctx: commentary laugh
+  line: You were so funny on commentary. Do the bit. Do the bit now.
 prophecy:
-  - ctx: their first fight ended in under a minute
-    line: "You'll come out fast because they told you to. You'll feel good for about a minute. Then you'll check your corner, and I'm telling you now which look you'll get."
-  - ctx: the last fight on a deal that will not be renewed
-    line: "Monday your manager calls and he's gentle about it. Tuesday the gym takes your picture off the website. I'm only the Saturday part."
+- when: before
+  tone: measured
+  ctx: their first fight ended in under a minute
+  line: You'll come out fast because they told you to. You'll feel good for about a minute. Then you'll check your corner, and I'm telling you now which look you'll get.
+- when: before
+  tone: measured
+  ctx: the last fight on a deal that will not be renewed
+  line: Monday your manager calls and he's gentle about it. Tuesday the gym takes your picture off the website. I'm only the Saturday part.
+- when: after
+  tone: measured
+  ctx: their first fight ended in under a minute
+  line: In about a minute you'll ask your corner what happened. He'll say a name. It'll be mine. You'll ask again.
+- when: after
+  tone: measured
+  ctx: the last fight on a deal that will not be renewed
+  line: Tomorrow there's an email. Short. They thank you. Thursday your locker has somebody else's tape on it. By spring you're a question at a pub quiz.
+- when: after
+  tone: measured
+  ctx: she left before the title fight
+  line: You'll tell this as the night you were unlucky. You'll tell it at the new gym, to people who weren't here. One of them will have seen the tape.
+- when: after
+  tone: measured
+  ctx: a debut in front of everyone she grew up with
+  line: They'll be kind in the car park. They'll say next time. Your uncle will say the ref was quick. You'll let him.
+- when: after
+  tone: measured
+  ctx: she recruited the other's best young student
+  line: The girl will watch this tonight on her phone. Twice. Monday she rings me. I won't pick up the first time. I will the second.
+- when: after
+  tone: measured
+  ctx: she took the old gym's neon sign
+  line: You'll go home and that sign will be on, buzzing, in your window. You'll stand under it a while. Then you'll unplug it. I'd like it back by Friday.
+- when: after
+  tone: measured
+  ctx: she had the rematch clause removed after winning
+  line: You'll want this back. You'll ask for it nicely, through people. And somebody will read you your own contract, the bit you had taken out.
+- when: after
+  tone: measured
+  ctx: she gave a promoter a bad reference
+  line: The phone's going to stop. Not all at once. One promoter, then the next. You'll wonder who's been talking. Nobody. They'll just have watched.
+- when: after
+  tone: measured
+  ctx: she bet against the other and collected
+  line: Somebody in row four just lost money on you. He'll find you later to be decent about it. That's the part you'll remember.
+- when: after
+  tone: measured
+  ctx: she posted the scorecards every year
+  line: A year from tonight I'll post a clock. Just the clock. No caption. You'll know the minute before you open it.
+- when: after
+  tone: measured
+  ctx: she laughed on a podcast at an impression of the other
+  line: Someone will do an impression of this. Soon. On a show. And the host will laugh, once, the way you did, and you'll hear exactly how it sounds.
+- when: after
+  tone: underground
+  ctx: the internet
+  line: By midnight this is a GIF. By Monday it's a reaction. Somebody's going to send you yourself when their order's late.
+- when: after
+  tone: underground
+  ctx: her gym
+  line: Tomorrow your gym's got a 'we're proud of you' post up. Comments off.
+- when: after
+  tone: underground
+  ctx: the rematch
+  line: You're going to ask for a rematch on a podcast. I'm going to say 'who?' on a bigger podcast.
+- when: after
+  tone: underground
+  ctx: the students
+  line: Your students are going to be real nice to you Monday. Like, weird nice. That's how you'll know.
+- when: after
+  tone: underground
+  ctx: the highlight reel
+  line: You're in my highlight reel now. First clip. You always wanted to open for me.
 inventory:
-  - ctx: one now trains under the other's former coach
-    line: "The coach is mine, he just hasn't told you. The jab is mine, I can show you tape. The nickname you got off a T-shirt. So what did you actually bring?"
-  - ctx: she took the old gym's neon sign when it closed
-    line: "That sign in your window belongs to a gym that closed. The bag under it has my tape on it. Even the fan is ours. You opened a museum of us and hung your own picture in it."
+- when: before
+  tone: measured
+  ctx: one now trains under the other's former coach
+  line: The coach is mine, he just hasn't told you. The jab is mine, I can show you tape. The nickname you got off a T-shirt. So what did you actually bring?
+- when: before
+  tone: measured
+  ctx: she took the old gym's neon sign when it closed
+  line: That sign in your window belongs to a gym that closed. The bag under it has my tape on it. Even the fan is ours. You opened a museum of us and hung your own picture in it.
+- when: after
+  tone: measured
+  ctx: one trains under the other's former coach
+  line: That's my coach in your corner, my stool under him, my bucket by his foot. The only thing over there that was ever yours is on the floor.
+- when: after
+  tone: measured
+  ctx: she took the old gym's neon sign
+  line: The sign, the heavy bag, the round timer, the photo of the nineteen-ninety-eight team. You took four things. I've just taken the fifth.
+- when: after
+  tone: measured
+  ctx: she kept a team trophy won by five people
+  line: Five names on that trophy. One shelf, yours. Bring it Monday. And bring the little plate with the names, I know it came off.
+- when: after
+  tone: measured
+  ctx: she still fights in gloves she borrowed and never returned
+  line: Those are my gloves. My initials are inside the left cuff. Ref, when you take them off her, check. Then hand them here.
+- when: after
+  tone: measured
+  ctx: she walked out to the other's song
+  line: 'My song. My entrance. My side of the building, cheering. Take stock: what did you bring into this ring that you still have?'
+- when: after
+  tone: measured
+  ctx: she stole the drill and teaches it as her own
+  line: The drill was mine. The combination off it was mine. The counter to it, the one that just happened, I kept that one back. That's the lot.
+- when: after
+  tone: measured
+  ctx: she hired the other's cut-man the week of a fight
+  line: My cut-man, your corner. My towel on his shoulder, I recognise the stitching. Leon, you can come back over now. Bring the towel.
+- when: after
+  tone: measured
+  ctx: she kept the dog
+  line: You've got the dog, the flat, the good pans and my grandmother's lamp. I've got this. I think that's fair. I think that's finally fair.
+- when: after
+  tone: measured
+  ctx: she sells the meal plan the other wrote for her
+  line: My meal plan, with your name on the cover. My weight cut, that you sold for forty dollars a download. And that's my left hook you just bought, full price.
+- when: after
+  tone: measured
+  ctx: she auctioned the first gloves the other gave her
+  line: Lot fourteen. A pair of red gloves, some wear, signed by me. You got three hundred. I'd have paid four to see that.
+- when: after
+  tone: measured
+  ctx: she had the other painted out of the gym mural
+  line: There's a patch of fresh blue on your wall where I used to be. Same blue as that corner pad. Look at it from down there. Same blue.
 correction:
-  - ctx: their first fight was a draw and she celebrated like a win
-    line: "It wasn't a draw. Two judges had it for me and one had it for the popcorn. Say it properly: it was a robbery, and you threw it a party."
-  - ctx: a sparring story one tells and the other denies
-    line: "You tell it like I went down. I sat down. To tie my shoe. Nine people were in that room, and you only ever tell it in rooms they aren't in."
+- when: before
+  tone: measured
+  ctx: their first fight was a draw and she celebrated like a win
+  line: 'It wasn''t a draw. Two judges had it for me and one had it for the popcorn. Say it properly: it was a robbery, and you threw it a party.'
+- when: before
+  tone: measured
+  ctx: a sparring story one tells and the other denies
+  line: You tell it like I went down. I sat down. To tie my shoe. Nine people were in that room, and you only ever tell it in rooms they aren't in.
+- when: after
+  tone: measured
+  ctx: their first fight was a draw and she celebrated like a win
+  line: No. Don't let him call it a stoppage. It's a knockout. Write it properly this time, since last time you all had trouble.
+- when: after
+  tone: measured
+  ctx: a sparring story one tells and the other denies
+  line: You'll want to say you slipped. You didn't slip. I was there for this one, and so were six thousand people.
+- when: after
+  tone: measured
+  ctx: she wrote about the other in her memoir and got the year wrong
+  line: It was two thousand and fourteen. Not fifteen. Page ninety. And it's round two, not round three, for when you write this bit.
+- when: after
+  tone: measured
+  ctx: she claims to be self-taught
+  line: Not self-taught. Taught. By me, Tuesdays and Thursdays, for four years. Everybody got that? I'd hate for it to be written down wrong again.
+- when: after
+  tone: measured
+  ctx: she answered a question for the other at a joint interview
+  line: You told them I'd say I was nervous. I wasn't going to say that. I was going to say what I've just said.
+- when: after
+  tone: measured
+  ctx: she says the other tapped in a scrimmage
+  line: I didn't tap. I've never tapped. For the avoidance of doubt, neither did she just now. She didn't get the chance.
+- when: after
+  tone: measured
+  ctx: she called the other 'a good first test'
+  line: Not a test. A result. There's a difference and you used to know it.
+- when: after
+  tone: measured
+  ctx: the eulogy told as if she had been his only student
+  line: He had eleven of us. Eleven. You said 'his student', singular, with all of us in the pews. Count the corner tonight. Count who came for me.
+- when: after
+  tone: measured
+  ctx: the translation softened nothing but the praise
+  line: What I said in that interview was 'she is the best I've trained with.' You left that sentence out. Put it back in. It makes tonight worse for you.
+- when: after
+  tone: measured
+  ctx: the nickname
+  line: It was never the Mule. It was Jule. My name. Somebody misheard, and you let them, for ten years. Say it right. You've got time.
+- when: after
+  tone: measured
+  ctx: she got the year of the gym's founding wrong on the cake
+  line: Eighty-nine. The gym opened in eighty-nine. And this ended at two minutes eleven. Both of those are just facts. Learn them.
+- when: after
+  tone: underground
+  ctx: she says it was a slip
+  line: Don't say slipped. I watched you practice that excuse on the way down.
+- when: after
+  tone: underground
+  ctx: the draw
+  line: Last time you called it a draw. What do you call this? Use your words. Oh, right.
+- when: after
+  tone: underground
+  ctx: self-taught
+  line: I taught you that. I taught you all of it. Except that last part. That part I kept.
+- when: after
+  tone: underground
+  ctx: the nickname
+  line: It's not the Intern. It's never been the Intern. It's the one who just did that.
+- when: after
+  tone: underground
+  ctx: she said boring
+  line: Boring. You said boring. Were you bored? You look bored.
 silence:
-  - ctx: one used to work the front desk at the other's gym
-    line: "(Four minutes of questions, nothing. Then, standing to go:) Ask her who bought her first pair of gloves."
-  - ctx: weigh-in, after the other's long speech
-    line: "(She waits for the scale to click.) You still talk to the floor."
+- when: before
+  tone: measured
+  ctx: one used to work the front desk at the other's gym
+  line: (Four minutes of questions, nothing. Then, standing to go:) Ask her who bought her first pair of gloves.
+- when: before
+  tone: measured
+  ctx: weigh-in, after the other's long speech
+  line: (She waits for the scale to click.) You still talk to the floor.
+- when: after
+  tone: measured
+  ctx: one used to work the front desk at the other's gym
+  line: (She says nothing until the doctor nods. Then, to the corner:) She still owes for October.
+- when: after
+  tone: measured
+  ctx: she left the gym before the title fight
+  line: (Nothing through the wave-off, nothing through the bell. On her way through the ropes:) Tell her the locker's still empty.
+- when: after
+  tone: measured
+  ctx: she refused a handshake in front of students
+  line: (She waits until the other can sit. Holds out a glove. Holds it there.) Now.
+- when: after
+  tone: measured
+  ctx: she thanked forty people and left out one
+  line: (After the announcement, into the microphone, one sentence:) I'd like to thank Dana.
+- when: after
+  tone: measured
+  ctx: she took the neon sign
+  line: (Kneeling to collect the mouthguard, handing it to the second:) And the sign.
+- when: after
+  tone: measured
+  ctx: she walked out to the other's song
+  line: (The song is still playing. She listens to four bars. To the booth:) You can turn it off. She's not using it.
+- when: after
+  tone: measured
+  ctx: the sparring story
+  line: (She looks at the nine people who were in that room, one by one, and says to the last:) Tell it now.
+- when: after
+  tone: measured
+  ctx: she said she'd rather fight anyone with a pulse
+  line: (To the referee, who is still kneeling:) Has she got one?
+- when: after
+  tone: measured
+  ctx: she bet against the other
+  line: (Passing row four, to a man with a ticket in his fist:) Keep it.
+- when: after
+  tone: measured
+  ctx: she did commentary on the other's loss and laughed
+  line: (Leaning over the commentary table, pressing the talk-back key:) Laugh.
 borrowed_words:
-  - ctx: she called the other 'a good first test' on a broadcast
-    line: "\"A good first test.\" That was you, on air, last April, about me. I had it printed inside my mouthguard case. I read it every time I put my teeth in."
-  - ctx: she said she would rather fight 'anyone with a pulse'
-    line: "(Holding out a wrist.) Anyone with a pulse, you said. Go ahead. Check."
+- when: before
+  tone: measured
+  ctx: she called the other 'a good first test' on a broadcast
+  line: '"A good first test." That was you, on air, last April, about me. I had it printed inside my mouthguard case. I read it every time I put my teeth in.'
+- when: before
+  tone: measured
+  ctx: she said she would rather fight 'anyone with a pulse'
+  line: (Holding out a wrist.) Anyone with a pulse, you said. Go ahead. Check.
+- when: after
+  tone: measured
+  ctx: she called the other 'a good first test' on a broadcast
+  line: '"A good first test." How did I do? Mark it. Go on. Out of ten.'
+- when: after
+  tone: measured
+  ctx: she said she would rather fight anyone with a pulse
+  line: '"Anyone with a pulse." Your words, eleven fifty-two at night. Well. One of us still qualifies.'
+- when: after
+  tone: measured
+  ctx: she called the other's comeback a reunion tour
+  line: '"Reunion tour." I had it put on the back of the shirts. They''re selling them in the lobby. Yours is free.'
+- when: after
+  tone: measured
+  ctx: she said the other was 'thinking of leaving' to their coach
+  line: '"She''s got one foot out the door." That''s what you told him. Look where my feet are. Look where yours are.'
+- when: after
+  tone: measured
+  ctx: she told a promoter how little she would take to fight the other
+  line: '"I''d do it for gas money." He played me the voicemail. I hope they paid you in gas.'
+- when: after
+  tone: measured
+  ctx: she posted from a beach during the memorial
+  line: '"Needed this." Two words under a photo of your feet in the sand, that afternoon. Did you need this?'
+- when: after
+  tone: measured
+  ctx: the toast at the wedding
+  line: '"And down she went." You raised a glass on that line. Everyone drank. I''d raise one now but they don''t let you bring them in.'
+- when: after
+  tone: measured
+  ctx: she said the other 'peaked in the amateurs'
+  line: '"Peaked in the amateurs." You said it in a room I was standing in. So this is what, then? The decline?'
+- when: after
+  tone: measured
+  ctx: she called the other 'a decent gatekeeper'
+  line: '"Decent gatekeeper." Fine. The gate''s shut. You''re on the outside of it.'
+- when: after
+  tone: measured
+  ctx: she told the kid 'she can't take you any further'
+  line: '"She can''t take you any further." That''s what you told my student. Ask her how far this looks from row twelve.'
+- when: after
+  tone: measured
+  ctx: she captioned a photo 'levels'
+  line: '"Levels." One word, under a picture of us. I''ve been looking at that word for two years. Which one''s the floor?'
+- when: after
+  tone: underground
+  ctx: levels
+  line: '''Levels.'' Your caption. Say it again. Say it from down there, I want to hear how it sounds from the lower level.'
+- when: after
+  tone: underground
+  ctx: a good first test
+  line: '''Good first test.'' Did I pass? Is there a second test? Is it also you?'
+- when: after
+  tone: underground
+  ctx: anyone with a pulse
+  line: '''Anyone with a pulse.'' Check yours. I''ll wait. Ref''s got two fingers free.'
+- when: after
+  tone: underground
+  ctx: peaked in the amateurs
+  line: '''Peaked in the amateurs.'' Then what''s this, the afterparty?'
+- when: after
+  tone: underground
+  ctx: she can't take you further
+  line: '''She can''t take you any further.'' I just took you all the way to the floor. Door to door.'
 host:
-  - ctx: she moved away, came back, and sells more tickets in the other's town
-    line: "Welcome home. Take the locker room on the left, it's the nice one. Towels are mine, water's mine, crowd's mine. Anything you need tonight, ask me, because everything here does."
-  - ctx: one used to work the front desk at the other's gym
-    line: "You used to hand me my key card. Tonight I got you a pass. The lanyard suits you. Some people are built for a lanyard."
+- when: before
+  tone: measured
+  ctx: she moved away, came back, and sells more tickets in the other's town
+  line: Welcome home. Take the locker room on the left, it's the nice one. Towels are mine, water's mine, crowd's mine. Anything you need tonight, ask me, because everything here does.
+- when: before
+  tone: measured
+  ctx: one used to work the front desk at the other's gym
+  line: You used to hand me my key card. Tonight I got you a pass. The lanyard suits you. Some people are built for a lanyard.
+- when: after
+  tone: measured
+  ctx: she moved away and came back selling more tickets
+  line: Stay as long as you like. The building's mine till eleven. Someone bring her water, the good water, from my room.
+- when: after
+  tone: measured
+  ctx: one used to work the front desk at the other's gym
+  line: Let me get the door for you on the way out. I've always been good at the door. You used to say so.
+- when: after
+  tone: measured
+  ctx: hometown gate
+  line: Welcome to the canvas. I had it repainted this week. That's my sponsor you're lying on. Mind the logo, it's still tacky.
+- when: after
+  tone: measured
+  ctx: she had the other seated by the kitchen at her wedding
+  line: We've put you right at the front tonight. Best view in the house. I didn't want you to feel you'd been stuck at the back.
+- when: after
+  tone: measured
+  ctx: the twin gyms on one street
+  line: You came across the street for this. Twenty yards. I'd have saved you the walk, but it's nicer in my building.
+- when: after
+  tone: measured
+  ctx: she no-showed a seminar
+  line: I've kept your slot open. Two o'clock, Saturday, thirty kids. You can do it sitting down. They'd like to meet you.
+- when: after
+  tone: measured
+  ctx: she borrowed the car
+  line: I'll have someone drive you. My car. It's got a full tank. I'll want it back that way.
+- when: after
+  tone: measured
+  ctx: late-notice replacement
+  line: Thank you for coming at such short notice. We do appreciate it. There's a little something for you at the desk. It's the bus fare.
+- when: after
+  tone: measured
+  ctx: she changed the locks
+  line: Take your time getting up. Nobody's going to lock you out. That's not how we do things here.
+- when: after
+  tone: measured
+  ctx: she took the sponsor
+  line: That's my sponsor's name under your shoulder. Read it to me. I pay good money for that placement and I like to hear it.
 teacher:
-  - ctx: she wins with a combination the other drilled into her
-    line: "Your left comes home low. Every time. I'm telling you now so afterward you can't say nobody taught you anything."
-  - ctx: one taught the other; the student got the bigger contract
-    line: "Lesson one was stance and you were late. Lesson two was respect and you were sick. Tonight is the make-up class."
+- when: before
+  tone: measured
+  ctx: she wins with a combination the other drilled into her
+  line: Your left comes home low. Every time. I'm telling you now so afterward you can't say nobody taught you anything.
+- when: before
+  tone: measured
+  ctx: one taught the other; the student got the bigger contract
+  line: Lesson one was stance and you were late. Lesson two was respect and you were sick. Tonight is the make-up class.
+- when: after
+  tone: measured
+  ctx: she wins with a combination the other drilled into her
+  line: Hands. I told you about the hands in two thousand and sixteen. I told you every Tuesday. That was the last time I'll tell you.
+- when: after
+  tone: measured
+  ctx: one taught the other; the student got the bigger contract
+  line: Right. Where did it go wrong? Anyone? She dropped the rear hand to look. What do we never do? We never look.
+- when: after
+  tone: measured
+  ctx: she claims to be self-taught
+  line: Class, this is what self-taught looks like. Note the feet. Nobody ever corrected the feet. Thank you, you can stay there.
+- when: after
+  tone: measured
+  ctx: she stole the drill
+  line: You teach my drill wrong, by the way. You skip the pivot. I saw the video. That, just now, was the pivot.
+- when: after
+  tone: measured
+  ctx: the understudy
+  line: Three years you held the bag for me. You were supposed to be watching. That's what holding the bag is for.
+- when: after
+  tone: measured
+  ctx: student of a student
+  line: I taught the woman who taught you. So think of this as a grandmother coming round to check your homework.
+- when: after
+  tone: measured
+  ctx: the veteran with every trick
+  line: Good. Good try. You showed me the old one, the shoulder feint. I wrote that one. Next time bring something I didn't write.
+- when: after
+  tone: measured
+  ctx: she recruited the kid
+  line: Come and look, all of you. Closer. This is what I meant by chin. This is the whole lesson. Sana, are you watching? Good girl.
+- when: after
+  tone: measured
+  ctx: she went full power in a light session two weeks before the other's biggest fight
+  line: That's what full power looks like when it's the right day for it. Write down the date. You always did get the dates wrong.
+- when: after
+  tone: measured
+  ctx: she called the other boring
+  line: Boring, you said. Fundamentals are boring. Here endeth the fundamentals.
+- when: after
+  tone: underground
+  ctx: hands down
+  line: Hands. Up. I said it for four years. I said it till I hated my own voice. You want to hear it again? Me neither.
+- when: after
+  tone: underground
+  ctx: the drill
+  line: That's the drill you teach at your little seminars. That was the answer key. You've been teaching the questions.
+- when: after
+  tone: underground
+  ctx: the class watching
+  line: Everybody get your phones out, this is the lesson. This is the whole curriculum. There's no part two.
+- when: after
+  tone: underground
+  ctx: boring fundamentals
+  line: Fundamentals are boring, you said. Well. That was a jab and a cross. Day one stuff. Kids' class stuff.
+- when: after
+  tone: underground
+  ctx: the understudy
+  line: You held pads for me for three years and learned nothing. That's actually impressive. That takes effort.
 bored:
-  - ctx: the promoter's favourite and the early weigh-in slot
-    line: "Sorry, which one is she? No, I can hear that she's talking. I meant on the poster."
-  - ctx: a ranking spot and nothing else
-    line: "I have physio at four and this at nine. Honestly the four worries me more."
+- when: before
+  tone: measured
+  ctx: the promoter's favourite and the early weigh-in slot
+  line: Sorry, which one is she? No, I can hear that she's talking. I meant on the poster.
+- when: before
+  tone: measured
+  ctx: a ranking spot and nothing else
+  line: I have physio at four and this at nine. Honestly the four worries me more.
+- when: after
+  tone: measured
+  ctx: the promoter's favourite
+  line: Is that it? I had a whole second round planned. I'd stretched for it and everything.
+- when: after
+  tone: measured
+  ctx: a ranking spot and nothing else
+  line: Somebody wake me when they've read it out. Not her. Me.
+- when: after
+  tone: measured
+  ctx: a year of posts and replies
+  line: All that typing. I thought there'd be more to you in person. Can I go? Is there a form?
+- when: after
+  tone: measured
+  ctx: late-notice replacement
+  line: Who's next? No, really. I'm still warm. Has anyone got a sister?
+- when: after
+  tone: measured
+  ctx: she called the other 'a good first test'
+  line: I've had harder warm-ups. I had a harder warm-up tonight. Ask Dele, he's got the pad bruises.
+- when: after
+  tone: measured
+  ctx: the gatekeeper
+  line: What time is it? I told my mother I'd ring by ten. Oh. Loads of time.
+- when: after
+  tone: measured
+  ctx: she said she'd fight her for gas money
+  line: Did we get the whole purse for that? For that? I feel like I should give some of it back. I won't.
+- when: after
+  tone: measured
+  ctx: the twin gyms
+  line: They told me she was the best one across the road. I'd hate to see the rest. Actually, send them over. I've a free Thursday.
+- when: after
+  tone: measured
+  ctx: rematch after a robbed decision
+  line: I trained twelve weeks for the judges. Twelve weeks. And she didn't even let it get to them. Rude.
+- when: after
+  tone: measured
+  ctx: she bet against the other
+  line: I'd say I'm surprised. I'm not even surprised. Somebody be surprised for me, I haven't the energy.
+- when: after
+  tone: underground
+  ctx: short fight
+  line: That's it? I did my hair for this.
+- when: after
+  tone: underground
+  ctx: after the wave-off
+  line: Somebody get me my phone. No, I'm not posting. I'm checking what else is on.
+- when: after
+  tone: underground
+  ctx: the gas money line
+  line: I've had Uber rides longer than that. I tipped better too.
+- when: after
+  tone: underground
+  ctx: the twin gyms
+  line: That's your best one? From across the street? Send the B team. Send whoever answers the phone.
+- when: after
+  tone: underground
+  ctx: the trilogy
+  line: They want a third one. A third one! I didn't want the second one.
 confession:
-  - ctx: she did not come to the coach's memorial; she posted from a beach that day
-    line: "I did skip it. I was on a beach and I knew what day it was. That's who you drew: somebody who can do that and sleep. Can you?"
-  - ctx: she signed the local sponsor the other had for six years
-    line: "I took your sponsor, yes. I called him from your own parking lot. I am not a good friend. I'm a very good fighter, and for six years you've had those two backwards."
+- when: before
+  tone: measured
+  ctx: she did not come to the coach's memorial; she posted from a beach that day
+  line: 'I did skip it. I was on a beach and I knew what day it was. That''s who you drew: somebody who can do that and sleep. Can you?'
+- when: before
+  tone: measured
+  ctx: she signed the local sponsor the other had for six years
+  line: I took your sponsor, yes. I called him from your own parking lot. I am not a good friend. I'm a very good fighter, and for six years you've had those two backwards.
+- when: after
+  tone: measured
+  ctx: she did not come to the memorial
+  line: I skipped his memorial. You know I did. And I'd skip it again to have this. That's the kind of person just beat you. Live with that.
+- when: after
+  tone: measured
+  ctx: she signed the other's sponsor
+  line: I took your sponsor, your cut-man and your Thursday slot. I did all of it on purpose. I'd like that understood. None of it was luck, and neither was that.
+- when: after
+  tone: measured
+  ctx: she left before the title fight
+  line: I left three weeks before your big night because I didn't think you'd win it. I was right. I didn't want to be standing next to it.
+- when: after
+  tone: measured
+  ctx: she drove the van home
+  line: I took the van. I knew you were all still inside. I had the keys in my hand for a full minute first. Then I drove. Then I slept fine.
+- when: after
+  tone: measured
+  ctx: she sold the tape to an opponent's camp
+  line: I sent them your sparring tape. Forty minutes of it. I watched it again this week. Everything on it still works.
+- when: after
+  tone: measured
+  ctx: she went full power in a light session
+  line: I hurt you on purpose in that session. Two weeks out. You were getting ahead of me and I couldn't stand it. I can stand it now.
+- when: after
+  tone: measured
+  ctx: she registered the trademark
+  line: I filed for your name the day after you beat me. Twelve dollars online. Spite, pure and simple. Best twelve dollars I ever spent, until tonight's ticket.
+- when: after
+  tone: measured
+  ctx: she told the coach the other was leaving
+  line: I told him you were going before you'd decided. I wanted him cold with you. He was. And you went. And here we both are.
+- when: after
+  tone: measured
+  ctx: she poached the kid
+  line: I took Sana from you because she's better than both of us and I wanted my name on her. Not for her sake. For mine.
+- when: after
+  tone: measured
+  ctx: she bet against the other
+  line: I bet against you, back then. With Marco. A hundred. I'd have bet against you tonight if they'd let a fighter do that.
 translator_gap:
-  - ctx: they do not share a language; everything passes through a third person
-    line: "(She says nine words. The interpreter says: \"She wishes you luck.\" Everyone in the room who speaks the language has stopped smiling.)"
-  - ctx: same, at a press conference
-    line: "(What she said concerned the other's mother's cooking. What reached the microphone was \"she respects your camp.\" The laugh came late, from two cousins at the back.)"
+- when: before
+  tone: measured
+  ctx: they do not share a language; everything passes through a third person
+  line: '(She says nine words. The interpreter says: "She wishes you luck." Everyone in the room who speaks the language has stopped smiling.)'
+- when: before
+  tone: measured
+  ctx: same, at a press conference
+  line: (What she said concerned the other's mother's cooking. What reached the microphone was "she respects your camp." The laugh came late, from two cousins at the back.)
+- when: after
+  tone: measured
+  ctx: they share no language
+  line: '(She speaks for some time, crouched. The interpreter, asked what was said, looks at the canvas and says: "She says good fight." Nobody who understood her is looking at anyone.)'
+- when: after
+  tone: underground
+  ctx: same
+  line: at the post-fight interview
+- when: after
+  tone: underground
+  ctx: same
+  line: the cornerman understands
+- when: after
+  tone: underground
+  ctx: same
+  line: the loser half-understands
+- when: after
+  tone: underground
+  ctx: same
+  line: the broadcast
+- when: after
+  tone: underground
+  ctx: same
+  line: about the van
+- when: after
+  tone: underground
+  ctx: same
+  line: a name
+- when: after
+  tone: underground
+  ctx: same
+  line: the referee asks
 crowd_work:
-  - ctx: hometown gate
-    line: "Who drove in from her town? Hands up. Good. You four can carpool home early."
-  - ctx: a year of posts and replies, first time in the same room
-    line: "Don't boo her, she can't hear you, she's been listening to her own interviews. Somebody wave so she knows which way the cage is."
+- when: before
+  tone: measured
+  ctx: hometown gate
+  line: Who drove in from her town? Hands up. Good. You four can carpool home early.
+- when: before
+  tone: measured
+  ctx: a year of posts and replies, first time in the same room
+  line: Don't boo her, she can't hear you, she's been listening to her own interviews. Somebody wave so she knows which way the cage is.
+- when: after
+  tone: measured
+  ctx: hometown gate
+  line: Her town, where are you? Make some noise. No? Nothing? You were so loud at the weigh-in.
+- when: after
+  tone: measured
+  ctx: a year of posts and replies
+  line: Everybody who typed at me this year, stand up. Go on. I can see you sitting. I've got your usernames.
+- when: after
+  tone: measured
+  ctx: the other's students in the cheap seats
+  line: Kids in the green shirts. Up the back. That's your teacher. Wave. She'd want you to see this bit.
+- when: after
+  tone: measured
+  ctx: debut in front of everyone she grew up with
+  line: Who taught her at school? Is her teacher in? You should've held her back a year.
+- when: after
+  tone: measured
+  ctx: she moved away and came back
+  line: Who paid forty dollars to watch her come home? Hands. Right. See me after, I'll sign something. It won't be a refund.
+- when: after
+  tone: measured
+  ctx: the twin gyms
+  line: Everybody from the gym across the road, there's a door behind you marked exit. Classes at mine start Monday.
+- when: after
+  tone: measured
+  ctx: the promoter's favourite
+  line: Who's got the poster? Hold it up. Higher. There she is. Now look down here. Spot the difference.
+- when: after
+  tone: measured
+  ctx: she called the other boring
+  line: Was that boring? Row one, was that boring? You, in the hat. Were you bored?
+- when: after
+  tone: measured
+  ctx: late replacement
+  line: Give it up for the replacement, everybody. She said yes on a Tuesday. That's more notice than she gave the canvas.
+- when: after
+  tone: measured
+  ctx: the bet
+  line: Who had her in two? Anyone? Who had me in one? You, sir, drinks are on you. They're on her, really.
+- when: after
+  tone: measured
+  ctx: the walkout song
+  line: Sing it. You all know it. It's my song, she just borrowed it. From the top. She'll come in when she's ready.
+- when: after
+  tone: underground
+  ctx: her section
+  line: Section C! Y'all came deep! Y'all brought SIGNS! Hold the signs up. I want to read them to her later.
+- when: after
+  tone: underground
+  ctx: phones out
+  line: Everybody filming, keep filming. Get the toes. Don't miss the toes.
+- when: after
+  tone: underground
+  ctx: the bet
+  line: Who bet on her? Be honest. You, in the puffer jacket. I see you sweating in a puffer jacket.
+- when: after
+  tone: underground
+  ctx: her students
+  line: Green shirts! Up top! Your coach'll be with you shortly. She's just reviewing the floor plan.
+- when: after
+  tone: underground
+  ctx: the chant
+  line: Start her chant again. Go on. 'Let's go' what? I can't hear you. Neither can she.
 nostalgia:
-  - ctx: shared an apartment during the lean years; one moved out owing
-    line: "We split one space heater in that apartment. You'd turn it to your side when you thought I was asleep. I was never asleep. That's all tonight is."
-  - ctx: she kept the dog when the apartment split
-    line: "He used to sleep on your gym bag. He cries at the door the week you fight. I let him watch. I want him to see how it goes for people who leave."
+- when: before
+  tone: measured
+  ctx: shared an apartment during the lean years; one moved out owing
+  line: We split one space heater in that apartment. You'd turn it to your side when you thought I was asleep. I was never asleep. That's all tonight is.
+- when: before
+  tone: measured
+  ctx: she kept the dog when the apartment split
+  line: He used to sleep on your gym bag. He cries at the door the week you fight. I let him watch. I want him to see how it goes for people who leave.
+- when: after
+  tone: measured
+  ctx: shared an apartment during the lean years
+  line: Remember the flat? One heater. You'd say 'I'm not cold' and take it anyway. You look warm enough now.
+- when: after
+  tone: measured
+  ctx: she kept the dog
+  line: He'll be at the door when you get home. He always knew when one of us had lost. He'd bring a shoe. Tell him I said hello.
+- when: after
+  tone: underground
+  ctx: same town
+  line: same bus
+- when: after
+  tone: measured
+  ctx: the amateur final at seventeen
+  line: Eleven people watched us the first time. Your dad, my mum, a caretaker with a mop. I liked that fight better. You were still trying to beat me then.
+- when: after
+  tone: measured
+  ctx: roommates at national camp
+  line: They put us in room nine. You asked to move before breakfast. I had the whole room for two weeks. It was the best camp I ever had. So thanks.
+- when: after
+  tone: measured
+  ctx: the old coach
+  line: He used to make us hold hands and bow after sparring. Remember? You always squeezed too hard. Give me your hand. No? Later, then.
+- when: after
+  tone: measured
+  ctx: the borrowed gloves
+  line: You lent me those gloves on my first day because mine were too big. That was a kind thing. I keep trying to think of another one.
+- when: after
+  tone: measured
+  ctx: the neon sign
+  line: That sign used to buzz when it rained. We'd count the seconds between flickers. I counted tonight, too. Out of habit. I got to four.
+- when: after
+  tone: measured
+  ctx: penpals as teenagers
+  line: You wrote me thirty-one letters. You drew a little glove by your name. I've still got them. I'll send them back, shall I? You can read how nice you were.
+- when: after
+  tone: measured
+  ctx: cousins
+  line: Nan had our school photos side by side on the piano. Yours a bit in front. I went round this morning and swapped them.
+- when: after
+  tone: measured
+  ctx: the kids' class they both taught
+  line: We taught the six-year-olds together. You did the falling-down game. Arms in, chin tucked, roll. You were so good at that game.
 accountant:
-  - ctx: the purse gap
-    line: "They pay you eight to show and me forty. So every minute you last costs me money and makes you none. Do the arithmetic and sit down."
-  - ctx: ticket sales in the other's hometown
-    line: "I sold three hundred seats in your zip code. You sold your cousin's table. I ought to invoice you for the audience."
+- when: before
+  tone: measured
+  ctx: the purse gap
+  line: They pay you eight to show and me forty. So every minute you last costs me money and makes you none. Do the arithmetic and sit down.
+- when: before
+  tone: measured
+  ctx: ticket sales in the other's hometown
+  line: I sold three hundred seats in your zip code. You sold your cousin's table. I ought to invoice you for the audience.
+- when: after
+  tone: measured
+  ctx: the purse gap
+  line: Forty to show, forty to win. You got eight. Divide eight thousand by ninety-one seconds. No, I'll do it. Eighty-eight dollars a second. Best rate you've ever had.
+- when: after
+  tone: measured
+  ctx: ticket sales
+  line: You sold six hundred seats tonight. I get a cut of the gate. So every one of your cousins paid me to be here. Tell them I said thanks.
+- when: after
+  tone: measured
+  ctx: the unpaid loan
+  line: Fifteen hundred, for the deposit, in two thousand and nineteen. I'm taking it out of tonight. Consider us square. No, we're not square. But consider it.
+- when: after
+  tone: measured
+  ctx: the sponsor
+  line: That logo on your shorts paid you two grand. It's getting ninety seconds of screen time, face down. I'd ask for some of that back, if I were them.
+- when: after
+  tone: measured
+  ctx: she'd fight her for gas money
+  line: You said gas money. It's four dollars a gallon. That was about a pint's worth.
+- when: after
+  tone: measured
+  ctx: the rent
+  line: Five hundred a month extra, thirty-one months. Fifteen and a half thousand. My win bonus is fifteen. I'm still five hundred down. I'll send a bill.
+- when: after
+  tone: measured
+  ctx: the meal plan she sells
+  line: Forty dollars a download, my plan, your name. How many did you sell? Two hundred? Eight thousand. Same as your purse. That's tidy.
+- when: after
+  tone: measured
+  ctx: the bet
+  line: You put a hundred against me once at three to one. Tonight I was three to one against. Somebody at the back just made what you made. Ask him how it feels.
+- when: after
+  tone: measured
+  ctx: the camp rental
+  line: A hundred and ninety, plus four years. I don't charge interest. I charge this.
+- when: after
+  tone: measured
+  ctx: the last fight on a deal
+  line: This was the last one on your contract. So the cost per fight, for them, just went up. I wouldn't expect a call.
+- when: after
+  tone: measured
+  ctx: the auctioned gloves
+  line: You got three hundred for my gloves. I got sixty thousand for tonight. One of us understands what things are worth.
+- when: after
+  tone: underground
+  ctx: the purse
+  line: They paid you eight grand. For that. I want to work where you work.
+- when: after
+  tone: underground
+  ctx: ticket sales
+  line: Your whole family bought tickets. Thank them for me. They paid for my car.
+- when: after
+  tone: underground
+  ctx: the loan
+  line: Fifteen hundred you owed me. Keep it. Buy a chin.
+- when: after
+  tone: underground
+  ctx: per second
+  line: Eighty-eight dollars a second. Best money you'll ever make lying down. Don't say anything, I heard it too.
+- when: after
+  tone: underground
+  ctx: the sponsor
+  line: Your sponsor paid for that patch on your shorts. It's on the floor now. Great placement. Real eye level.
 whisper:
-  - ctx: she still fights in gloves she borrowed and never returned
-    line: "(A handshake for the cameras. Under it, lips barely moving:) I kept your gloves because they fit me better."
-  - ctx: she refused a handshake in front of the other's students
-    line: "(At the staredown, pleasantly:) Smile. Your students are watching you be afraid."
+- when: before
+  tone: measured
+  ctx: she still fights in gloves she borrowed and never returned
+  line: (A handshake for the cameras. Under it, lips barely moving:) I kept your gloves because they fit me better.
+- when: before
+  tone: measured
+  ctx: she refused a handshake in front of the other's students
+  line: (At the staredown, pleasantly:) Smile. Your students are watching you be afraid.
+- when: after
+  tone: measured
+  ctx: she still fights in borrowed gloves
+  line: (Bending as if to check on her, for the cameras; lips hardly moving:) They never fit you.
+- when: after
+  tone: measured
+  ctx: she refused a handshake in front of students
+  line: (Helping her to sit, an arm round her shoulders, smiling at the crowd:) They're all watching. Shake my hand or I let go.
+- when: after
+  tone: measured
+  ctx: she left before the title fight
+  line: (Into her ear, as the doctor steps back:) Three weeks early. You always did leave early.
+- when: after
+  tone: measured
+  ctx: the sparring story
+  line: (Arm raised by the referee, eyes on the far corner; from the side of her mouth:) Tell them I slipped.
+- when: after
+  tone: measured
+  ctx: the memorial
+  line: (Touching gloves to the fallen one's shoulder, a gesture the broadcast calls classy:) He asked where you were.
+- when: after
+  tone: measured
+  ctx: the trademark
+  line: (Kneeling, a hand flat on the canvas beside her head:) You can have the name. I've stopped wanting it.
+- when: after
+  tone: measured
+  ctx: the kid
+  line: (As the second arrives, without looking at him:) Tell Sana I'll see her Monday.
+- when: after
+  tone: measured
+  ctx: the wedding seat
+  line: (Leaning in as if to say well fought:) Can you see all right from there?
+- when: after
+  tone: measured
+  ctx: the locks
+  line: (Low, as they lift her to the stool:) I've still got a key.
+- when: after
+  tone: measured
+  ctx: the reference
+  line: (Through a smile, hugging the loser's coach:) I know what she told Brennan about me. So does Brennan.
+- when: after
+  tone: underground
+  ctx: handshake for cameras
+  line: (Smiling, arm round her, through her teeth:) Say 'good fight' so they clap. Say it or I do the dance.
+- when: after
+  tone: underground
+  ctx: the gloves
+  line: (Leaning down like she's checking on her:) Still my gloves. Still don't fit you.
+- when: after
+  tone: underground
+  ctx: the kid
+  line: (Hugging the loser's coach, sweet as anything:) Tell Sana Monday. Six a.m. Tell her bring her own tape this time.
+- when: after
+  tone: underground
+  ctx: the key
+  line: (Close, as they lift her:) I never gave the key back. I go in sometimes. I move your stuff an inch.
 wounded:
-  - ctx: she thanked forty people after her title win and left out one
-    line: "Forty names. I counted them on the replay, twice, in case I'd missed mine. You thanked the man who drives the ring truck."
-  - ctx: she told the sparring story as a toast at the other's wedding
-    line: "You told that story at my wedding. With a glass in your hand. My father laughed, and he has never once laughed at anything I did on purpose."
+- when: before
+  tone: measured
+  ctx: she thanked forty people after her title win and left out one
+  line: Forty names. I counted them on the replay, twice, in case I'd missed mine. You thanked the man who drives the ring truck.
+- when: before
+  tone: measured
+  ctx: she told the sparring story as a toast at the other's wedding
+  line: You told that story at my wedding. With a glass in your hand. My father laughed, and he has never once laughed at anything I did on purpose.
+- when: after
+  tone: measured
+  ctx: she thanked forty people and left out one
+  line: Say my name. That's all I wanted. One time, with the belt on. You had ninety seconds and you gave it to a truck driver.
+- when: after
+  tone: measured
+  ctx: she told the story at the wedding
+  line: My father laughed at that toast. I watched him. I've wanted to put you on your back in front of him ever since, and he couldn't come tonight.
+- when: after
+  tone: measured
+  ctx: she did not come to the memorial
+  line: He asked for you. On the Tuesday. I told him you were on your way. I've hated you since the Tuesday, not the funeral.
+- when: after
+  tone: measured
+  ctx: she left without a word
+  line: You didn't even leave a note. Eight years, and I found out from the locker. I'd have done this years ago if you'd just left a note.
+- when: after
+  tone: measured
+  ctx: she painted the other out of the mural
+  line: I went past and saw the blue square where my face was. I stood there so long a kid asked if I was lost.
+- when: after
+  tone: measured
+  ctx: she unfollowed the night of the other's worst loss
+  line: The night I lost in Leeds I looked at my phone in the ambulance bay to see if you'd written. You'd unfollowed. That was all. That was the whole message.
+- when: after
+  tone: measured
+  ctx: she left the message on read
+  line: Three years on read. I checked it this morning. Still two ticks. You could have typed one letter.
+- when: after
+  tone: measured
+  ctx: she pulled her daughter out of the kids' class
+  line: She was my best one. Five years old, never missed a Saturday. You took her out and didn't tell me why. I kept her gloves on the hook.
+- when: after
+  tone: measured
+  ctx: she walked out with the old sponsor taped over
+  line: You taped over my dad's shop on your shirt. With grey tape. He saw it on television. He rang me to ask what he'd done.
+- when: after
+  tone: measured
+  ctx: the favour never returned
+  line: I drove six hours to hold your bucket in Hull. Six. You didn't come to one of mine. Not one. I looked for you in the seats every time.
+- when: after
+  tone: underground
+  ctx: left out of the speech
+  line: You thanked your DOG. On stage. Before me. Your dog wasn't in camp.
+- when: after
+  tone: underground
+  ctx: left on read
+  line: I texted you 'you good?' when your mom was sick. Nothing. So no, I'm not asking if you're good now.
+- when: after
+  tone: underground
+  ctx: the mural
+  line: You painted over my face with the cheap paint. You can still see my ears through it. Like I'm drowning in a wall.
+- when: after
+  tone: underground
+  ctx: the unfollow
+  line: You unfollowed me the night I lost. I noticed. I notice everything. I noticed your left hand come down too.
+- when: after
+  tone: underground
+  ctx: no note
+  line: Eight years and you left like a roommate who owes rent. I'd have helped you move. I'd have carried the boxes.
+auctioneer:
+- when: after
+  tone: measured
+  ctx: the auctioned gloves
+  line: 'Lot one: a ring name, lightly used, one owner on the floor. Who''ll start me at a dollar? Anyone? Fifty cents?'
+- when: after
+  tone: measured
+  ctx: the title she kept without earning
+  line: One belt, barely worn. I'm hearing nothing from her corner. Going once.
+- when: after
+  tone: measured
+  ctx: the neon sign
+  line: A neon sign, a coach's whistle and a reputation. I'll take the sign and the whistle. The third item has no reserve.
+- when: after
+  tone: measured
+  ctx: the poster
+  line: What am I bid for the poster? The left half. The right half's spoken for.
+- when: after
+  tone: measured
+  ctx: her highlight reel
+  line: Six years of highlights, going cheap. They come with one new clip that isn't hers.
+- when: after
+  tone: measured
+  ctx: the sponsor
+  line: Her sponsor's sitting in row two with his cheque book closed. Sir? Sir. Open it. I'm right here.
+lawyer:
+- when: after
+  tone: measured
+  ctx: the tap in the scrimmage
+  line: I concede the scrimmage. I concede you might have had my arm. I concede everything before tonight. Now enter tonight into the record.
+- when: after
+  tone: measured
+  ctx: the draw
+  line: The first fight was scored a draw and I accept the judges' finding. I'd ask the court to note there are no judges required this evening.
+- when: after
+  tone: measured
+  ctx: the unpaid loan
+  line: You borrowed fifteen hundred on the ninth of May. There's a text. I don't dispute you meant to pay it. I dispute that you did.
+- when: after
+  tone: measured
+  ctx: the sparring story
+  line: Nine witnesses. I've spoken to seven. Their accounts agree with mine. I'll add six thousand more as of two minutes ago.
+- when: after
+  tone: measured
+  ctx: she said she was self-taught
+  line: You were asked on air who trained you and you said 'nobody'. I was nobody for four years. I'd like that corrected for the record.
+- when: after
+  tone: measured
+  ctx: the rematch clause
+  line: Clause eleven was struck at your request. I have the redline. So when you ask for this back, I'll refer you to your own pen.
+mother_tongue:
+- when: after
+  tone: measured
+  ctx: cousins
+  line: (The family word for a child who shows off at dinner. Only the two of them and one aunt in row five know it. The aunt sits down.)
+- when: after
+  tone: measured
+  ctx: the amateur final
+  line: (What their first coach used to shout at them both, in his accent, in his words. She does the accent exactly.)
+- when: after
+  tone: measured
+  ctx: childhood nickname
+  line: (She says the name the other was called at seven, before she chose a better one. Said kindly. That is what makes it land.)
+- when: after
+  tone: measured
+  ctx: roommates
+  line: (The phrase they used for 'rent's due'. Nobody else in the building would know it meant anything.)
+eulogist:
+- when: after
+  tone: measured
+  ctx: the veteran gatekeeper
+  line: She was a good fighter. She had a lovely jab. People forget that. She gave a lot of people their start. I was one.
+- when: after
+  tone: measured
+  ctx: the retired one who came back
+  line: She had two careers and they were both respectable. The second was shorter.
+- when: after
+  tone: measured
+  ctx: one taught the other
+  line: She taught me to stand. I'll always say that about her. I say it now, in the past tense, with love.
+- when: after
+  tone: measured
+  ctx: the champion who never earned it
+  line: She held the belt for fourteen months. Those were good months for her. I hope she took photographs.
+- when: after
+  tone: measured
+  ctx: the prospect who had never been behind
+  line: She was undefeated, you know. For a long time. It's a nice thing to have been.
+- when: after
+  tone: measured
+  ctx: the hometown hero
+  line: This town loved her. You could hear it tonight, right up until you couldn't.
+scorekeeper:
+- when: after
+  tone: measured
+  ctx: she interrupted all week
+  line: That's nine. Nine times this week you talked over me. I've been counting. I'd say ten but you didn't finish the sentence.
+- when: after
+  tone: measured
+  ctx: excuses
+  line: Slipped. Flu. Bad camp. Short notice. That's four excuses in four fights. Give me the fifth. I'll write it down for you.
+- when: after
+  tone: measured
+  ctx: the blinks
+  line: You blinked first at the staredown. You blinked first at the weigh-in. Tonight you didn't blink at all, and look.
+- when: after
+  tone: measured
+  ctx: the jabs she landed
+  line: Eleven jabs you landed. I let you have eleven. I was counting up to twelve.
+- when: after
+  tone: measured
+  ctx: handshakes refused
+  line: Three handshakes I've offered you. One at the gym, one at the scale, one in the ring. This is four. Take your time.
+grateful:
+- when: after
+  tone: measured
+  ctx: the loan
+  line: Thank you for the fifteen hundred. Truly. I learned what you're like for fifteen hundred. People pay more than that to find out.
+- when: after
+  tone: measured
+  ctx: she left the gym
+  line: Thank you for leaving. I got your locker, your slot and your coach. I got your Tuesday nights. I'd never have had any of it.
+- when: after
+  tone: measured
+  ctx: the nickname
+  line: Thank you for the name. I hated it for ten years and now it's on a belt. I'll have them engrave it. I'll send you a photo.
+- when: after
+  tone: measured
+  ctx: the hard sparring
+  line: Thank you for going full power that day. It was the last time anyone surprised me. I've been ready for you ever since.
+- when: after
+  tone: measured
+  ctx: the kid
+  line: Thank you for taking Sana. It hurt enough to get me out of bed at five for a year. Look what a year of five o'clocks did.
+- when: after
+  tone: measured
+  ctx: the bad reference
+  line: Thank you for telling Brennan I was difficult. He stopped calling. So I had nothing to do but train for you.
+coach_voice:
+- when: after
+  tone: measured
+  ctx: she drops her rear hand
+  line: Breathe. In through the nose. Don't try to get up yet. And next time, keep the right hand home when you jab. Next time.
+- when: after
+  tone: measured
+  ctx: the cornerman who used to hold her pads
+  line: What did I tell you about circling into the power side? Every session. Every single session. Good. Now you know why.
+- when: after
+  tone: measured
+  ctx: the understudy
+  line: Chin down, eyes up, hands back to your face after every shot. That's it. That's all it ever was. Shame.
+- when: after
+  tone: measured
+  ctx: the technician
+  line: You were up on the cards. You only had to be boring for three more minutes. You've never been able to be boring when it mattered.
+- when: after
+  tone: measured
+  ctx: the kicker with low hands
+  line: 'Hands. I''m not your coach any more so this one''s free: hands.'
+questioner:
+- when: after
+  tone: measured
+  ctx: the memorial
+  line: Where were you on the fourteenth? What beach? Was it warm? Did you think about him at all? Did you think about tonight?
+- when: after
+  tone: measured
+  ctx: the van
+  line: Who had the keys? Who counted heads? Who drove? How long before you looked in the mirror? Did you look?
+- when: after
+  tone: measured
+  ctx: the speech
+  line: How many names? Forty? Was mine one? Was it an accident? Would you like to say it now?
+- when: after
+  tone: measured
+  ctx: the sparring story
+  line: Who went down that day? Who was there? Why do you only tell it when they aren't? Who's down now?
+- when: after
+  tone: measured
+  ctx: the trademark
+  line: Whose name is it? Who's wearing it? Who's got the paperwork? And who's got the belt?
+- when: after
+  tone: measured
+  ctx: self-taught
+  line: Who taught you the jab? Who taught you the pivot? Who didn't teach you that? Why do you think that was?
+roast_the_pose:
+- when: after
+  tone: underground
+  ctx: one arm stayed up after she landed
+  line: Put your hand down, nobody called on you. Class is over.
+- when: after
+  tone: underground
+  ctx: she snores
+  line: Hear that? That's the first honest thing she's said all week.
+- when: after
+  tone: underground
+  ctx: toes curled
+  line: Her toes are doing more gripping than her whole ground game did.
+- when: after
+  tone: underground
+  ctx: fencing arms
+  line: One arm out, one arm in. Girl is directing traffic from the floor. Nobody's coming, babe, the road's closed.
+- when: after
+  tone: underground
+  ctx: ankles crossed
+  line: Ankles crossed like she's on the couch waiting for the next episode. There is no next episode.
+- when: after
+  tone: underground
+  ctx: guard still up while out
+  line: Hands up NOW? Now you want to keep your hands up? I asked you for that in round one.
+- when: after
+  tone: underground
+  ctx: stiff legs
+  line: She's laid out straight like somebody's about to chalk around her. Don't. She'll want the chalk for her record.
+- when: after
+  tone: underground
+  ctx: feet still paddling
+  line: Her feet are still circling left. Somebody tell the feet. The feet did not get the group chat.
+- when: after
+  tone: underground
+  ctx: eyes up at the corner
+  line: She's staring at the rafters like the answer's up there. It's not up there. It was the left hand.
+- when: after
+  tone: underground
+  ctx: lips fluttering
+  line: She's blowing bubbles. You came all this way to blow bubbles.
+- when: after
+  tone: underground
+  ctx: wrists curled in
+  line: Little T-rex arms. All that reach on the poster and she's holding it like a hamster.
+- when: after
+  tone: underground
+  ctx: fell sitting then back
+  line: She sat down first. Polite. Then she lay down. Even more polite. Best manners she's shown me in six years.
+- when: after
+  tone: underground
+  ctx: she grabbed the referee's leg
+  line: That's the ref, sweetheart. Wrong leg. You had twenty minutes to grab mine.
+- when: after
+  tone: underground
+  ctx: she walked to the wrong corner
+  line: Wrong corner. That's MY stool. You already tried taking my stuff once, sit your own.
+- when: after
+  tone: underground
+  ctx: she asked what round it was
+  line: She asked what round it is. It's the one after yours.
+- when: after
+  tone: underground
+  ctx: shoulders hunched to her ears
+  line: Shoulders up by her ears like she just heard the price. That was the price.
+- when: after
+  tone: underground
+  ctx: head bounced once
+  line: One bounce. Regulation. I'd have given you two if you'd paid the camp fees.
+- when: after
+  tone: underground
+  ctx: the tremor
+  line: She's buffering. Give it a second. No, she's still buffering.
+- when: after
+  tone: underground
+  ctx: hands pawing at air
+  line: She's reaching for the ropes. They're over there. Everything you want tonight is over there.
+- when: after
+  tone: underground
+  ctx: mouthguard half out
+  line: Mouthguard's trying to leave. Even the mouthguard's seen enough.
+receipts:
+- when: after
+  tone: underground
+  ctx: she said she'd fight anyone with a pulse
+  line: I've got the screenshot. Eleven fifty-two p.m. 'Anyone with a pulse.' I'm making it my lock screen. I'm making it YOUR lock screen.
+- when: after
+  tone: underground
+  ctx: a year of posts and replies
+  line: Four hundred and six replies you sent me. I counted on the bus. Type one now. Go on. I'll wait for the three dots.
+- when: after
+  tone: underground
+  ctx: she unfollowed the night of the other's worst loss
+  line: You unfollowed me when I lost. Follow me back. Right now. I want the notification while you're still on the floor.
+- when: after
+  tone: underground
+  ctx: she posted from a beach during the memorial
+  line: '''Needed this,'' with the little wave emoji. I saved it. Post a caption for this one. Go ahead. I''ll hold your phone.'
+- when: after
+  tone: underground
+  ctx: she captioned a photo 'levels'
+  line: '''Levels.'' You posted that. One word. Okay. Which level is this? Ground floor?'
+- when: after
+  tone: underground
+  ctx: she left the message on read
+  line: Three years on read. I see you got my message tonight though. Delivered. Seen.
+- when: after
+  tone: underground
+  ctx: she posted scorecards every anniversary
+  line: Every year you post those cards. This year I'm posting a clock. Tag yourself, you're the second hand.
+- when: after
+  tone: underground
+  ctx: she laughed on a podcast
+  line: Clip that. Somebody clip that. I want it next to the podcast clip, side by side, with the laugh still on it.
+- when: after
+  tone: underground
+  ctx: the group chat
+  line: Somebody add her back to the group chat. I want her to see it get quiet in real time.
+- when: after
+  tone: underground
+  ctx: she said the other peaked in the amateurs
+  line: You said I peaked. It's pinned on your page. Leave it pinned. It ages better every hour.
+- when: after
+  tone: underground
+  ctx: she leaked the sparring clip
+  line: You leaked a clip of me getting tagged in sparring. Cool. Here's one for you. It's in 4K and I didn't have to leak it.
+- when: after
+  tone: underground
+  ctx: she subtweeted
+  line: No more subtweets. Say it with your whole chest. Oh. You can't right now. I'll wait.
+- when: after
+  tone: underground
+  ctx: she voice-noted the promoter
+  line: I heard the voice note. 'Gas money.' Forty seconds long. You went down in less time than you talked about it.
+- when: after
+  tone: underground
+  ctx: she blocked the other
+  line: You blocked me in March. Can't block that. That one got through.
+house_mic:
+- when: after
+  tone: underground
+  ctx: the caller
+  line: on a one-punch finish
+- when: after
+  tone: underground
+  ctx: the caller
+  line: fencing arms
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the snore
+- when: after
+  tone: underground
+  ctx: the caller
+  line: delayed fall
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the grievance was a stolen walkout song
+- when: after
+  tone: underground
+  ctx: the caller
+  line: hometown fighter loses
+- when: after
+  tone: underground
+  ctx: the caller
+  line: rigid fall
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the unpaid loan
+- when: after
+  tone: underground
+  ctx: the caller
+  line: toes
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the winner won't celebrate
+- when: after
+  tone: underground
+  ctx: the caller
+  line: a follow-up shot
+- when: after
+  tone: underground
+  ctx: the caller
+  line: wave-off late
+- when: after
+  tone: underground
+  ctx: the caller
+  line: she tries to stand
+- when: after
+  tone: underground
+  ctx: the caller
+  line: wrong corner
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the kid was poached
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the arm that stays up
+- when: after
+  tone: underground
+  ctx: the caller
+  line: eyes open
+- when: after
+  tone: underground
+  ctx: the caller
+  line: on the clock
+- when: after
+  tone: underground
+  ctx: the caller
+  line: the mural
+- when: after
+  tone: underground
+  ctx: the caller
+  line: crowd is silent

@@ -1,0 +1,94 @@
+{
+ "id": "s00061",
+ "seed": 61,
+ "shape": "aftermath",
+ "attempts": [
+  {
+   "n": 1,
+   "words": 479,
+   "fails": [
+    "length: 479 words, brief asks 300"
+   ]
+  },
+  {
+   "n": 2,
+   "words": 323,
+   "fails": []
+  }
+ ],
+ "plan": {
+  "nickname": "Shereen \u2014 Elif's misspelling on the card, which Shirin had printed on her robe and registered with the circuit",
+  "detail": "One thank-you card, cream with a gold horseshoe, posted to all fourteen fighters in the stable after the Laredo show; thirteen spelled right, hers written 'Shereen'",
+  "round_time": "Round 4, 2:52",
+  "opener": [
+   {
+    "p": 0.35,
+    "text": "Where did they all go, Elif? Weren't there nine of them in that row?"
+   },
+   {
+    "p": 0.25,
+    "text": "Who's driving her home tonight?"
+   },
+   {
+    "p": 0.22,
+    "text": "Did any of them stay for the walkout, or just for yours?"
+   },
+   {
+    "p": 0.18,
+    "text": "Is that the same row you booked for the Laredo show?"
+   }
+  ],
+  "personal": [
+   {
+    "p": 0.38,
+    "text": "Can you hear how he's saying it, Elif? Is that how you wrote it on the card?"
+   },
+   {
+    "p": 0.24,
+    "text": "Fourteen cards, and thirteen right. Which one did you think wouldn't be standing over you?"
+   },
+   {
+    "p": 0.2,
+    "text": "You saw that right hand late, didn't you? Did you read the card before you sealed it, or after?"
+   },
+   {
+    "p": 0.18,
+    "text": "How long did the horseshoe take you? Longer than the S-H-I?"
+   }
+  ],
+  "closer": [
+   {
+    "p": 0.36,
+    "text": "Should I leave the card with your corner, or do you want me to keep it another four years?"
+   },
+   {
+    "p": 0.26,
+    "text": "Would you sign it the same way now?"
+   },
+   {
+    "p": 0.22,
+    "text": "Is that us square, Marco, or do I owe you for the stamp?"
+   },
+   {
+    "p": 0.16,
+    "text": "Do you want it, or shall I have it framed next to the robe?"
+   }
+  ]
+ },
+ "chosen": {
+  "opener": {
+   "text": "Did any of them stay for the walkout, or just for yours?",
+   "p": 0.22
+  },
+  "personal": {
+   "text": "You saw that right hand late, didn't you? Did you read the card before you sealed it, or after?",
+   "p": 0.2
+  },
+  "closer": {
+   "text": "Is that us square, Marco, or do I owe you for the stamp?",
+   "p": 0.22
+  }
+ },
+ "status": "accepted",
+ "usage": {}
+}

@@ -12,10 +12,12 @@ Full instructions: `docs/STORY_HANDOFF.md`.
 
 | File | Role |
 | --- | --- |
-| `bank/*.yaml` | Settings, situations, people, conflicts, voices, bans |
+| `bank/*.yaml` | Settings, situations, people, conflicts, voices, bans, aftermath axes, finish-prose bank |
+| `finish.py` | The finish as ordered facts, from a take's beat sheet or drawn from the lever catalog |
+| `writer_prompt_aftermath.md` | System prompt for the default three-part shape |
 | `draw.py` | Seeded brief with memory (`ledger.jsonl`) and coherence rules |
 | `writer_prompt.md` | System prompt the writing model sees |
-| `examples/trash_talk.yaml` | 36 technique examples; counted as used text |
+| `examples/trash_talk.yaml` | 385 lines, 29 registers, tagged by when and tone; counted as used text |
 | `choose.py` | Picks a candidate line from the unlikely half |
 | `lint.py` | Mechanical rejection and ledger recording |
 | `generate.py` | Draw, candidates, pick, write, lint, retry, record |

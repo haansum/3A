@@ -210,14 +210,116 @@ def draw(seed, sets=None, take=None, past=None):
     return brief
 
 
+FIGHT = [k for k, m in NIGHT.items() if m.startswith('the fight itself')] + ['cage_door', 'ring_center', 'clinch', 'neutral_corner']
+LEAD_ONLY_POV = ('the interpreter', 'a sponsor', 'first person, a child', 'first person plural')
+
+
+def draw_aftermath(seed, sets=None, take=None, past=None):
+    """Brief for the 'aftermath' shape: a few sentences of lead-up, the finish as the sim
+    shows it, the immediate aftermath, and the talk. The talk is the point."""
+    from . import finish
+    B = bank()
+    past = ledger() if past is None else past
+    rng = np.random.default_rng(seed)
+    sets = dict(sets or {})
+    ax = {'shape': 'aftermath'}
+    v, c, p, A = B['voice'], B['conflict'], B['people'], B['aftermath']
+
+    def choose(axis, options):
+        ax[axis] = sets[axis] if axis in sets else pick(rng, list(options), axis, past)
+        return ax[axis]
+    choose('setting', FIGHT)
+    choose('relationship', [r for r in c['relationship'] if r != 'translator'])
+    choose('grievance', c['grievance'])
+    choose('stakes', c['stakes'])
+    sp = list(A['speaker'])
+    ax['speaker'] = sets.get('speaker') or sp[int(rng.choice(len(sp), p=[A['speaker'][k] for k in sp]))]
+    tn = list(A['tone'])
+    ax['tone'] = sets.get('tone') or tn[int(rng.choice(len(tn), p=[A['tone'][k] for k in tn]))]
+    if ax['speaker'] == 'caller':
+        ax['register'] = 'house_mic'
+    else:
+        ug = ('roast_the_pose', 'receipts')
+        choose('register', [r for r in v['register'] if r != 'house_mic' and (ax['tone'] == 'underground' or r not in ug)])
+    ax['counter_register'] = None
+    late = ax['speaker'] == 'loser_later'
+    choose('aimed_at', [x for x in A['aimed_at'] if not (late and 'down on the canvas' in x)])
+    choose('delivery', A['delivery'] if ax['speaker'] == 'winner' else ['standing at the ropes', 'from the stool', 'at the foot of the ring steps'])
+    choose('timing', [x for x in A['timing'] if not late or 'sitting up' in x or 'microphone' in x or 'way out' in x])
+    choose('closer_ends_on', A['closer_ends_on'])
+    choose('pov', [x for x in v['pov'] if not x.startswith(LEAD_ONLY_POV) and not x.startswith('a transcript')])
+    choose('sensory_anchor', v['sensory_anchor'])
+    choose('result_meaning', v['result_meaning']['target_falls'] + v['result_meaning']['talker_falls'])
+    choose('length_words', [360, 420, 480, 540])
+    used = {n for q in past[-NAME_WINDOW:] for n in q.get('names', [])}
+    gv, fm = p['given'] + p.get('given_more', []), p['family'] + p.get('family_more', [])
+    names = []
+    for _ in range(2):
+        g = pick(rng, [x for x in gv if x not in used and x not in names] or gv, 'given', [])
+        f_ = pick(rng, [x for x in fm if x not in used and x not in names] or fm, 'family', [])
+        names += [g, f_]
+    people = []
+    for k, role in enumerate(('winner', 'loser')):
+        people.append({'role': role, 'name': f'{names[2 * k]} {names[2 * k + 1]}',
+                       'style': choose(role + '_style', [x for x in p['style'] if x != ax.get('winner_style')]),
+                       'temperament': choose(role + '_temperament', [x for x in p['temperament'] if x != ax.get('winner_temperament')]),
+                       'nickname': choose(role + '_nickname', [x for x in p['nickname_style'] if x == 'none' or x != ax.get('winner_nickname')])})
+    ax['wrong_done_by'] = sets.get('wrong_done_by') or ('winner', 'loser')[int(rng.integers(2))]
+    doer = people[0 if ax['wrong_done_by'] == 'winner' else 1]['name']
+    other = people[1 if ax['wrong_done_by'] == 'winner' else 0]['name']
+    fin = finish.from_take(take) if take else finish.drawn(rng)
+    ax['finish'] = '+'.join(f['lever'] for f in fin['facts'][:3])
+    FP = B['finish_prose']
+    choose('lens', FP['lenses'])
+    seeds = {ph: choose('seed_' + ph, opts) for ph, opts in FP['phases'].items()}
+    choose('finish_sound', FP['sounds'])
+    for f_ in fin['facts']:                 # one way of seeing each fact, rotated by memory
+        opts = FP['renderings'].get(f_['lever'])
+        if opts:
+            f_['looks_like'] = choose('render:' + f_['lever'], opts)
+    det = {}
+    for grp, opts in A['details'].items():
+        det[grp] = choose('detail_' + grp, opts)
+    bans = [str(x) for x in rng.choice(B['bans']['crutch'], 6, replace=False)]
+    place, detail = B['settings']['items'][ax['setting']]
+    who = {'winner': people[0]['name'], 'caller': "the circuit's caller on the house mic (give him a handle); " + people[0]['name'] + ' lets him talk and adds at most one line', 'loser_corner': f"{people[1]['name']}'s cornerman (name him)",
+           'loser_later': people[1]['name'] + ', once she is upright again', 'winner_corner': f"{people[0]['name']}'s cornerman (name him); she herself says nothing"}[ax['speaker']]
+    return {
+        'id': f's{seed:05d}', 'seed': seed, 'shape': 'aftermath', 'axes': ax, 'names': names,
+        'setting': {'place': place, 'detail': detail},
+        'people': people,
+        'relationship': c['relationship'][ax['relationship']],
+        'grievance': {'done_by': doer, 'done_to': other, 'what': c['grievance'][ax['grievance']],
+                      'note': '"she" in the text is done_by; "the other" is done_to. Either may be the winner.'},
+        'stakes': ax['stakes'],
+        'finish': {'who_falls': people[1]['name'], 'facts_in_order': fin['facts'], 'source': fin['source'],
+                   'note': "Left and right are the FALLING fighter's own. Render every fact, in this order. 'looks_like' is one way a "
+                           "ringside viewer might see it: use the image, not the wording.",
+                   'lens': f"{ax['lens']}: {FP['lenses'][ax['lens']]}",
+                   'seeds': seeds, 'sound': ax['finish_sound']},
+        'tone': ax['tone'],
+        'meaning': ax['result_meaning'],
+        'aftermath': {'speaker': who, 'register': f"{ax['register']}: {v['register'][ax['register']]}",
+                      'aimed_at': ax['aimed_at'], 'delivery': ax['delivery'], 'timing': ax['timing'], 'ends_on': ax['closer_ends_on']},
+        'details_to_use': det,
+        'pov': ax['pov'], 'sensory_anchor': ax['sensory_anchor'],
+        'budget': {'lead_up': 'at most 3 sentences, under 15% of the words', 'finish': 'about 30%', 'aftermath_and_talk': 'at least 50%'},
+        'length_words': ax['length_words'],
+        'sim_prose': fin.get('sim_prose'),
+        'banned_here': bans, 'do_not_open_with': [q['opening_words'] for q in past[-SOFT_WINDOW:] if q.get('opening_words')],
+        'recent_phrases_to_avoid': sorted({ph for q in past[-SOFT_WINDOW:] for ph in q.get('top_phrases', [])})[:12],
+    }
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument('--seed', type=int, required=True)
     ap.add_argument('--take')
     ap.add_argument('--set', action='append', default=[])
     ap.add_argument('--out')
+    ap.add_argument('--shape', choices=['aftermath', 'leadup'], default='aftermath')
     a = ap.parse_args(argv)
-    b = draw(a.seed, dict(s.split('=', 1) for s in a.set), a.take)
+    b = (draw_aftermath if a.shape == 'aftermath' else draw)(a.seed, dict(s.split('=', 1) for s in a.set), a.take)
     text = yaml.safe_dump(b, sort_keys=False, width=110, allow_unicode=True)
     if a.out:
         open(a.out, 'w').write(text)

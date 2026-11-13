@@ -1,0 +1,186 @@
+id: s00062
+seed: 62
+shape: aftermath
+axes:
+  shape: aftermath
+  setting: main_event_arena
+  relationship: ex_corner_wife
+  grievance: pulled_the_kid
+  stakes: a visa that depends on staying signed
+  speaker: winner
+  tone: underground
+  register: grateful
+  counter_register: null
+  aimed_at: the referee, as if filing a report
+  delivery: half out through the ropes, one foot on the apron, deciding to stay and finish the thought
+  timing: ninety seconds later, on the microphone
+  closer_ends_on: the loser's corner having no answer
+  pov: close third on the official holding the scale or the cards
+  sensory_anchor: a failing fluorescent tube
+  result_meaning: mercy came too late
+  length_words: 360
+  winner_style: prospect who has never been behind in a fight
+  winner_temperament: polite to a fault
+  winner_nickname: her own choice and it shows
+  loser_style: kicker with a karate base and low hands
+  loser_temperament: impatient
+  loser_nickname: a job she used to have
+  wrong_done_by: loser
+  finish: strike.uppercut+hit.forehead+fall.sideways
+  lens: the_referee
+  seed_arrival: it starts from outside what she is watching
+  seed_contact: the head turns and the body does not get the message
+  seed_switch: the next punch she was going to throw never arrives
+  seed_fall: she sits into a chair that is not there
+  seed_landing: one bounce, small, and then nothing
+  seed_stillness: she holds a pose nobody would choose
+  finish_sound: the timekeeper's hammer, late
+  render:strike.uppercut: a punch that rises between her forearms
+  render:hit.forehead: it lands high and drives the head straight back
+  render:fall.sideways: she goes over to one side
+  render:fall.knees_first: she kneels without meaning to and keeps going
+  render:legs.extend_stiff: knees locked, legs like two rails
+  render:dyn.tremor_upper: her raised hands vibrate
+  render:rest.supine: on her back, squared up to the ceiling
+  render:eyes.vacant_forward: she stares straight ahead at nothing
+  render:fx.breath_hitch: in, in, and then out
+  render:fx.slow_blink: she blinks slowly and far apart
+  render:follow.punch: a follow-up shot arrives before the referee does
+  render:wake.wipes_mouth: she wipes her mouth with her glove again and again
+  detail_clock: the official time is read wrong and corrected
+  detail_referee: the referee takes out the mouthguard and holds it without knowing where to put it
+  detail_corners: the loser's cornerman is through the ropes before the wave-off, towel still on his shoulder
+  detail_room: a child in the second row asks a clear question
+  detail_body: the winner breathes out through her nose, once, long
+names:
+- Soledad
+- Mwangi
+- Ines
+- Delacroix
+setting:
+  place: main event in a full arena
+  detail: house lights already down
+people:
+- role: winner
+  name: Soledad Mwangi
+  style: prospect who has never been behind in a fight
+  temperament: polite to a fault
+  nickname: her own choice and it shows
+- role: loser
+  name: Ines Delacroix
+  style: kicker with a karate base and low hands
+  temperament: impatient
+  nickname: a job she used to have
+relationship: one is married to the man who used to corner the other
+grievance:
+  done_by: Ines Delacroix
+  done_to: Soledad Mwangi
+  what: she moved her daughter out of the other's kids' class without a word
+  note: '"she" in the text is done_by; "the other" is done_to. Either may be the winner.'
+stakes: a visa that depends on staying signed
+finish:
+  who_falls: Ines Delacroix
+  facts_in_order:
+  - lever: strike.uppercut
+    fact: Uppercut (arrives from below)
+    arrives_from: in front of her
+    looks_like: a punch that rises between her forearms
+  - lever: hit.forehead
+    fact: Lands high on the forehead (drives the head back)
+    looks_like: it lands high and drives the head straight back
+  - lever: fall.sideways
+    fact: Falls to her side (her right)
+    looks_like: she goes over to one side
+  - lever: fall.knees_first
+    fact: Drops to her knees first
+    looks_like: she kneels without meaning to and keeps going
+  - lever: legs.extend_stiff
+    fact: Legs straighten and stiffen (extensor posture) (her right)
+    looks_like: knees locked, legs like two rails
+  - lever: dyn.tremor_upper
+    fact: Tremor in the upper body (arms, trunk, neck)
+    looks_like: her raised hands vibrate
+  - lever: rest.supine
+    fact: Finishes on her back, face up
+    looks_like: on her back, squared up to the ceiling
+  - lever: eyes.vacant_forward
+    fact: Vacant stare straight ahead (flash KO, eyes unfocused)
+    looks_like: she stares straight ahead at nothing
+  - lever: fx.breath_hitch
+    fact: Breath catches in short hitches before it evens out
+    when: while she is out
+    looks_like: in, in, and then out
+  - lever: fx.slow_blink
+    fact: Slow, heavy blinks far apart
+    when: while she is out
+    looks_like: she blinks slowly and far apart
+  - lever: follow.punch
+    fact: 2 follow-up strikes on the canvas before the referee arrives
+    looks_like: a follow-up shot arrives before the referee does
+  - lever: wake.wipes_mouth
+    fact: Wipes her mouth with the glove again and again
+    when: as she comes round (belongs in the aftermath, not the finish)
+    looks_like: she wipes her mouth with her glove again and again
+  source: drawn
+  note: 'Left and right are the FALLING fighter''s own. Render every fact, in this order. ''looks_like'' is one
+    way a ringside viewer might see it: use the image, not the wording.'
+  lens: 'the_referee: by what the referee does and how fast he decides'
+  seeds:
+    arrival: it starts from outside what she is watching
+    contact: the head turns and the body does not get the message
+    switch: the next punch she was going to throw never arrives
+    fall: she sits into a chair that is not there
+    landing: one bounce, small, and then nothing
+    stillness: she holds a pose nobody would choose
+  sound: the timekeeper's hammer, late
+tone: underground
+meaning: mercy came too late
+aftermath:
+  speaker: Soledad Mwangi
+  register: 'grateful: thanks her for everything, in detail, until the thanks is unbearable'
+  aimed_at: the referee, as if filing a report
+  delivery: half out through the ropes, one foot on the apron, deciding to stay and finish the thought
+  timing: ninety seconds later, on the microphone
+  ends_on: the loser's corner having no answer
+details_to_use:
+  clock: the official time is read wrong and corrected
+  referee: the referee takes out the mouthguard and holds it without knowing where to put it
+  corners: the loser's cornerman is through the ropes before the wave-off, towel still on his shoulder
+  room: a child in the second row asks a clear question
+  body: the winner breathes out through her nose, once, long
+pov: close third on the official holding the scale or the cards
+sensory_anchor: a failing fluorescent tube
+budget:
+  lead_up: at most 3 sentences, under 15% of the words
+  finish: about 30%
+  aftermath_and_talk: at least 50%
+length_words: 360
+sim_prose: uppercut. forehead. falls sideways. drops to her knees. legs stiffen. upper body tremor. on her back.
+  vacant stare. breath hitches. slow blink. followup shot. wipes her mouth.
+banned_here:
+- felt
+- almost
+- looked
+- voice
+- really
+- small
+do_not_open_with:
+- yara osei told
+- had she really
+- forty one candles
+- screenshot four the
+- nakoma brennan taps
+- laleh hoang drove
+- shirin aguilar and
+recent_phrases_to_avoid:
+- a cream card
+- both of them
+- come in mind
+- in mind the
+- lip want the
+- mind the lip
+- nakoma come in
+- the blue corner
+- the lip want
+- the moderator said
+- want the blue

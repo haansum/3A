@@ -1,0 +1,180 @@
+id: s00061
+seed: 61
+shape: aftermath
+axes:
+  shape: aftermath
+  setting: rodeo_arena
+  relationship: stablemates_split
+  grievance: the_thank_you_card
+  stakes: a debt to someone in the front row
+  speaker: winner
+  tone: measured
+  register: questioner
+  counter_register: null
+  aimed_at: the empty space where the other's supporters were standing
+  delivery: standing over her with gloves on hips until the referee moves her
+  timing: during the official announcement, over the announcer
+  closer_ends_on: the object from the grievance, returned or kept
+  pov: the referee or official, limited to what is audible
+  sensory_anchor: chlorine
+  result_meaning: the line outlives the fight
+  length_words: 300
+  winner_style: pressure boxer who walks through shots
+  winner_temperament: amused by everything
+  winner_nickname: given by the opponent and now official
+  loser_style: prospect who has never been behind in a fight
+  loser_temperament: polite to a fault
+  loser_nickname: none
+  wrong_done_by: loser
+  finish: strike.overhand+hit.forehead+fall.backward
+  lens: building
+  seed_arrival: it is the same shot that missed twice
+  seed_contact: it lands with the part that is not padded
+  seed_switch: she is still standing and already absent
+  seed_fall: the fall has no bend in it
+  seed_landing: the canvas gives and gives back
+  seed_stillness: the body keeps a shape, like something set
+  finish_sound: her own corner's bucket going over
+  render:strike.overhand: an overhand that she sees late because it comes from above her eyeline
+  render:hit.forehead: on the hairline; the head goes back like a lid
+  render:fall.backward: she tips away from it and keeps tipping
+  render:fall.instant: no pause at all between the touch and the drop
+  render:arms.drop_limp: her arms simply fall
+  render:neck.chin_tuck: chin tucked as if still guarding it
+  render:rest.supine: she ends flat on her back facing the lights
+  render:eyes.lids_half: heavy-lidded, as if very bored
+  render:fx.jaw_work: she chews at nothing
+  render:fx.groan: an untidy groan that is not a word
+  render:fx.track_late: her gaze lags like a bad connection
+  detail_clock: the ten-second clapper had just gone
+  detail_referee: the referee says the loser's first name, twice, close to her ear
+  detail_corners: a cornerman holds the stool the wrong way up
+  detail_room: a phone light stays on her the whole time
+  detail_body: the canvas gives a hollow sound the cheap seats can hear
+names:
+- Shirin
+- Aguilar
+- Elif
+- Varga
+setting:
+  place: rodeo arena card
+  detail: dirt swept to the edges of the floor
+people:
+- role: winner
+  name: Shirin Aguilar
+  style: pressure boxer who walks through shots
+  temperament: amused by everything
+  nickname: given by the opponent and now official
+- role: loser
+  name: Elif Varga
+  style: prospect who has never been behind in a fight
+  temperament: polite to a fault
+  nickname: none
+relationship: same management stable until a contract dispute put them on opposite sides
+grievance:
+  done_by: Elif Varga
+  done_to: Shirin Aguilar
+  what: she sent a thank-you card to the whole team and signed one name wrong
+  note: '"she" in the text is done_by; "the other" is done_to. Either may be the winner.'
+stakes: a debt to someone in the front row
+finish:
+  who_falls: Elif Varga
+  facts_in_order:
+  - lever: strike.overhand
+    fact: Overhand (arrives from above and the side)
+    arrives_from: her right
+    looks_like: an overhand that she sees late because it comes from above her eyeline
+  - lever: hit.forehead
+    fact: Lands high on the forehead (drives the head back)
+    looks_like: on the hairline; the head goes back like a lid
+  - lever: fall.backward
+    fact: Falls backward
+    looks_like: she tips away from it and keeps tipping
+  - lever: fall.instant
+    fact: Drops immediately
+    looks_like: no pause at all between the touch and the drop
+  - lever: arms.drop_limp
+    fact: Arms drop limp to the sides
+    looks_like: her arms simply fall
+  - lever: neck.chin_tuck
+    fact: Chin tucks toward chest (as if looking at her knees)
+    looks_like: chin tucked as if still guarding it
+  - lever: rest.supine
+    fact: Finishes on her back, face up
+    looks_like: she ends flat on her back facing the lights
+  - lever: eyes.lids_half
+    fact: Eyelids half closed / heavy
+    looks_like: heavy-lidded, as if very bored
+  - lever: fx.jaw_work
+    fact: Jaw works slowly side to side as if chewing
+    when: while she is out
+    looks_like: she chews at nothing
+  - lever: fx.groan
+    fact: A low involuntary groan on the breath out
+    when: while she is out
+    looks_like: an untidy groan that is not a word
+  - lever: fx.track_late
+    fact: Eyes follow a moving hand a beat behind it
+    when: as she comes round (belongs in the aftermath, not the finish)
+    looks_like: her gaze lags like a bad connection
+  source: drawn
+  note: 'Left and right are the FALLING fighter''s own. Render every fact, in this order. ''looks_like'' is one
+    way a ringside viewer might see it: use the image, not the wording.'
+  lens: 'building: as a structure coming down; what was load-bearing'
+  seeds:
+    arrival: it is the same shot that missed twice
+    contact: it lands with the part that is not padded
+    switch: she is still standing and already absent
+    fall: the fall has no bend in it
+    landing: the canvas gives and gives back
+    stillness: the body keeps a shape, like something set
+  sound: her own corner's bucket going over
+tone: measured
+meaning: the line outlives the fight
+aftermath:
+  speaker: Shirin Aguilar
+  register: 'questioner: only asks questions, each one answerable and each answer worse'
+  aimed_at: the empty space where the other's supporters were standing
+  delivery: standing over her with gloves on hips until the referee moves her
+  timing: during the official announcement, over the announcer
+  ends_on: the object from the grievance, returned or kept
+details_to_use:
+  clock: the ten-second clapper had just gone
+  referee: the referee says the loser's first name, twice, close to her ear
+  corners: a cornerman holds the stool the wrong way up
+  room: a phone light stays on her the whole time
+  body: the canvas gives a hollow sound the cheap seats can hear
+pov: the referee or official, limited to what is audible
+sensory_anchor: chlorine
+budget:
+  lead_up: at most 3 sentences, under 15% of the words
+  finish: about 30%
+  aftermath_and_talk: at least 50%
+length_words: 300
+sim_prose: overhand from her right. forehead. falls back. drops instantly. arms drop. chin tuck. on her back. half
+  closed. jaw works. groans. eyes follow late.
+banned_here:
+- back
+- smile
+- moment
+- heavy
+- name
+- laugh
+do_not_open_with:
+- yara osei told
+- had she really
+- forty one candles
+- screenshot four the
+- nakoma brennan taps
+- laleh hoang drove
+recent_phrases_to_avoid:
+- both of them
+- come in mind
+- in mind the
+- lip want the
+- mind the lip
+- nakoma come in
+- the blue corner
+- the lip want
+- the moderator said
+- want the blue

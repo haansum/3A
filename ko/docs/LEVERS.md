@@ -2,7 +2,7 @@
 
 Generated from `ko/beats/catalog/*.yaml` by `python -m ko.beats.catalog`. Do not edit here.
 
-302 levers. 68 checks, 53 drives, 74 drives+checks, 1 partial, 106 planned.
+347 levers. 68 checks, 62 drives, 79 drives+checks, 1 partial, 137 planned.
 
 - **drives+checks**: prose sets it, the sim is driven toward it, the checker measures it.
 - **drives**: set and driven, not measured yet.
@@ -348,3 +348,53 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `vary.seeded_details` | Fill every unspecified lever from a seeded draw of plausible options (listed in the sheet for approval) | surprise me; vary it; something different; different from last time | planned | new |  |
 |   | `vary.avoid_recent` | Avoid lever combinations used in the last N takes | don't repeat; avoid repeating; not like the previous | planned | new |  |
 |   | `vary.subtle_asym` | Small left/right differences everywhere (nothing perfectly mirrored) | asymmetric; not symmetrical; break the symmetry; uneven | planned | new |  |
+
+## Knockout effects (observable signs consistent with posturing; proposed, need owner approval)
+
+| OK | id | What it is | Phrases that trigger it | Status | Src | Note |
+| --- | --- | --- | --- | --- | --- | --- |
+|   | `fx.snore` | Snoring: loud, slow, rasping breaths while she is out | snoring; snores; snore; sawing logs | drives | new |  |
+|   | `fx.snore_late` | Snoring starts a beat after she lands (silence first then the sound) | snoring starts late; then the snoring; silence then snoring | drives | new |  |
+|   | `fx.first_breath` | One huge first breath that lifts the whole chest | first big breath; huge breath; chest lifts once; gasps in | drives | new |  |
+|   | `fx.lip_flutter` | Lips flutter on each breath out | lips flutter; lips blow; lip flutter; blowing through her lips | planned | new |  |
+|   | `fx.cheek_puff` | Cheeks fill and empty with each breath | cheeks puff out; cheeks fill; puffing | planned | new |  |
+|   | `fx.breath_hitch` | Breath catches in short hitches before it evens out | breath hitches; hitching breath; stuttering breath; breath catches twice | drives | new |  |
+|   | `fx.groan` | A low involuntary groan on the breath out | groans; low groan; moan on the exhale; hums | planned | new |  |
+|   | `fx.mouthguard_whistle` | Breath whistles around the mouthguard | whistles through the mouthguard; breath whistles; whistling breath | planned | new |  |
+|   | `fx.jaw_work` | Jaw works slowly side to side as if chewing | jaw works; chewing; jaw grinding; chews at nothing | planned | new |  |
+|   | `fx.lip_smack` | Lips smack or open and close like a fish | lip smacking; lips smack; mouth opens and closes; fish mouth | planned | new |  |
+|   | `fx.tongue_guard` | Tongue pushes the mouthguard half out | pushes the mouthguard out; mouthguard slides out; spits the mouthguard | planned | new |  |
+|   | `fx.mumble` | Mumbles words that are not words | mumbles; mumbling; talking nonsense; slurred words | planned | new |  |
+|   | `fx.slow_blink` | Slow, heavy blinks far apart | slow blink; blinks slowly; heavy blink; long blinks | planned | new |  |
+|   | `fx.eyes_open_out` | Eyes stay open the whole time she is out | eyes stay open; eyes open the whole time; out with her eyes open; staring while out | planned | new |  |
+|   | `fx.track_late` | Eyes follow a moving hand a beat behind it | eyes follow late; tracking late; eyes a beat behind; follows the finger slowly | planned | new |  |
+|   | `fx.eyes_come_back` | Eyes drift down from the upward stare and find the lights, then a face | eyes come back; eyes come down; eyes return; eyes find the lights | drives | new |  |
+|   | `fx.one_lid` | One eyelid sits lower than the other (L/R) | one lid lower; one eye half shut; lopsided lids | planned | new |  |
+|   | `fx.arm_float` | A raised arm stays up in the air on its own long after she lands (L/R) | arm stays up; arm floats; arm hangs in the air; arm stuck up | drives+checks | new |  |
+|   | `fx.arm_sink_stages` | The raised arm comes down in stages (drops and catches and drops) (L/R) | arm sinks in stages; arm drops in steps; arm ratchets down; arm lowers a notch at a time | planned | new |  |
+|   | `fx.hands_paw` | Hands paw slowly at the air as if reaching for a rope or a guard | paws at the air; hands paw; reaching at nothing; grabbing air | planned | new |  |
+|   | `fx.fingers_fan` | Fingers fan out stiff then slowly close | fingers fan out; fingers spread stiff; fingers star; fingers open wide | planned | new |  |
+|   | `fx.fingers_piano` | Fingers ripple one after another (like playing a piano) | fingers ripple; piano fingers; fingers drum the air; fingers flicker | planned | new |  |
+|   | `fx.wrist_curl_in` | Both wrists curl in and the hands turn toward the chest (L/R) | wrists curl in; hands turn in; wrists hook inward; hands fold to her chest | drives+checks | new |  |
+|   | `fx.guard_ghost` | Hands come back up into a guard while she is still out (fighting on instinct) | guard comes back up; still has her hands up; guarding while out; ghost guard | drives+checks | new |  |
+|   | `fx.glove_tap` | One glove taps the canvas over and over (L/R) | glove taps the canvas; hand pats the mat; tapping the canvas; glove pats | planned | new |  |
+|   | `fx.shrug_hold` | Shoulders hitch up toward the ears and stay there | shoulders hitch up; shrug and hold; shoulders stuck up by her ears; frozen shrug | planned | new | needs clavicle joint |
+|   | `fx.shudder` | One long shudder runs down the whole body then stops | shudder runs through; full body shudder; one long shiver; shiver runs down her | drives | new |  |
+|   | `fx.knee_quiver` | Locked knees quiver | knees quiver; knees shake; locked knees trembling; legs vibrate | drives | new |  |
+|   | `fx.foot_paddle` | Feet paddle slowly as if walking while lying down | feet paddle; walking on her back; feet still walking; legs walk in place | drives | new |  |
+|   | `fx.toes_fan` | Toes spread wide and the big toe lifts | toes fan out; toes spread wide; big toe lifts; toes splay up | drives | new |  |
+|   | `fx.heel_dig` | Heels dig and push as if trying to stand through the floor | heels dig in; heels push; pushing with her heels; heels scrape the canvas | planned | new |  |
+|   | `fx.back_bow_release` | Back bows up off the canvas then lets go all at once | back bows then drops; arches then lets go; bridge then collapse | drives+checks | new |  |
+|   | `fx.head_lift_drop` | Head lifts an inch off the canvas and is set back down | head lifts and drops; head comes up an inch; head rises then falls back; lifts her head and loses it | drives+checks | new |  |
+|   | `wake.grabs_ref` | Grabs the referee's leg and holds on | grabs the referee's leg; hugs the ref's leg; holds the referee's ankle; clings to the ref | planned | new | needs a referee prop or body |
+|   | `wake.fights_ref` | Tries to tie up or take down the referee, still fighting | tries to wrestle the referee; shoots on the ref; still fighting the ref; takes the referee down | planned | new | needs a referee body |
+|   | `wake.sits_too_fast` | Sits up too fast and is eased back down | sits up too fast; sits bolt upright; pops up and is eased back | planned | new |  |
+|   | `wake.legs_dont_answer` | Tries to stand and the legs do not answer (stumbles, sits again) | legs don't answer; tries to stand and can't; stands and stumbles; legs gone when she stands | planned | new | needs the stagger-step controller |
+|   | `wake.wrong_corner` | Walks to the wrong corner | walks to the wrong corner; heads for the wrong stool; goes to the other corner | planned | new |  |
+|   | `wake.asks` | Asks what happened, what round it is, or whether she won | asks what happened; asks what round; asks if she won; did I win | planned | new |  |
+|   | `wake.argues` | Argues the stoppage with no idea what she is arguing about | argues the stoppage; protests to the referee; says she's fine; I'm fine I'm fine | planned | new |  |
+|   | `wake.keeps_guard` | Keeps her hands up on the stool as if the fight is still on | hands still up on the stool; still guarding on the stool; won't lower her hands | planned | new |  |
+|   | `wake.wipes_mouth` | Wipes her mouth with the glove again and again | wipes her mouth; keeps wiping her mouth; glove across her mouth | planned | new |  |
+|   | `wake.pushes_help` | Pushes the helping hands away | pushes them away; shoves the doctor off; bats the hands away; won't be helped | planned | new |  |
+|   | `wake.smile` | A small confused smile at nothing | confused smile; smiles at nothing; dazed smile; grins up at the lights | planned | new |  |
+|   | `wake.looks_at_gloves` | Stares at her own gloves as if they belong to someone else | looks at her gloves; stares at her hands; studies her own gloves | planned | new |  |

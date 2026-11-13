@@ -1,0 +1,132 @@
+id: s00060
+seed: 60
+shape: aftermath
+axes:
+  shape: aftermath
+  setting: armory
+  relationship: coach_swap
+  grievance: the_van
+  stakes: the belt a dead coach said she would win
+  speaker: winner
+  register: accountant
+  counter_register: null
+  aimed_at: the other's students in the cheap seats
+  delivery: counting along with the referee under her breath, then over him
+  timing: as the other's eyes come back and start to track
+  closer_ends_on: the winner leaving before the result is read
+  pov: second person addressed to the loser, afterward
+  sensory_anchor: liniment
+  result_meaning: the room goes quiet for the wrong person
+  length_words: 420
+  winner_style: knockout artist with a short gas tank
+  winner_temperament: funny and cruel
+  winner_nickname: her hometown
+  loser_style: technician everyone calls boring
+  loser_temperament: quiet and literal
+  loser_nickname: an animal nobody would pick
+  wrong_done_by: winner
+  finish: strike.head_kick+hit.flush+fall.sideways
+  detail_clock: the bell is rung three times because nobody heard the first two
+  detail_referee: the referee slides in on his knees and is a beat late
+  detail_corners: the loser's second kneels and unties her boots first, for something to do
+  detail_room: one section goes silent while another is still cheering a fight that has ended
+  detail_body: the winner steps back exactly as far as she was taught to and no farther
+names:
+- Laleh
+- Hoang
+- Nadezhda
+- Halloran
+setting:
+  place: national-guard armory card
+  detail: basketball lines under the mat
+people:
+- role: winner
+  name: Laleh Hoang
+  style: knockout artist with a short gas tank
+  temperament: funny and cruel
+  nickname: her hometown
+- role: loser
+  name: Nadezhda Halloran
+  style: technician everyone calls boring
+  temperament: quiet and literal
+  nickname: an animal nobody would pick
+relationship: one now trains under the other's former coach
+grievance:
+  done_by: Laleh Hoang
+  done_to: Nadezhda Halloran
+  what: she drove the team van home from a tournament and left the rest at the venue
+  note: '"she" in the text is done_by; "the other" is done_to. Either may be the winner.'
+stakes: the belt a dead coach said she would win
+finish:
+  who_falls: Nadezhda Halloran
+  facts_in_order:
+  - lever: strike.head_kick
+    fact: Round head kick (shin from the side)
+    arrives_from: her right
+  - lever: hit.flush
+    fact: Lands flush / clean
+  - lever: fall.sideways
+    fact: Falls to her side (her right)
+  - lever: fall.spin
+    fact: Body spins about vertical as it falls (her right)
+  - lever: toes.curl
+    fact: Toes curl under (her left)
+  - lever: trunk.back_curl
+    fact: Back curls forward (flexion) instead of arching
+  - lever: legs.folded_under
+    fact: Leg(s) folded underneath her (knee bent, heel by the hip) (her left)
+  - lever: ground.no_head_hit
+    fact: Head never hits the canvas hard
+  - lever: rest.side
+    fact: Finishes on her side (her left)
+  - lever: eyes.gaze_up_corner
+    fact: 'Gaze up and toward the upper corner, her frame (house default: 30% of pupil showing) (her left)'
+  source: drawn
+  note: Left and right are the FALLING fighter's own. Render every fact, in this order, in your own words.
+meaning: the room goes quiet for the wrong person
+aftermath:
+  speaker: Laleh Hoang
+  register: 'accountant: talks only about money (purse, tickets, what the other is worth per minute)'
+  aimed_at: the other's students in the cheap seats
+  delivery: counting along with the referee under her breath, then over him
+  timing: as the other's eyes come back and start to track
+  ends_on: the winner leaving before the result is read
+details_to_use:
+  clock: the bell is rung three times because nobody heard the first two
+  referee: the referee slides in on his knees and is a beat late
+  corners: the loser's second kneels and unties her boots first, for something to do
+  room: one section goes silent while another is still cheering a fight that has ended
+  body: the winner steps back exactly as far as she was taught to and no farther
+pov: second person addressed to the loser, afterward
+sensory_anchor: liniment
+budget:
+  lead_up: at most 3 sentences, under 15% of the words
+  finish: about 30%
+  aftermath_and_talk: at least 50%
+length_words: 420
+sim_prose: head kick from her right. flush. falls sideways. spins as she falls. toes curl. back curl. leg folded
+  under. head doesn't hit. on her side. gaze up corner.
+banned_here:
+- breath
+- still
+- back
+- small
+- knew
+- stare
+do_not_open_with:
+- yara osei told
+- had she really
+- forty one candles
+- screenshot four the
+- nakoma brennan taps
+recent_phrases_to_avoid:
+- both of them
+- come in mind
+- in mind the
+- lip want the
+- mind the lip
+- nakoma come in
+- the blue corner
+- the lip want
+- the moderator said
+- want the blue

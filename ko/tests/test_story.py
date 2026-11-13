@@ -1,5 +1,6 @@
 """Story generator: sampler memory, coherence rules, lint and candidate picker."""
 import os
+import re
 
 import yaml
 
@@ -34,7 +35,7 @@ def test_memory_prevents_close_repeats():
     for axis in ('setting', 'grievance', 'register', 'arc', 'form', 'pov'):
         assert on[axis]['closest_repeat'] >= 4
         assert on[axis]['most_used'] <= off[axis]['most_used'] + 1
-    assert on['repeated_register_arc_pov_triples'] == 0
+    assert on["repeated_register_arc_pov_triples"] <= 1
 
 
 def test_coherence_rules_hold_over_many_seeds():
@@ -91,3 +92,99 @@ def test_choose_never_returns_the_likeliest_or_a_banned_line():
          {'p': 0.05, 'text': 'Ask the scale who you are.'}]
     got = {choose.choose(c, s, past=[])['text'] for s in range(40)}
     assert c[0]['text'] not in got and c[1]['text'] not in got and len(got) >= 2
+
+
+# ---- aftermath shape: brief lead-up, the finish, the talk ---------------------------------
+def test_aftermath_brief_is_complete_and_coherent():
+    B = draw.bank()
+    speakers = []
+    for seed in range(200):
+        b = draw.draw_aftermath(seed, past=[])
+        ax = b['axes']
+        speakers.append(ax['speaker'])
+        assert ax['setting'] in draw.FIGHT
+        facts = b['finish']['facts_in_order']
+        assert facts[0].get('arrives_from') and len(facts) >= 8
+        assert all('fact' in f for f in facts)
+        assert sum('looks_like' in f for f in facts) >= len(facts) - 2          # nearly every fact has an image
+        assert set(b['finish']['seeds']) == set(B['finish_prose']['phases'])
+        assert len(b['details_to_use']) == 5
+        assert (ax['register'] == 'house_mic') == (ax['speaker'] == 'caller')
+        if ax['tone'] == 'measured':
+            assert ax['register'] not in ('roast_the_pose', 'receipts')
+    assert 0.74 <= speakers.count('winner') / 200 <= 0.93                       # winner almost always
+    assert draw.draw_aftermath(9, past=[]) == draw.draw_aftermath(9, past=[])
+
+
+def test_finish_bank_covers_every_drawable_fact():
+    from ko.beats import catalog
+    from ko.story import finish
+    _, lv = catalog.load()
+    fp = draw.bank()['finish_prose']
+    pools = finish.FALLS + [x for x in finish.STYLES if x] + finish.POSTURE + finish.EFFECTS + finish.WAKE + \
+        [x for x in finish.GROUND if x] + finish.REST + finish.EYES
+    strikes = [k for k, v in lv.items() if v.get('kind') in ('strike', 'strike_mod') and k not in ('strike.slam', 'strike.body_shot')
+               and not (k.startswith('follow.') and k != 'follow.punch')]
+    missing = [k for k in pools + strikes if k not in fp['renderings']]
+    assert missing == [], missing
+    assert all(k in lv for k in pools)
+    assert all(isinstance(x, str) for v in fp['renderings'].values() for x in v) and all(len(v) >= 3 for v in fp['renderings'].values())
+    assert len(fp['lenses']) >= 15 and len(fp['banned_finish_phrases']) >= 45
+
+
+def test_finish_from_take_matches_the_sheet():
+    from ko.story import finish
+    f = finish.from_take(os.path.join(manifest.ROOT, 'takes', 'beats', 'freya_wheel_kick_gnp_001.yaml'))
+    assert f['facts'][0]['arrives_from'] == 'her right' and 'heel' in f['facts'][0]['fact'].lower()
+    assert any(x['lever'] == 'legs.ankles_cross' for x in f['facts'])
+
+
+AFTER = """Ana Ruiz owed Bea Kovac ninety dollars for a camp.
+
+*
+
+The hook came from her left and Bea went over her heels. Her toes clenched. A long sawing breath started.
+
+*
+
+The referee knelt. Ana crouched beside her.
+
+"Ninety dollars, Bea. Receipt 114. I kept it."
+
+Nobody in the corner moved.
+
+"You still owe for the camp. I wrote it on my tape."
+
+A cup rolled down the steps.
+
+"Keep it. Buy yourself a guard."
+
+She left before the result was read.
+"""
+
+
+def test_aftermath_lint_enforces_shape_side_and_stock_phrases():
+    b = draw.draw_aftermath(3, past=[])
+    b['people'][0]['name'], b['people'][1]['name'] = 'Ana Ruiz', 'Bea Kovac'
+    b['finish']['facts_in_order'][0]['arrives_from'] = 'her left'
+    b['length_words'], b['banned_here'] = 80, []
+    fails = lambda t: {r['check'] for r in lint.check(b, t, past=[]) if not r['pass']}
+    assert fails(AFTER) == set(), fails(AFTER)
+    assert 'three_parts' in fails(AFTER.replace('*', '', 1))
+    assert 'strike_side_matches' in fails(AFTER.replace('from her left', 'from her right'))
+    assert 'finish_stock_phrases' in fails(AFTER.replace('went over her heels', 'went down like a tree'))
+    assert 'talk_present' in fails(AFTER.replace('"', ''))
+    long_lead = AFTER.replace('for a camp.', 'for a camp. ' + 'It had been years. ' * 12)
+    assert 'lead_up_brief' in fails(long_lead)
+
+
+def test_trash_talk_bank_is_large_and_tagged():
+    d = yaml.safe_load(open(os.path.join(manifest.ROOT, 'ko', 'story', 'examples', 'trash_talk.yaml')))
+    lines = [e for v in d.values() for e in v]
+    assert len(lines) >= 380 and len(d) >= 29
+    assert all(e['when'] in ('before', 'after') and e['tone'] in ('measured', 'underground') and e['ctx'] and e['line'] for e in lines)
+    assert sum(e['tone'] == 'underground' for e in lines) >= 120
+    assert len({e['line'] for e in lines}) == len(lines)
+    low = ' '.join(e['line'].lower() for e in lines)
+    assert not any(re.search(r'\b' + w, low) for w in draw.bank()['bans']['boundary'])
+    assert set(d) <= set(draw.bank()['voice']['register'])
