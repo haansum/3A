@@ -17,8 +17,16 @@ register:
   crowd_work: never addresses her, only the audience, about her, while she stands there
   nostalgia: tells a warm memory of them both and lets it curdle in the last clause
   accountant: talks only about money (purse, tickets, what the other is worth per minute)
-  whisper: public face neutral; the real line is said off-mic at the staredown
-  wounded: the talker is the hurt one and cannot stop showing it
+  whisper: public face neutral; the real line is said low, where only the other can hear it
+  wounded: the speaker is the hurt one and cannot stop showing it
+  auctioneer: sets a price on everything the other has and invites the room to bid lower
+  lawyer: speaks as if under oath, concedes every small point, and wins on the one that matters
+  mother_tongue: slips into the dialect they grew up with, so that only the other understands how bad it is
+  eulogist: talks about the other's career in the past tense, fondly
+  scorekeeper: keeps a running count aloud of something small (interruptions, blinks, excuses)
+  grateful: thanks her for everything, in detail, until the thanks is unbearable
+  coach_voice: gives her the corner advice she will need tonight, correctly, as an insult
+  questioner: only asks questions, each one answerable and each answer worse
 arc:        # shape of the emotional build; beats are instructions, not sentences
   slow_boil: [politeness with effort, one detail slips, the detail is answered, neither can retreat]
   first_blood_early: [hardest line comes first, the rest is the target deciding what to do with it]
@@ -34,6 +42,14 @@ arc:        # shape of the emotional build; beats are instructions, not sentence
   countdown: [a clock is running (scale, walk, bell), each exchange shorter than the last]
   aftermath_first: [open on the silence after the worst line, then show how it was reached]
   misheard: [a line is misheard or mistranslated, the wrong version is the one that sticks]
+  wrong_target: [the talker aims at one wound, misses, and opens a different one by accident, which is worse]
+  the_gift: [an object is offered, its meaning is argued, it is refused or taken, and that settles more than words]
+  audience_turns_twice: [room with the talker, room against her, room back with her for the wrong reason]
+  truce_broken: [an agreed truce for the occasion, a small breach, a larger answer, the occasion ruined]
+  held_breath: [both wait for a third thing (scale, verdict, door), talk fills the wait, the third thing arrives mid-sentence]
+  student_surpasses: [the older one instructs, the younger one corrects her, the correction is right]
+  the_apology: [an apology is offered, it is exact and sincere, it is not accepted, and now there is nothing left to try]
+  echo: [a line from the first exchange returns at the end with its meaning reversed]
 moment:     # where in the fight week the scene sits
   [contract signing, first face-off, open workout, media day, weigh-in, the night before, morning of,
    warm-up, the walk, referee instructions, first exchange of the fight, between rounds, final ten seconds before the finish]
@@ -48,6 +64,11 @@ pov:
   - second person addressed to the loser, afterward
   - a transcript with stage directions (no interior at all)
   - the younger teammate watching and choosing a side
+  - first person, a child or sibling of one fighter, years later
+  - close third on the official holding the scale or the cards
+  - the interpreter, who must choose what to pass on
+  - a sponsor's representative who has money on one outcome
+  - first person plural, the gym ('we') that raised them both
 form:
   - one continuous scene, no time jump
   - two short scenes with a hard cut; the second re-reads the first
@@ -59,6 +80,12 @@ form:
   - counted down by a clock or scale reading
   - a single long paragraph then one short line
   - alternating one-line paragraphs, hers and hers
+  - a set of instructions (how to wrap a hand, cut weight, read a card) interrupted by the scene
+  - a single exchange replayed three times, each version adding what was left out
+  - a letter or message never sent, then the scene it was written before
+  - question and answer only
+  - told backwards in three short steps, ending on the first thing said
+  - an inventory of one bag, locker or table, with the argument happening between the items
 opening_move:   # what the first sentence must be
   [an object, a line of speech, a number, a sound, a smell, a place name, a time of day, a lie someone tells,
    a small physical action, a rule being read aloud, a question, something missing that should be there]
@@ -73,6 +100,11 @@ ending:
   - end with the loser's last clear thought, mid-sentence
   - end on a sound
   - end on the scale, clock or scorecard number
+  - end on a question nobody answers
+  - end on the scale, bell or door, mid-action
+  - end on a small courtesy (a held rope, a returned mouthguard)
+  - end on the name, said correctly for the first time
+  - end one line after the reader expects, on something ordinary
 result_meaning:   # what the knockout means, given who falls
   talker_falls:  [hubris answered, the room goes quiet for the wrong person, the line outlives the fight, she was right and lost anyway]
   target_falls:  [the prophecy filed as written, cruelty rewarded and nobody likes it, mercy came too late, nothing was settled]

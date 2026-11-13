@@ -39,6 +39,14 @@ def trigrams(t):
     return {' '.join(w[i:i + 3]) for i in range(len(w) - 2)}
 
 
+def example_trigrams():
+    p = os.path.join(HERE, 'examples', 'trash_talk.yaml')
+    if not os.path.exists(p):
+        return set()
+    d = yaml.safe_load(open(p))
+    return {t for v in d.values() for e in v for t in trigrams(e['line']) if not set(t.split()) <= STOP}
+
+
 def stats(text):
     w = words(text)
     tri = Counter(' '.join(w[i:i + 3]) for i in range(len(w) - 2))
@@ -69,12 +77,12 @@ def check(brief, text, past=None):
     add('names_used', not miss, 'missing: ' + ', '.join(miss) if miss else '')
     hit = [x for x in DEFAULT_NAMES if re.search(r'\b' + x + r'\b', low)]
     add('no_default_names', not hit, ', '.join(hit))
-    add('concrete_anchor', bool(re.search(r'\d', text)) or any(k in low for k in words(brief['grievance']) if len(k) > 5),
+    add('concrete_anchor', bool(re.search(r'\d', text)) or any(k in low for k in words(brief['grievance']['what']) if len(k) > 5),
         'needs a number or the grievance object on the page')
     op = ' '.join(w[:3])
     clash = [q['id'] for q in past if q.get('opening_words') == op and q['id'] != brief['id']]
     add('opening_is_new', not clash, f'"{op}" also opens {clash}' if clash else '')
-    seen = set()
+    seen = set(example_trigrams())          # the handoff's own examples count as used text
     for q in past:
         if q['id'] != brief['id']:
             seen |= set(q.get('trigrams', []))

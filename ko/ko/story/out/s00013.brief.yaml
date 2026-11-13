@@ -1,73 +1,90 @@
 id: s00013
 seed: 13
 axes:
-  setting: bus
-  relationship: old_loan
+  setting: gym_reunion
+  relationship: same_nickname
   grievance: thanked_everyone_else
-  stakes: a ranking spot and nothing else
-  register: kindness
-  counter_register: wounded
-  arc: private_public
-  moment: contract signing
-  pov: the younger teammate watching and choosing a side
-  form: alternating one-line paragraphs, hers and hers
-  opening_move: a sound
+  stakes: a debut in front of everyone she grew up with
+  arc: slow_boil
+  moment: the Monday of fight week
+  pov: first person, the talker, present tense
+  form: two short scenes with a hard cut; the second re-reads the first
+  register: whisper
+  counter_register: accountant
+  opening_move: a number
   ending: end on a sound
   sensory_anchor: wet tape
   who_falls: talker
   result_meaning: she was right and lost anyway
-  length_words: 200
-  talker_style: wrestler who learned to punch late
-  talker_temperament: rehearsed
-  target_style: late-notice replacement with nothing to lose
-  target_temperament: superstitious
+  length_words: 260
+  talker_style: kicker with a karate base and low hands
+  talker_temperament: polite to a fault
+  talker_nickname: her own choice and it shows
+  target_style: knockout artist with a short gas tank
+  target_temperament: impatient
+  target_nickname: given by the opponent and now official
+  wrong_done_by: talker
 names:
-- Wren
+- Oksana
 - Nakashima
 - Fenna
 - Quispe
 setting:
-  place: promotion shuttle bus
-  detail: only two seats left and they are together
+  place: retirement party for their first coach
+  detail: sheet cake with the wrong year
 people:
 - role: talker
-  name: Wren Nakashima
-  style: wrestler who learned to punch late
-  temperament: rehearsed
-  nickname: something a coach called her once
+  name: Oksana Nakashima
+  style: kicker with a karate base and low hands
+  temperament: polite to a fault
+  nickname: her own choice and it shows
 - role: target
   name: Fenna Quispe
-  style: late-notice replacement with nothing to lose
-  temperament: superstitious
-  nickname: something a coach called her once
-relationship: a specific sum, lent for a specific thing, never repaid
-grievance: she thanked forty people after her title win and left out one
-stakes: a ranking spot and nothing else
+  style: knockout artist with a short gas tank
+  temperament: impatient
+  nickname: given by the opponent and now official
+relationship: both have used the same ring name; only one can keep it
+grievance:
+  done_by: Oksana Nakashima
+  done_to: Fenna Quispe
+  what: she thanked forty people after her title win and left out one
+  note: '"she" in the text is done_by; "the other" is done_to. The aggrieved one need not be the talker.'
+stakes: a debut in front of everyone she grew up with
 talk:
-  talker_register: 'kindness: speaks gently, as if consoling her; pity as the weapon'
-  target_register: 'wounded: the talker is the hurt one and cannot stop showing it'
+  talker_register: 'whisper: public face neutral; the real line is said low, where only the other can hear it'
+  target_register: 'accountant: talks only about money (purse, tickets, what the other is worth per minute)'
 arc:
-  name: private_public
+  name: slow_boil
   beats:
-  - quiet private exchange
-  - then the public version where both pretend
-  - reader knows
-moment: contract signing
-pov: the younger teammate watching and choosing a side
-form: alternating one-line paragraphs, hers and hers
-first_sentence_is: a sound
+  - politeness with effort
+  - one detail slips
+  - the detail is answered
+  - neither can retreat
+moment: the Monday of fight week
+pov: first person, the talker, present tense
+form: two short scenes with a hard cut; the second re-reads the first
+first_sentence_is: a number
 ending: end on a sound
 sensory_anchor: wet tape
 result:
   who_falls: talker
   meaning: she was right and lost anyway
-length_words: 200
+  take: freya_wheel_kick_gnp_001
+  strike: Wheel / spinning heel kick (heel across from the side)
+  strike_from_her: right
+  fall: 'Teeter: hangs at the balance point before going over'
+  tier: null
+  followups: 1
+length_words: 260
 banned_here:
-- nod
-- back
-- like a
-- slowly
 - name
-- as if
-do_not_open_with: []
-recent_phrases_to_avoid: []
+- face
+- cold
+- still
+- always
+- slowly
+do_not_open_with:
+- yara osei told
+- had she really
+recent_phrases_to_avoid:
+- both of them

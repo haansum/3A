@@ -8,6 +8,7 @@ dependencies = ["mujoco>=4.0", "numpy", "scipy", "pyyaml"]
 [project.optional-dependencies]
 blender = ["bpy>=5.2"]
 dev = ["pytest"]
+story = ["anthropic>=2.8", "pydantic"]
 
 [project.scripts]
 ko = "ko.cli:main"

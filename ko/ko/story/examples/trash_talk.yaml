@@ -1,0 +1,94 @@
+# Trash-talk examples, two per register. Each is tied to an invented grievance from the bank.
+# They demonstrate a TECHNIQUE. Never reuse a line, a sentence shape or an object from here:
+# the lint counts these as already-used text.
+# What makes them land: one checkable detail, said plainly, by someone who has kept it a long time.
+ledger:
+  - ctx: she left the gym three weeks before the team's first title fight
+    line: "March ninth you cleaned out locker fourteen. March thirtieth we fought for the belt with a kid holding the bucket. I'm not angry. I'm reading you the calendar."
+  - ctx: she never paid her share of a training camp rental
+    line: "Eleven hundred and forty dollars, split six ways, and five of us paid. I kept the receipt in my gear bag three years so I'd have something to hand you tonight."
+kindness:
+  - ctx: the veteran everyone must beat
+    line: "Nobody will say it to you, so I will, because I like you: they book you because you lose well. You make people look good. That's a real skill. Go home and be proud of it."
+  - ctx: a debut in front of everyone she grew up with
+    line: "Your mother is in row two. I saw her. I'm going to try to make it quick, for her, and if it isn't quick I want you to know that part was you."
+comedian:
+  - ctx: she pulled out with an injury and was filmed dancing that weekend
+    line: "She tore something Thursday and by Saturday it had healed enough for a conga line. I've asked the commission to test the DJ."
+  - ctx: she claims to be self-taught; the other taught her to stand
+    line: "Self-taught. I love that. I taught her in my own garage and apparently I was so good she didn't notice."
+prophecy:
+  - ctx: their first fight ended in under a minute
+    line: "You'll come out fast because they told you to. You'll feel good for about a minute. Then you'll check your corner, and I'm telling you now which look you'll get."
+  - ctx: the last fight on a deal that will not be renewed
+    line: "Monday your manager calls and he's gentle about it. Tuesday the gym takes your picture off the website. I'm only the Saturday part."
+inventory:
+  - ctx: one now trains under the other's former coach
+    line: "The coach is mine, he just hasn't told you. The jab is mine, I can show you tape. The nickname you got off a T-shirt. So what did you actually bring?"
+  - ctx: she took the old gym's neon sign when it closed
+    line: "That sign in your window belongs to a gym that closed. The bag under it has my tape on it. Even the fan is ours. You opened a museum of us and hung your own picture in it."
+correction:
+  - ctx: their first fight was a draw and she celebrated like a win
+    line: "It wasn't a draw. Two judges had it for me and one had it for the popcorn. Say it properly: it was a robbery, and you threw it a party."
+  - ctx: a sparring story one tells and the other denies
+    line: "You tell it like I went down. I sat down. To tie my shoe. Nine people were in that room, and you only ever tell it in rooms they aren't in."
+silence:
+  - ctx: one used to work the front desk at the other's gym
+    line: "(Four minutes of questions, nothing. Then, standing to go:) Ask her who bought her first pair of gloves."
+  - ctx: weigh-in, after the other's long speech
+    line: "(She waits for the scale to click.) You still talk to the floor."
+borrowed_words:
+  - ctx: she called the other 'a good first test' on a broadcast
+    line: "\"A good first test.\" That was you, on air, last April, about me. I had it printed inside my mouthguard case. I read it every time I put my teeth in."
+  - ctx: she said she would rather fight 'anyone with a pulse'
+    line: "(Holding out a wrist.) Anyone with a pulse, you said. Go ahead. Check."
+host:
+  - ctx: she moved away, came back, and sells more tickets in the other's town
+    line: "Welcome home. Take the locker room on the left, it's the nice one. Towels are mine, water's mine, crowd's mine. Anything you need tonight, ask me, because everything here does."
+  - ctx: one used to work the front desk at the other's gym
+    line: "You used to hand me my key card. Tonight I got you a pass. The lanyard suits you. Some people are built for a lanyard."
+teacher:
+  - ctx: she wins with a combination the other drilled into her
+    line: "Your left comes home low. Every time. I'm telling you now so afterward you can't say nobody taught you anything."
+  - ctx: one taught the other; the student got the bigger contract
+    line: "Lesson one was stance and you were late. Lesson two was respect and you were sick. Tonight is the make-up class."
+bored:
+  - ctx: the promoter's favourite and the early weigh-in slot
+    line: "Sorry, which one is she? No, I can hear that she's talking. I meant on the poster."
+  - ctx: a ranking spot and nothing else
+    line: "I have physio at four and this at nine. Honestly the four worries me more."
+confession:
+  - ctx: she did not come to the coach's memorial; she posted from a beach that day
+    line: "I did skip it. I was on a beach and I knew what day it was. That's who you drew: somebody who can do that and sleep. Can you?"
+  - ctx: she signed the local sponsor the other had for six years
+    line: "I took your sponsor, yes. I called him from your own parking lot. I am not a good friend. I'm a very good fighter, and for six years you've had those two backwards."
+translator_gap:
+  - ctx: they do not share a language; everything passes through a third person
+    line: "(She says nine words. The interpreter says: \"She wishes you luck.\" Everyone in the room who speaks the language has stopped smiling.)"
+  - ctx: same, at a press conference
+    line: "(What she said concerned the other's mother's cooking. What reached the microphone was \"she respects your camp.\" The laugh came late, from two cousins at the back.)"
+crowd_work:
+  - ctx: hometown gate
+    line: "Who drove in from her town? Hands up. Good. You four can carpool home early."
+  - ctx: a year of posts and replies, first time in the same room
+    line: "Don't boo her, she can't hear you, she's been listening to her own interviews. Somebody wave so she knows which way the cage is."
+nostalgia:
+  - ctx: shared an apartment during the lean years; one moved out owing
+    line: "We split one space heater in that apartment. You'd turn it to your side when you thought I was asleep. I was never asleep. That's all tonight is."
+  - ctx: she kept the dog when the apartment split
+    line: "He used to sleep on your gym bag. He cries at the door the week you fight. I let him watch. I want him to see how it goes for people who leave."
+accountant:
+  - ctx: the purse gap
+    line: "They pay you eight to show and me forty. So every minute you last costs me money and makes you none. Do the arithmetic and sit down."
+  - ctx: ticket sales in the other's hometown
+    line: "I sold three hundred seats in your zip code. You sold your cousin's table. I ought to invoice you for the audience."
+whisper:
+  - ctx: she still fights in gloves she borrowed and never returned
+    line: "(A handshake for the cameras. Under it, lips barely moving:) I kept your gloves because they fit me better."
+  - ctx: she refused a handshake in front of the other's students
+    line: "(At the staredown, pleasantly:) Smile. Your students are watching you be afraid."
+wounded:
+  - ctx: she thanked forty people after her title win and left out one
+    line: "Forty names. I counted them on the replay, twice, in case I'd missed mine. You thanked the man who drives the ring truck."
+  - ctx: she told the sparring story as a toast at the other's wedding
+    line: "You told that story at my wedding. With a glass in your hand. My father laughed, and he has never once laughed at anything I did on purpose."

@@ -1,18 +1,25 @@
-# ko.story: short context stories for KO takes (PAUSED 2026-11-11)
+# ko.story: short context stories for KO takes
 
-Paused by the owner mid-build. State and next steps are in the handoff doc
-"KO Framework Handoff: Improvements to Date", section "Story generator".
+Code makes every creative choice and every accept/reject decision; a model only writes.
+Full instructions: `docs/STORY_HANDOFF.md`.
 
-Built: the bank (`bank/*.yaml`), a seeded brief sampler with memory (`draw.py`), and a
-mechanical repetition lint (`lint.py`). Not built: the writer prompt, worked example stories,
-the trash-talk example set, tests, and a run over many seeds to measure repetition.
-
-    python -m ko.story.draw --seed 7 [--take takes/beats/x.yaml] [--set register=ledger]
+    python -m ko.story.generate --seed 40 --count 5 [--take takes/beats/x.yaml]   # the whole loop
+    python -m ko.story.generate --seed 40 --writer cmd --cmd "claude -p --model claude-opus-5-5"
+    python -m ko.story.draw --seed 7            # just a brief
     python -m ko.story.lint brief.yaml story.md [--accept]
+    python -m ko.story.choose candidates.yaml --seed 7
+    python -m ko.story.measure 100              # sampler repetition, memory off vs on
 
-`out/` holds three drawn briefs (seeds 11-13) that the example stories were going to be
-written from. `ledger.jsonl` does not exist until a story is accepted.
+| File | Role |
+| --- | --- |
+| `bank/*.yaml` | Settings, situations, people, conflicts, voices, bans |
+| `draw.py` | Seeded brief with memory (`ledger.jsonl`) and coherence rules |
+| `writer_prompt.md` | System prompt the writing model sees |
+| `examples/trash_talk.yaml` | 36 technique examples; counted as used text |
+| `choose.py` | Picks a candidate line from the unlikely half |
+| `lint.py` | Mechanical rejection and ledger recording |
+| `generate.py` | Draw, candidates, pick, write, lint, retry, record |
+| `out/` | Briefs, stories and logs |
 
-Prior art in this repo: `src/engine/variety.ts` (commit f1b8d72), the Expo app's per-bank
-usage tracker. Same idea at the phrase-template level; this package works at the
-scenario level and keeps a cross-story ledger instead.
+Prior art in this repo: `src/engine/variety.ts` (commit f1b8d72), a per-bank usage tracker
+for narration templates in the Expo app.

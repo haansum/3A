@@ -1,0 +1,94 @@
+id: s00041
+seed: 41
+axes:
+  setting: cage_walkaround
+  relationship: penpal
+  grievance: the_tap
+  stakes: not being a trivia answer
+  arc: student_surpasses
+  moment: entering the cage
+  situation: wrong_music
+  pov: a transcript with stage directions (no interior at all)
+  form: a single exchange replayed three times, each version adding what was left out
+  register: host
+  counter_register: wounded
+  opening_move: a small physical action
+  ending: end on the name, said correctly for the first time
+  sensory_anchor: a zipper
+  who_falls: target
+  result_meaning: nothing was settled
+  length_words: 320
+  talker_style: knockout artist with a short gas tank
+  talker_temperament: superstitious
+  talker_nickname: a mistake from her first fight that stuck
+  target_style: counter-striker who needs you to lead
+  target_temperament: amused by everything
+  target_nickname: her hometown
+  wrong_done_by: talker
+names:
+- Nakoma
+- Brennan
+- Naledi
+- Solheim
+setting:
+  place: the lap of the cage before the door shuts
+  detail: mesh at shoulder height
+situation: the wrong walkout song started and has not been stopped
+people:
+- role: talker
+  name: Nakoma Brennan
+  style: knockout artist with a short gas tank
+  temperament: superstitious
+  nickname: a mistake from her first fight that stuck
+- role: target
+  name: Naledi Solheim
+  style: counter-striker who needs you to lead
+  temperament: amused by everything
+  nickname: her hometown
+relationship: they wrote to each other as teenagers from rival clubs before they ever met
+grievance:
+  done_by: Nakoma Brennan
+  done_to: Naledi Solheim
+  what: she says the other tapped in a scrimmage; no one else in the room will say
+  note: '"she" in the text is done_by; "the other" is done_to. The aggrieved one need not be the talker.'
+stakes: not being a trivia answer
+talk:
+  talker_register: 'host: treats the other as a guest in her building, offers her things'
+  target_register: 'wounded: the speaker is the hurt one and cannot stop showing it'
+arc:
+  name: student_surpasses
+  beats:
+  - the older one instructs
+  - the younger one corrects her
+  - the correction is right
+moment: entering the cage
+pov: a transcript with stage directions (no interior at all)
+form: a single exchange replayed three times, each version adding what was left out
+first_sentence_is: a small physical action
+ending: end on the name, said correctly for the first time
+sensory_anchor: a zipper
+result:
+  who_falls: target
+  meaning: nothing was settled
+  take: freya_wheel_kick_gnp_001
+  strike: Wheel / spinning heel kick (heel across from the side)
+  strike_from_her: right
+  fall: 'Teeter: hangs at the balance point before going over'
+  tier: null
+  followups: 1
+length_words: 320
+banned_here:
+- second
+- voice
+- step
+- glare
+- almost
+- really
+do_not_open_with:
+- yara osei told
+- had she really
+- forty one candles
+- screenshot four the
+recent_phrases_to_avoid:
+- both of them
+- the moderator said

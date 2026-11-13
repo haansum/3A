@@ -1,0 +1,84 @@
+id: s00040
+seed: 40
+axes:
+  setting: group_chat
+  relationship: corner_betrayal
+  grievance: late_replacement_insult
+  stakes: keeping a title nobody thinks she earned
+  arc: overreach
+  moment: two weeks out
+  pov: first person, the target, past tense
+  form: a list (things she said / things she brought / things on the table) that breaks into scene
+  register: bored
+  counter_register: confession
+  opening_move: a line of speech
+  ending: cut on the walk to the center
+  sensory_anchor: a camera shutter
+  who_falls: target
+  result_meaning: the prophecy filed as written
+  length_words: 160
+  talker_style: counter-striker who needs you to lead
+  talker_temperament: performing for cameras
+  talker_nickname: something a coach called her once
+  target_style: technician everyone calls boring
+  target_temperament: tired
+  target_nickname: an animal nobody would pick
+  wrong_done_by: talker
+names:
+- Rumi
+- Adeyemi
+- Tamsin
+- Dlamini
+setting:
+  place: screenshots from a team group chat
+  detail: read aloud by somebody else
+people:
+- role: talker
+  name: Rumi Adeyemi
+  style: counter-striker who needs you to lead
+  temperament: performing for cameras
+  nickname: something a coach called her once
+- role: target
+  name: Tamsin Dlamini
+  style: technician everyone calls boring
+  temperament: tired
+  nickname: an animal nobody would pick
+relationship: one's cornerman used to hold pads for the other
+grievance:
+  done_by: Rumi Adeyemi
+  done_to: Tamsin Dlamini
+  what: she said she would rather fight "anyone with a pulse"; the other is the anyone
+  note: '"she" in the text is done_by; "the other" is done_to. The aggrieved one need not be the talker.'
+stakes: keeping a title nobody thinks she earned
+talk:
+  talker_register: 'bored: answers a different question, checks the time, will not grant importance'
+  target_register: 'confession: admits something true and ugly about herself first, then turns it'
+arc:
+  name: overreach
+  beats:
+  - talker winning
+  - pushes one line past what the room accepts
+  - room turns
+moment: two weeks out
+pov: first person, the target, past tense
+form: a list (things she said / things she brought / things on the table) that breaks into scene
+first_sentence_is: a line of speech
+ending: cut on the walk to the center
+sensory_anchor: a camera shutter
+result:
+  who_falls: target
+  meaning: the prophecy filed as written
+length_words: 160
+banned_here:
+- cold
+- smile
+- finally
+- as if
+- nod
+- hot
+do_not_open_with:
+- yara osei told
+- had she really
+- forty one candles
+recent_phrases_to_avoid:
+- both of them

@@ -1,0 +1,42 @@
+{
+ "id": "s00041",
+ "seed": 41,
+ "attempts": [
+  {
+   "n": 1,
+   "words": 342,
+   "fails": []
+  }
+ ],
+ "plan": {
+  "nickname": "Comma \u2014 at her first fight the announcer read the card as 'Na, Comma' and the crowd chanted it; she has kept it ever since because changing a name that won is bad luck",
+  "detail": "The scrimmage at Ferrick's on 9 March, round three, gym clock at 2:14. Nakoma says Naledi tapped twice on her forearm. The four people on the mat apron each say they were looking at the door.",
+  "hands": "Nakoma taps the cage-door hinge three times with two fingers every time she passes it. Naledi runs her hoodie zipper up to the chin and back down while she talks, and never takes the hoodie off.",
+  "candidates": [
+   {
+    "p": 0.31,
+    "text": "Keep the song, it's yours now. Same as round three at Ferrick's, 2:14 on the clock. You tapped twice, and I'm the only one polite enough to remember."
+   },
+   {
+    "p": 0.22,
+    "text": "Make yourself at home. You always waited for me to go first. Seven years of letters and I wrote every opening line."
+   },
+   {
+    "p": 0.18,
+    "text": "Want my water? Go on. You already took the tap back, you might as well take something you can keep."
+   },
+   {
+    "p": 0.17,
+    "text": "They'll get your name wrong on the broadcast. Don't worry. I'll spell it right on the list of people I beat."
+   },
+   {
+    "p": 0.12,
+    "text": "You only counter, Naledi. In a building where nobody leads, you're just a guest standing in the hall."
+   }
+  ]
+ },
+ "chosen_line": "They'll get your name wrong on the broadcast. Don't worry. I'll spell it right on the list of people I beat.",
+ "chosen_p": 0.17,
+ "status": "accepted",
+ "usage": {}
+}

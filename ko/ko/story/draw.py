@@ -10,7 +10,7 @@ Anti-repetition, in order of strength:
   1. every axis is drawn independently, so the space is ~1e17 combinations
   2. values used in the last 3 stories are excluded; values used in the last 12 are
      down-weighted (ledger: ko/story/ledger.jsonl)
-  3. names are retired for 30 stories
+  3. names are retired for 40 stories (the pool holds 90 given and 80 family names)
   4. each brief carries its own word bans (a rotating sample of ordinary crutch words plus
      the opening words and commonest phrases of recent stories)
   5. the first sentence type, point of view, form and ending are drawn, not left to habit
@@ -27,16 +27,62 @@ import yaml
 
 HERE = os.path.dirname(__file__)
 LEDGER = os.path.join(HERE, 'ledger.jsonl')
-HARD_WINDOW, SOFT_WINDOW, NAME_WINDOW = 3, 12, 30
-IMPLIED_MOMENT = [('weighin', 'weigh-in'), ('scale_check', 'weigh-in'), ('sauna', 'the weight cut'), ('presser', 'media day'),
-                  ('faceoff', 'first face-off'), ('staredown_stage', 'final staredown'), ('tunnel', 'the walk'),
-                  ('warmup_room', 'warm-up'), ('locker_room', 'warm-up'), ('cage_door', 'entering the cage'),
-                  ('ring_center', 'referee instructions'), ('between_rounds', 'between rounds'),
-                  ('hallway_medical', 'pre-fight checks'), ('_show', 'the fight itself, opening seconds'),
-                  ('armory', 'the fight itself, opening seconds'), ('rodeo_arena', 'the fight itself, opening seconds'),
-                  ('theater', 'the fight itself, opening seconds'), ('studio', 'the fight itself, opening seconds'),
-                  ('stadium_undercard', 'the fight itself, opening seconds'), ('main_event_arena', 'the fight itself, opening seconds'),
-                  ('diner', 'after weigh-ins'), ('elevator', 'morning of'), ('breakfast', 'morning of')]
+HARD_WINDOW, SOFT_WINDOW, NAME_WINDOW = 3, 12, 40
+# (axis, value) pairs that cannot share a story; the later-drawn axis is redrawn around it
+CLASH = [
+    ('pov', 'a transcript with stage directions (no interior at all)', 'register', 'whisper'),
+    ('pov', 'a transcript with stage directions (no interior at all)', 'counter_register', 'whisper'),
+    ('pov', 'a camera operator who only sees what is in frame', 'register', 'whisper'),
+    ('pov', 'a camera operator who only sees what is in frame', 'counter_register', 'whisper'),
+    ('form', 'no quoted speech at all; everything reported', 'opening_move', 'a line of speech'),
+    ('form', 'dialogue-heavy, almost no description', 'register', 'silence'),
+    ('form', 'starts mid-sentence in the argument', 'opening_move', 'a rule being read aloud'),
+    ('register', 'translator_gap', 'pov', 'a transcript with stage directions (no interior at all)'),
+    ('setting', 'group_chat', 'register', 'whisper'), ('setting', 'voicemail', 'register', 'whisper'),
+    ('setting', 'video_call', 'register', 'whisper'), ('setting', 'group_chat', 'counter_register', 'whisper'),
+    ('setting', 'voicemail', 'counter_register', 'whisper'), ('setting', 'video_call', 'counter_register', 'whisper'),
+]
+# When each place is, relative to the fight. Everything else follows from this: the moment,
+# which situations can occur, who can be watching.
+NIGHT = {  # at the venue on fight night: setting -> moment
+    'tunnel': 'the walk', 'ramp': 'the walk', 'backstage_curtain': 'the walk', 'ring_steps': 'the walk',
+    'warmup_room': 'warm-up', 'locker_room': 'warm-up', 'prefight_prayer': 'warm-up', 'cutman_table': 'warm-up',
+    'cage_door': 'entering the cage', 'cage_walkaround': 'entering the cage', 'ring_apron': 'entering the ring',
+    'ring_center': 'referee instructions', 'introductions': 'the introductions',
+    'between_rounds': 'between rounds', 'neutral_corner': 'mid-fight, during a count', 'clinch': 'mid-fight',
+    'judges_table': 'after the final bell, before the decision', 'parking_lot': 'fight night, before doors',
+    **{k: 'the fight itself, opening seconds' for k in (
+        'barn_show', 'ballroom_show', 'warehouse_show', 'beach_show', 'armory', 'rodeo_arena', 'theater', 'studio',
+        'stadium_undercard', 'main_event_arena')}}
+WEEK = {   # fight week with a fixed moment
+    'weighin_gym': 'weigh-in', 'weighin_casino': 'weigh-in', 'scale_check': 'weigh-in', 'ceremonial_weighin': 'weigh-in',
+    'doping_room': 'after the weigh-in', 'sauna': 'the weight cut', 'ice_bath': 'the weight cut', 'hotel_gym': 'the weight cut',
+    'presser_hotel': 'media day', 'presser_dealership': 'media day', 'media_scrum': 'media day',
+    'faceoff_rooftop': 'first face-off', 'staredown_stage': 'final staredown', 'hallway_medical': 'pre-fight checks',
+    'commission_physicals': 'pre-fight checks', 'rules_meeting': 'the rules meeting', 'glove_selection': 'the day before',
+    'walkthrough': 'the day before', 'diner': 'after weigh-ins', 'elevator': 'morning of', 'breakfast': 'morning of',
+    'bus': 'fight week'}
+# places that only make sense well before fight week
+EARLY = {'gym_reunion', 'old_gym', 'new_gym', 'garage_gym', 'sponsor_shoot', 'school_visit', 'autograph_table',
+         'podcast_kitchen', 'radio_booth', 'video_call', 'group_chat', 'voicemail', 'commission_office', 'airport',
+         'open_workout_mall', 'storage_unit', 'tattoo_shop', 'laundromat', 'church_hall', 'physio_office', 'print_shop',
+         'kids_class', 'ferry', 'wedding_reception', 'funeral_tea', 'car_wash', 'tv_green_room', 'amateur_show',
+         'gym_closing_sale', 'seminar', 'court_corridor', 'train_platform', 'supermarket'}
+# an official is only present where there is officiating
+OFFICIAL_OK = set(NIGHT) - {'parking_lot', 'prefight_prayer', 'locker_room', 'warmup_room', 'tunnel', 'ramp', 'backstage_curtain'} | {
+    'weighin_gym', 'weighin_casino', 'scale_check', 'ceremonial_weighin', 'doping_room', 'hallway_medical',
+    'commission_physicals', 'rules_meeting', 'glove_selection', 'staredown_stage', 'commission_office', 'amateur_show'}
+# a camera only where there is a shoot or a broadcast
+NO_CAMERA = {'elevator', 'sauna', 'group_chat', 'voicemail', 'scale_check', 'diner', 'breakfast', 'airport', 'bus',
+             'locker_room', 'warmup_room', 'parking_lot', 'gym_reunion', 'old_gym', 'garage_gym', 'storage_unit',
+             'tattoo_shop', 'laundromat', 'church_hall', 'physio_office', 'print_shop', 'kids_class', 'ferry',
+             'funeral_tea', 'car_wash', 'court_corridor', 'train_platform', 'supermarket', 'hotel_gym', 'hotel_laundry',
+             'stairwell', 'pool_deck', 'commission_physicals', 'barbershop', 'taxi_rank', 'ice_bath', 'doping_room',
+             'prefight_prayer', 'gym_closing_sale', 'seminar', 'rules_meeting', 'glove_selection'}
+
+
+def phase_of(setting):
+    return 'night' if setting in NIGHT else 'pre' if setting in EARLY else 'week'
 
 
 def bank():
@@ -84,6 +130,10 @@ def draw(seed, sets=None, take=None, past=None):
     ax = {}
 
     def choose(axis, options):
+        options = list(options)
+        bad = {vb for a, va, b, vb in CLASH if b == axis and ax.get(a) == va} | \
+              {va for a, va, b, vb in CLASH if a == axis and ax.get(b) == vb}
+        options = [o for o in options if o not in bad] or options
         ax[axis] = sets[axis] if axis in sets else pick(rng, options, axis, past)
         return ax[axis]
     v, c, p = B['voice'], B['conflict'], B['people']
@@ -91,16 +141,25 @@ def draw(seed, sets=None, take=None, past=None):
     choose('relationship', c['relationship'])
     choose('grievance', c['grievance'])
     choose('stakes', c['stakes'])
-    choose('register', v['register'])
-    choose('counter_register', [r for r in v['register'] if r != ax['register']])
     choose('arc', v['arc'])
-    fixed = next((m for k, m in IMPLIED_MOMENT if ax['setting'].startswith(k) or ax['setting'].endswith(k)), None)
+    ph = phase_of(ax['setting'])
+    fixed = NIGHT.get(ax['setting']) or WEEK.get(ax['setting'])
     if fixed and 'moment' not in sets:
         ax['moment'] = fixed            # the place already says when this is
+    elif ph == 'pre':
+        choose('moment', ['the week the contract is signed', 'six weeks out', 'two weeks out', 'the Monday of fight week'])
     else:
-        choose('moment', ['contract signing', 'media day', 'open workout', 'the night before', 'morning of'])
-    choose('pov', v['pov'])
+        choose('moment', ['fight week', 'two days before', 'the night before', 'morning of'])
+    sit = B['situations']['items']
+    choose('situation', [k for k, d in sit.items() if ph in d['phase']])
+    povs = [x for x in v['pov']
+            if not ((x.startswith('the referee') or 'official holding' in x) and ax['setting'] not in OFFICIAL_OK)
+            and not (x.startswith('a camera operator') and ax['setting'] in NO_CAMERA)
+            and not (x.startswith('the interpreter') and ax.get('relationship') != 'translator')]
+    choose('pov', povs)
     choose('form', v['form'])
+    choose('register', v['register'])
+    choose('counter_register', [r for r in v['register'] if r != ax['register']])
     choose('opening_move', v['opening_move'])
     choose('ending', v['ending'])
     choose('sensory_anchor', v['sensory_anchor'])
@@ -112,15 +171,19 @@ def draw(seed, sets=None, take=None, past=None):
     used = {n for q in past[-NAME_WINDOW:] for n in q.get('names', [])}
     names = []
     for _ in range(2):
-        g = pick(rng, [x for x in p['given'] if x not in used and x not in names] or p['given'], 'given', [])
-        f = pick(rng, [x for x in p['family'] if x not in used and x not in names] or p['family'], 'family', [])
+        gv, fm = p['given'] + p.get('given_more', []), p['family'] + p.get('family_more', [])
+        g = pick(rng, [x for x in gv if x not in used and x not in names] or gv, 'given', [])
+        f = pick(rng, [x for x in fm if x not in used and x not in names] or fm, 'family', [])
         names += [g, f]
     people = []
     for k, role in enumerate(('talker', 'target')):
         people.append({'role': role, 'name': f'{names[2 * k]} {names[2 * k + 1]}',
                        'style': choose(role + '_style', [x for x in p['style'] if x != ax.get('talker_style')]),
                        'temperament': choose(role + '_temperament', [x for x in p['temperament'] if x != ax.get('talker_temperament')]),
-                       'nickname': p['nickname_style'][int(rng.integers(len(p['nickname_style'])))]})
+                       'nickname': choose(role + '_nickname', [x for x in p['nickname_style'] if x == 'none' or x != ax.get('talker_nickname')])})
+    ax['wrong_done_by'] = sets.get('wrong_done_by') or ('talker', 'target')[int(rng.integers(2))]
+    doer = people[0 if ax['wrong_done_by'] == 'talker' else 1]['name']
+    other = people[1 if ax['wrong_done_by'] == 'talker' else 0]['name']
     bans = [str(x) for x in rng.choice(B['bans']['crutch'], 6, replace=False)]
     recent_open = [q['opening_words'] for q in past[-SOFT_WINDOW:] if q.get('opening_words')]
     recent_phr = sorted({ph for q in past[-SOFT_WINDOW:] for ph in q.get('top_phrases', [])})[:12]
@@ -128,9 +191,11 @@ def draw(seed, sets=None, take=None, past=None):
     brief = {
         'id': f's{seed:05d}', 'seed': seed, 'axes': ax, 'names': names,
         'setting': {'place': place, 'detail': detail},
+        'situation': sit[ax['situation']]['what'],
         'people': people,
         'relationship': c['relationship'][ax['relationship']],
-        'grievance': c['grievance'][ax['grievance']],
+        'grievance': {'done_by': doer, 'done_to': other, 'what': c['grievance'][ax['grievance']],
+                      'note': '"she" in the text is done_by; "the other" is done_to. The aggrieved one need not be the talker.'},
         'stakes': ax['stakes'],
         'talk': {'talker_register': f"{ax['register']}: {v['register'][ax['register']]}",
                  'target_register': f"{ax['counter_register']}: {v['register'][ax['counter_register']]}"},

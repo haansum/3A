@@ -26,6 +26,26 @@ relationship:
   training_camp_guest: one was invited to help the other prepare for someone else, and took notes
   judge_daughter: one's parent sat on the commission that ruled on the other
   retired_returning: one retired, the other said good riddance on camera, and now the retirement is over
+  godmother: one is godmother to the other's child and has not visited in two years
+  same_manager: they share a manager who returns one of their calls faster
+  rival_schools: they come from two styles whose teachers fell out before either was born
+  opponent_in_common: both lost to the same woman; only one of them admits how
+  reality_show: they shared a house for six weeks on a fight reality show, edited into enemies
+  cousin: cousins who were raised to be compared at every family table
+  understudy: for three years one was the other's designated training dummy before big fights
+  landlady: one owns the building the other's gym rents
+  ex_corner_wife: one is married to the man who used to corner the other
+  team_captain: one was captain of the team that voted the other off it
+  penpal: they wrote to each other as teenagers from rival clubs before they ever met
+  stablemates_split: same management stable until a contract dispute put them on opposite sides
+  referee_daughter: one's mother refereed the other's worst night
+  shared_nutritionist: the same nutritionist cuts both their weight and knows both their numbers
+  amateur_final: they met once at seventeen in a final only eleven people watched
+  commentator_fighter: one retired into commentary, described the other's career on air, and has now un-retired
+  favor_owed: one drove six hours to corner the other on a day's notice, once, and it was never returned
+  student_of_student: one was taught by someone the other taught
+  hometown_two: the only two professionals their town has produced, in the same division
+  roommate_camp: assigned as roommates at a national training camp and requested a room change the same morning
 grievance:
   left_before_title: she left the gym three weeks before the team's first title fight
   took_the_sign: she took the old gym's neon sign when it closed and hung it in her own
@@ -57,6 +77,45 @@ grievance:
   commentary_seat: she did guest commentary on the other's loss and laughed once
   late_replacement_insult: she said she would rather fight "anyone with a pulse"; the other is the anyone
   hometown_gate: she moved away, came back, and sells more tickets in the other's town
+  the_recipe: she sells the weight-cut meal plan the other wrote for her, under her own name
+  first_gloves: she auctioned the first pair of gloves the other gave her
+  mother_called: she rang the other's mother to say her daughter should retire
+  the_mural: she had the other painted out of the gym's mural
+  corner_poached: she hired the other's cut-man the week of a fight
+  book_chapter: she wrote a chapter about the other in her memoir and got the year wrong
+  no_show_seminar: she took a deposit to teach at the other's gym and did not turn up
+  the_rematch_clause: she had the rematch clause removed after winning
+  podcast_laugh: she laughed, once, on a podcast, when the host did an impression of the other
+  trophy_shelf: she kept a team trophy that was won by five people
+  told_the_coach: she told their coach the other was thinking of leaving, before the other had decided
+  the_nickname_trademark: she registered the other's ring name as a trademark
+  sparring_hard: she went full power in a light session two weeks before the other's biggest fight
+  seat_at_wedding: she seated the other at the back of her wedding, by the kitchen door
+  the_reference: she gave a promoter a bad reference and the other lost the booking
+  unfollowed: she unfollowed the other the night of the other's worst loss
+  birthday_fight: she took a fight on the other's birthday card and beat the other's friend
+  secondhand_gear: she sold the other used shin guards as new
+  the_thank_you_card: she sent a thank-you card to the whole team and signed one name wrong
+  doubled_rent: she raised the gym's rent the month the other turned professional
+  walkout_shirt: she walked out in a shirt with the other's old sponsor on it, taped over
+  test_question: she asked, at a press event, whether the other had been tested lately
+  the_eulogy: she gave the eulogy for their coach and told it as if she had been his only student
+  borrowed_car: she borrowed the other's car for a weigh-in and returned it empty
+  highlight_reel: she uses the other's worst moment as the first clip of her highlight reel
+  pulled_the_kid: she moved her daughter out of the other's kids' class without a word
+  stole_the_drill: she teaches the other's signature drill at seminars as her own invention
+  never_visited: she did not visit once in the eight months the other was out
+  the_bet: she bet against the other, with people they both know, and collected
+  split_decision_post: she posted the scorecards from their fight every year on the anniversary
+  the_group_photo: she cropped the other out of the team's title photo before printing it
+  spoke_for_her: she answered a question for the other at a joint interview, and got the answer wrong
+  held_the_door: it began the day she let a door close on the other and both of them know it was on purpose
+  ring_rust_joke: she called the other's comeback "a reunion tour"
+  the_corner_seat: she sat in the other's corner for a fight and gave advice to the opponent's coach afterwards
+  changed_the_locks: she changed the gym locks while the other was away at a fight
+  the_translation: she translated the other's interview for foreign press and softened nothing but the praise
+  last_message: she left the other's last message on read for three years
+  price_tag: she told a promoter what she would take to fight the other, and it was very little
 stakes:
   - a first title
   - keeping a title nobody thinks she earned
@@ -74,3 +133,19 @@ stakes:
   - whether she is still who the poster says
   - a win streak the promotion built a season around
   - getting back to even after two losses
+  - the gym's name staying on the door
+  - a spot on a team that only takes one per weight
+  - whether her daughter keeps watching
+  - the first main event either of them has had
+  - a rematch clause that only the winner can use
+  - her manager's last favour
+  - a debt to someone in the front row
+  - being the one the town remembers
+  - a coaching job that goes to the winner's camp
+  - the end of a suspension and whatever comes after
+  - a record that would be the first for her country
+  - not being a trivia answer
+  - the purse that ends a second job
+  - her nickname meaning something again
+  - keeping her corner together one more year
+  - the belt a dead coach said she would win

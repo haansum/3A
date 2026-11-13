@@ -1,0 +1,63 @@
+# What has just happened as the scene opens. It forces the two of them to deal with each
+# other NOW. phase: pre = weeks before; week = fight week; night = at the venue on fight night.
+# A situation is an incident, not a mood. One line each; the writer supplies the rest.
+axis: situation
+items:
+  # ---- weeks before ----
+  contract_swap:      {phase: [pre], what: the bout agreement arrives with the names in the wrong order on the poster line}
+  leaked_clip:        {phase: [pre, week], what: an old sparring clip of the two of them was posted this morning by someone neither will name}
+  wrong_box:          {phase: [pre], what: a delivery of fight kit came to one gym addressed to the other fighter}
+  shared_booking:     {phase: [pre], what: both camps were booked into the same room at the same hour by mistake}
+  coach_asks_favor:   {phase: [pre], what: their old coach has asked them both, separately, to be civil for one afternoon}
+  sponsor_ultimatum:  {phase: [pre], what: a sponsor will keep only one of them after the fight and said so in writing}
+  kid_asks:           {phase: [pre], what: a child from the kids' class has just asked them, in front of everyone, why they stopped being friends}
+  replacement_call:   {phase: [pre], what: the original opponent withdrew an hour ago and one of them just said yes to the other's name}
+  old_photo:          {phase: [pre], what: someone has put up a framed photo of the two of them from the old days, side by side}
+  key_return:         {phase: [pre], what: one has come to return a key she should have returned years ago}
+  open_mat:           {phase: [pre], what: an open-mat session has paired them by weight and the whole room has noticed}
+  interview_overlap:  {phase: [pre, week], what: one interview ran long and the next one's guest has walked in on it}
+  ranking_drop:       {phase: [pre], what: new rankings came out an hour ago and they have swapped places}
+  inheritance:        {phase: [pre], what: the old gym's equipment is being divided today and both want the same thing}
+  wrong_name:         {phase: [pre, week], what: the host has just introduced one of them by the other's ring name}
+  # ---- fight week ----
+  scale_over:         {phase: [week], what: the scale reads half a pound over for one of them, with ninety minutes left}
+  scale_under:        {phase: [week], what: one made weight on the first try, stayed, and is watching the other step up}
+  towel_request:      {phase: [week], what: one of them has asked for the towel at the scale and the other heard}
+  glove_mixup:        {phase: [week], what: the commission handed each of them the other's gloves to inspect}
+  poster_defaced:     {phase: [week], what: a fight poster in the hotel lobby has had one face scribbled on, and both are standing at it}
+  shared_ride:        {phase: [week], what: the promotion sent one car for both camps}
+  question_planted:   {phase: [week], what: a reporter has just asked a question that only one of their camps could have supplied}
+  translator_late:    {phase: [week], what: the interpreter has not arrived and they have to manage without}
+  mic_left_on:        {phase: [week], what: a microphone was left on during the break and the room heard what was said}
+  handshake_asked:    {phase: [week], what: a photographer has asked for a handshake and is waiting}
+  belt_on_table:      {phase: [week], what: the belt has been set on the table closer to the challenger}
+  family_arrives:     {phase: [week], what: one fighter's family has just walked in, and they know the other from before}
+  cut_gone_wrong:     {phase: [week], what: one of them is still two pounds over at midnight and the other has come to watch the treadmill}
+  odds_flip:          {phase: [week], what: the betting line flipped overnight and everyone in the room has seen it}
+  gift:               {phase: [week], what: one has brought the other a gift, wrapped, and set it down between them}
+  apology_attempt:    {phase: [week, pre], what: one of them has just started an apology and stopped halfway}
+  old_coach_present:  {phase: [week], what: the coach they shared is in the room and has not said which corner he will sit near}
+  walkout_song_test:  {phase: [week], what: the sound crew is testing a walkout song and it is the one they both claim}
+  sparring_partner:   {phase: [week], what: the sparring partner one of them fired last month just walked in wearing the other's team shirt}
+  room_next_door:     {phase: [week], what: the hotel put them in adjoining rooms and the wall is thin}
+  # ---- fight night ----
+  running_late:       {phase: [night], what: the card is running forty minutes behind and both are warm with nowhere to go}
+  one_corner_missing: {phase: [night], what: one fighter's head coach has not arrived and the walk is in ten minutes}
+  tape_signed:        {phase: [night], what: the opposing camp's man has come in to watch the hand-wrap and sign the tape}
+  monitor:            {phase: [night], what: the dressing-room monitor is replaying their first fight between bouts}
+  shared_cutman:      {phase: [night], what: the house cut-man is assigned to both corners tonight}
+  early_finish:       {phase: [night], what: the fight before theirs ended in the first minute and they are being hurried}
+  wrong_music:        {phase: [night], what: the wrong walkout song started and has not been stopped}
+  crowd_split:        {phase: [night], what: one side of the building is chanting a name and it is not the home fighter's}
+  touch_refused:      {phase: [night], what: the referee has asked them to touch gloves and one has not moved}
+  instructions_repeat: {phase: [night], what: the referee is repeating an instruction because one of them was talking over it}
+  first_clinch:       {phase: [night], what: they are tied up against the ropes for the first time and close enough to talk}
+  knockdown_scored:   {phase: [night], what: a slip was just scored a knockdown and one corner is shouting about it}
+  mouthpiece_out:     {phase: [night], what: a mouthguard is on the canvas and the referee has called time to rinse it}
+  ten_seconds:        {phase: [night], what: the clapper has just sounded for the last ten seconds of the round}
+  corner_stops_talking: {phase: [night], what: between rounds, one corner has run out of things to say}
+  doctor_look:        {phase: [night], what: the ringside physician has been asked to take a look and both are waiting on a nod}
+  lights_fail:        {phase: [night], what: half the house lights have gone out and the bout is paused where they stand}
+  walk_passes:        {phase: [night], what: their walks to the ring cross in the same corridor}
+  anthem:             {phase: [night], what: they are standing three feet apart through an anthem that is taking too long}
+  glove_tape_loose:   {phase: [night], what: the referee has stopped the action to have loose tape cut off a glove}

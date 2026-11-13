@@ -1,0 +1,49 @@
+{
+ "id": "s00040",
+ "seed": 40,
+ "attempts": [
+  {
+   "n": 1,
+   "words": 222,
+   "fails": [
+    "length: 226 words, brief asks 160"
+   ]
+  },
+  {
+   "n": 2,
+   "words": 182,
+   "fails": []
+  }
+ ],
+ "plan": {
+  "nickname": "Late Mail (a coach named Rumi that once because she never threw first and always got there in the end)",
+  "detail": "The group chat message 'honestly I'd rather fight anyone with a pulse' was sent by Rumi at 11:52 pm on 3 March, with 14 thumbs-up reactions, two of them from Tamsin's own cornerman, Dele",
+  "hands": "Rumi keeps turning her phone face-up to check the time and then face-down again on the table; Tamsin works her thumbnail under the edge of an old strip of tape on the table's edge and peels it off a little at a time",
+  "candidates": [
+   {
+    "p": 0.3,
+    "text": "What time is it. Dele held my pads for two years, Tamsin. He used to call out what you'd throw next. He was never wrong once."
+   },
+   {
+    "p": 0.2,
+    "text": "You've been correct for eleven years. Nobody ever bought a ticket to watch somebody be correct."
+   },
+   {
+    "p": 0.18,
+    "text": "I didn't mean you. I meant the division. You're just what was left over when I scrolled down."
+   },
+   {
+    "p": 0.17,
+    "text": "Fourteen people liked it. Count them. Your coach liked it twice. He un-liked it and then liked it again."
+   },
+   {
+    "p": 0.15,
+    "text": "Bring your notebook. I'll sign the page where you wrote down how to beat me."
+   }
+  ]
+ },
+ "chosen_line": "Fourteen people liked it. Count them. Your coach liked it twice. He un-liked it and then liked it again.",
+ "chosen_p": 0.17,
+ "status": "accepted",
+ "usage": {}
+}

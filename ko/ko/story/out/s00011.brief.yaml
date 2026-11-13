@@ -5,12 +5,12 @@ axes:
   relationship: sparring_story
   grievance: fake_injury
   stakes: a first title
-  register: comedian
-  counter_register: whisper
-  arc: slow_boil
+  arc: mask_slip
   moment: first face-off
-  pov: close third on the target
-  form: alternating one-line paragraphs, hers and hers
+  pov: the younger teammate watching and choosing a side
+  form: one continuous scene, no time jump
+  register: comedian
+  counter_register: wounded
   opening_move: a lie someone tells
   ending: end on the object
   sensory_anchor: bus brakes
@@ -19,8 +19,11 @@ axes:
   length_words: 120
   talker_style: technician everyone calls boring
   talker_temperament: amused by everything
-  target_style: wrestler who learned to punch late
-  target_temperament: bitter
+  talker_nickname: a job she used to have
+  target_style: brawler who has never been taught, only fought
+  target_temperament: superstitious
+  target_nickname: something a coach called her once
+  wrong_done_by: target
 names:
 - Yara
 - Osei
@@ -34,28 +37,31 @@ people:
   name: Yara Osei
   style: technician everyone calls boring
   temperament: amused by everything
-  nickname: a mistake from her first fight that stuck
+  nickname: a job she used to have
 - role: target
   name: Wren Sorensen
-  style: wrestler who learned to punch late
-  temperament: bitter
-  nickname: her own choice and it shows
+  style: brawler who has never been taught, only fought
+  temperament: superstitious
+  nickname: something a coach called her once
 relationship: one tells a story about dropping the other in sparring; the other says it never happened
-grievance: she pulled out of their first date with an injury and was filmed dancing that weekend
+grievance:
+  done_by: Wren Sorensen
+  done_to: Yara Osei
+  what: she pulled out of their first date with an injury and was filmed dancing that weekend
+  note: '"she" in the text is done_by; "the other" is done_to. The aggrieved one need not be the talker.'
 stakes: a first title
 talk:
   talker_register: 'comedian: lands jokes for the room; the target has to stand inside the laughter'
-  target_register: 'whisper: public face neutral; the real line is said off-mic at the staredown'
+  target_register: 'wounded: the talker is the hurt one and cannot stop showing it'
 arc:
-  name: slow_boil
+  name: mask_slip
   beats:
-  - politeness with effort
-  - one detail slips
-  - the detail is answered
-  - neither can retreat
+  - performance for cameras
+  - an unscripted reaction
+  - the performer loses the room
 moment: first face-off
-pov: close third on the target
-form: alternating one-line paragraphs, hers and hers
+pov: the younger teammate watching and choosing a side
+form: one continuous scene, no time jump
 first_sentence_is: a lie someone tells
 ending: end on the object
 sensory_anchor: bus brakes
@@ -64,11 +70,11 @@ result:
   meaning: cruelty rewarded and nobody likes it
 length_words: 120
 banned_here:
-- hands
-- heavy
+- cold
+- remember
+- moment
+- stare
 - never
-- face
-- shrug
-- still
+- word
 do_not_open_with: []
 recent_phrases_to_avoid: []

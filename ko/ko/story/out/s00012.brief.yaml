@@ -5,12 +5,12 @@ axes:
   relationship: judge_daughter
   grievance: funeral_missed
   stakes: a contract that pays for the gym's lease
-  register: silence
-  counter_register: prophecy
-  arc: kindness_refused
+  arc: shared_laugh
   moment: between rounds
-  pov: close third on the target
-  form: a single long paragraph then one short line
+  pov: close third on a cornerman who knows both
+  form: no quoted speech at all; everything reported
+  register: comedian
+  counter_register: whisper
   opening_move: a question
   ending: cut on the bell, before any strike
   sensory_anchor: a generator
@@ -19,8 +19,11 @@ axes:
   length_words: 200
   talker_style: wrestler who learned to punch late
   talker_temperament: impatient
+  talker_nickname: given by the opponent and now official
   target_style: late-notice replacement with nothing to lose
-  target_temperament: amused by everything
+  target_temperament: raw
+  target_nickname: none
+  wrong_done_by: talker
 names:
 - Hadley
 - Ishikawa
@@ -34,27 +37,31 @@ people:
   name: Hadley Ishikawa
   style: wrestler who learned to punch late
   temperament: impatient
-  nickname: none
+  nickname: given by the opponent and now official
 - role: target
   name: Henrike Moreau
   style: late-notice replacement with nothing to lose
-  temperament: amused by everything
-  nickname: given by the opponent and now official
+  temperament: raw
+  nickname: none
 relationship: one's parent sat on the commission that ruled on the other
-grievance: she did not come to the coach's memorial; she posted from a beach that day
+grievance:
+  done_by: Hadley Ishikawa
+  done_to: Henrike Moreau
+  what: she did not come to the coach's memorial; she posted from a beach that day
+  note: '"she" in the text is done_by; "the other" is done_to. The aggrieved one need not be the talker.'
 stakes: a contract that pays for the gym's lease
 talk:
-  talker_register: 'silence: says almost nothing; one sentence, late, that ends the exchange'
-  target_register: 'prophecy: describes the fight in future tense as if already filed'
+  talker_register: 'comedian: lands jokes for the room; the target has to stand inside the laughter'
+  target_register: 'whisper: public face neutral; the real line is said off-mic at the staredown'
 arc:
-  name: kindness_refused
+  name: shared_laugh
   beats:
-  - genuine olive branch
-  - taken as weakness
-  - withdrawn for good
+  - hostility
+  - an involuntary shared laugh at an old joke
+  - both hate that it happened
 moment: between rounds
-pov: close third on the target
-form: a single long paragraph then one short line
+pov: close third on a cornerman who knows both
+form: no quoted speech at all; everything reported
 first_sentence_is: a question
 ending: cut on the bell, before any strike
 sensory_anchor: a generator
@@ -63,11 +70,11 @@ result:
   meaning: cruelty rewarded and nobody likes it
 length_words: 200
 banned_here:
-- smile
-- back
-- finally
-- shrug
+- quiet
+- second
 - voice
-- moment
+- as if
+- nod
+- step
 do_not_open_with: []
 recent_phrases_to_avoid: []
