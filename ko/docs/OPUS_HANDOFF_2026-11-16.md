@@ -9,11 +9,30 @@ close-up. Process work exists only to serve that. It comes first for three sessi
 no realism change can be measured, or reviewed cheaply, without it; after that, realism and
 process alternate.
 
-**What the evaluator could and could not check.** I read the study in full. I could not read
-the `ko3` code it describes: `tools/`, `ko/sim/intensity.py`, `ko/sim/consciousness.py`, the
-Izzy character and the gym arena are not on the remote (`haansum/3a`, branch
-`claude/new-session-3jhr9r`). File paths below come from the study. Package P0 has Opus
-confirm them.
+**What the evaluator checked (updated after receiving `ko3_code_2026-11-16.zip`).** I read
+the study and the code archive (157 files, source only). Verified facts:
+
+- `ko3` forked from the remote branch at commit `63c537f` (2026-11-11). Twelve files were
+  changed on the Opus side (`bake.py`, `gen_body.py`, `import_rig.py`, `outfit.py`, `cli.py`,
+  `manifest.py`, `gates.py`, `render.py`, `control.py`, `reference.py`, `run.py`, `scene.py`)
+  plus new ones (`intensity.py`, `consciousness.py`, `fx.py`, `props.py`, 33 scripts in
+  `tools/`, `eval/golden_sim.py`). The remote changed 45 other files since the fork (story
+  generator, `08_ko_effects.yaml`, docs). **No file was changed on both sides**, so the merge
+  is clean.
+- `ko/beats/` (predicates, checker, self-test) **is in the tree and is used by one take
+  only**, the original Freya test. Every newer archetype has its own hand-written outcome
+  block in `gates.py` (eleven outcome names). Package P2 is therefore wiring, not building.
+- Nothing in `ko/` or `tools/` compares rendered skin with the rendered canvas.
+- `presets/arenas/gym.yaml` sets canvas contact very stiff (`canvas_solref: '0.003 1'`), with
+  a note that the owner asked to watch for clipping. That stiffness is a likely source of the
+  43 body-weight spikes. Package R1 must solve clipping another way (the flattening deformer
+  in R7) rather than by stiffening contact; raise this with the owner when R1 starts.
+- `tests/` has no test file for `intensity.py` or `consciousness.py`.
+- The archive is not a git repository and holds no assets, builds or renders.
+
+Not seen: character and arena assets, the 13 impact-face references, any `sim.npz`, bake or
+render, the scratchpad probe scripts, the render chain script, and how Blender is installed
+in the Opus container.
 
 ---
 
@@ -155,10 +174,11 @@ killed at 2 h.
   (`keep`, `merge into X`, `archive`). Known overlaps: `angle_panels.py` vs
   `angle_variants.py` / `abc_variants.py`; `comic_sheet.py` vs `manga_contact.py`.
 - The `ko-sim` skill: replace with the text in section 9.
-- Check whether `ko/beats/` exists in the tree (built on the remote branch on 2026-11-10:
-  prose to beat sheet, generic outcome predicates, checker, mutation self-test) and whether
-  `ko/beats/catalog/08_ko_effects.yaml` and `ko/story/` exist (2026-11-13). If not, merge
-  them from the remote branch. Record the result in `STATE.md`.
+- Merge with the remote branch `claude/new-session-3jhr9r`: commit the Opus tree, then merge
+  (no file was changed on both sides). This brings in `08_ko_effects.yaml`, the story
+  generator and this handoff. Run the full test suite after the merge.
+- Copy the scratchpad probe scripts (`slide_metric.py`, `cross.py`, `jit.py`, `hover3.py`)
+  and the render chain script into `tools/` before they are lost; P1 folds them into one tool.
 
 **Acceptance.** `git status --short | wc -l` prints 0; local HEAD equals the remote branch
 head; every file in `tools/` appears in `INDEX.md`.
@@ -197,8 +217,10 @@ head; every file in `tools/` appears in `INDEX.md`.
 **Goal.** A take cannot reach a render unless what the owner asked for is true in numbers.
 
 **Change**
-- Each take gets an outcome list. Use the `ko/beats` sheet format and checker; add a
-  predicate only where one is missing.
+- Each take gets an outcome list. Use the `ko/beats` sheet format and checker, which are
+  already in the tree; add a predicate only where one is missing. Move the eleven
+  hand-written outcome blocks in `gates.py` to beat sheets one archetype at a time, keeping
+  each old block until its sheet reproduces the same pass/fail on the reference take.
 - QA gains two gates after bake and before render: every outcome passes; `probe ground`
   shows resting contact within 3 mm and no frame beyond the per-segment penetration limit.
 - Write the three reference takes' outcomes from the owner's words in the study.
