@@ -8,7 +8,7 @@ name: izzy_leotard
 source:
   file: assets_cache/izzy/izzy_prep_leotard.blend   # real textures, tattoos removed; hair blond via tools/hair_tint.py (owner 2026-11-13)
   sha256: null
-hull_hair: {mesh: Hair TURBO, max_dist: 0.22}   # bun/braid roots hit the canvas first (owner: watch clipping)
+hull_hair: {mesh: Hair TURBO, max_dist: 0.0}   # skin-only head hull (owner 2026-11-17): hair kept the skin 24-47 mm off the canvas; the render deformer now squashes hair that dips under it (was 0.22: bun/braid roots clipped)
 # braids: not in the sim; at render each braid bone swings up onto the canvas instead of through it
 floor_chains: {pattern: 'pigtail', radius: 0.022}
 hull: {keep: {foot: 4.0, hand: 3.0}}   # keep heels and fingertips in the hulls (dense Daz toes)

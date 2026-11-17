@@ -1,0 +1,109 @@
+# Hook -> "invisible chair" collapse -> flat on her back, limp -> follow-up shot once she has
+# settled -> asymmetric tonic posture (owner 2026-11-14): core and shoulders hunched forward so the
+# heels lift, legs locked straight and contracted down to pointed toes, fencing arms.
+# Every impulse, tone level and timing here is tuned by eye; nothing is footage-validated.
+name: hook_chair_gnp
+sim:
+  dt: 0.0015
+  duration: 10.5
+  settle: 0.6
+  # soft flesh on the canvas: pelvis, trunk, thighs, upper arms decelerate over ~20 ms instead of one
+  # step (20-seed median single-step peak 51 -> 20 BW on the uppercut); flesh sink <= 11 mm, drawn by the
+  # flattening deformer. One tissue stiffness for the body, not tuned per take.
+  flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+bake:
+  fists: {stance: 1.0, relaxed: 0.25, release: 0.2,
+          tonic: {after: followup_1, t: 0.05, tau: 0.35, hold: 4.5, fade: 2.0, peak: 1.0}}
+  # ballerina point (owner 2026-11-14): midfoot arches on top of the sim's -45 deg ankle and the
+  # toes extend in line (a slight flex), instead of the 50 deg curl-under
+  toe_curl: {after: followup_1, rise: 0.3, deg: 15}
+  pointe: {after: followup_1, rise: 0.3, tarsal_deg: 28}
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.45, pose: stance, advance: 0.0}
+      - {t: 1.5, pose: stance, advance: 0.0}
+strikes:
+  - name: hook
+    t: 0.58
+    body: head
+    impulse: 10.0                # N s
+    duration: 0.012
+    dir: [-0.6, 1.0, 0.1]        # hook from her left across the jaw, turning her head and pushing it back
+    frame: world
+    offset: [0.05, -0.07, -0.06]
+    prop: glove
+    ko: true
+  - name: followup_1
+    after: head_impact
+    t: 1.8                       # once she has settled flat
+    body: head
+    impulse: 5.0
+    duration: 0.012
+    dir: [-0.45, 0.0, -0.9]      # punch from above
+    frame: world
+    offset: [0.0, -0.06, -0.03]
+    prop: glove
+    ko: false
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.06, trunk: 0.06, arm: 0.03, leg: 0.03}
+    activation: {tau_up: 0.08, tau_down: 0.06}
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.08, tau: 0.6}
+    pose_sets:
+      axial_hunch: {base: curl_core_hard, pick: [{from: shoulders_max, joints: [chest_flex]}]}
+    phases:
+      # 1. limp: the neck goes at once; knees and hips fold together while the trunk stays roughly
+      #    upright, so she drops straight down onto her seat (the chair pulled out from under her)
+      - {t: 0.03, rise: 0.05, hold: 0.3, fade: 0.2, regions: [neck], tone: 0.15, pose: neck_neutral, replace: true}
+      - {t: 0.06, rise: 0.10, hold: 0.35, fade: 0.25, regions: [leg_L, leg_R], tone: 0.8, pose: sit_back,
+         replace: true, shape: crescendo, shape_params: {tau: 0.08}, stagger: {leg_R: 0.03}, jitter: 0.08}
+      - {t: 0.04, rise: 0.08, hold: 0.45, fade: 0.35, regions: [trunk], tone: 0.55, pose: rigid_trunk,
+         replace: true, jitter: 0.06}
+      - {t: 0.05, rise: 0.10, hold: 0.6, fade: 0.4, regions: [arm_L, arm_R], tone: 0.2, pose: arms_drop,
+         stagger: {arm_R: 0.06}, jitter: 0.1}
+      # 2. seated: a slight backward lean tips the trunk back (not sideways), then it lets go; a
+      #    leg extension slides the heels out so she ends laid out flat rather than knees-up
+      #    (v2 2026-11-14: trunk_throw_back arched the spine to -18 deg, read as a weird arch; the
+      #    trunk now goes back straight, as one unit, and keeps a faint neutral tone lying down so
+      #    it does not sag between the pelvis and chest contacts)
+      - {after: down, t: 0.0, rise: 0.08, hold: 0.9, fade: 0.6, regions: [trunk], tone: 0.55, pose: rigid_trunk,
+         replace: true, jitter: 0.04}
+      - {after: down, t: 1.4, rise: 0.4, hold: 20.0, fade: 0.5, regions: [trunk], tone: 0.11, pose: rigid_trunk,
+         jitter: 0.03}
+      #    (v3 2026-11-14 "more limp and organic": legs settle bent and fallen apart instead of
+      #    being driven straight; the head rolls to one side; trunk tone only enough to stop the sag)
+      - {after: down, t: 0.3, rise: 0.5, hold: 1.6, fade: 1.0, regions: [leg_L, leg_R], tone: 0.22,
+         pose: legs_limp_splay, replace: true, stagger: {leg_R: 0.15}, jitter: 0.12}
+      - {after: head_impact, t: 0.25, rise: 0.5, hold: 1.4, fade: 0.8, regions: [neck], tone: 0.15,
+         pose: head_rolled_limp, replace: true, jitter: 0.1}
+      # 3. the follow-up shot: asymmetric tonic posture. Core and shoulders hunch forward hard,
+      #    hips flex on locked knees so the heels come up, ankles point, fencing arms
+      - {after: followup_1, t: 0.04, rise: 0.08, hold: 4.6, fade: 2.0, regions: [trunk, neck], tone: 1.5,
+         pose: '@axial_hunch', replace: true, shape: crescendo, shape_params: {tau: 0.5},
+         depth: {start: 0.3, end: 1.1, tau: 0.6}, variety: {depth: [0.85, 1.15], spread: 0.06}, jitter: 0.06}
+      - {after: followup_1, t: 0.05, rise: 0.08, hold: 4.6, fade: 2.0, regions: [leg_L, leg_R], tone: 1.1,
+         pose: pike_legs_locked, replace: true, shape: crescendo, shape_params: {tau: 0.8},
+         depth: {start: 0.2, end: 1.0, tau: 0.9}, stagger: {leg_R: 0.1}, jitter: 0.05}
+      - {after: followup_1, t: 0.03, rise: 0.08, hold: 4.6, fade: 2.0, regions: [arm_L, arm_R], tone: 1.2,
+         pose: fencing_max, replace: true, shape: crescendo, shape_params: {tau: 0.4},
+         depth: {start: 0.4, end: 1.1, tau: 0.5}, stagger: {arm_R: 0.08}, jitter: 0.06}
+    tremor:
+      - {after: followup_1, link: true, mode: torque, amp_frac: 0.04, hz_hi: 8.5, hz_lo: 5.0,
+         over_gain: 3.0, onset: 0.8, regions: [leg_L, leg_R]}
+      - {after: followup_1, link: true, mode: torque, amp_frac: 0.02, hz_hi: 8.0, hz_lo: 5.0,
+         over_gain: 2.0, onset: 1.2, regions: [arm_L, arm_R, trunk]}
+outcome:
+  name: chair_flat_gnp_tonic

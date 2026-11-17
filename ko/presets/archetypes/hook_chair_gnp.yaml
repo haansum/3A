@@ -11,6 +11,9 @@ sim:
   # step (20-seed median single-step peak 51 -> 20 BW on the uppercut); flesh sink <= 11 mm, drawn by the
   # flattening deformer. One tissue stiffness for the body, not tuned per take.
   flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
+  # the head slides on its hair layer (friction 0.4, not rubber-on-mat 0.9): a face-first landing
+  # rolls onto a cheek instead of tucking the chin under and propping the chest on the head (2026-11-17)
+  canvas_pairs: {head: {friction: 0.4}}
   self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
                [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
                [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]

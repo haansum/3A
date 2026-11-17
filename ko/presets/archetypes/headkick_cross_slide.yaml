@@ -15,6 +15,9 @@ sim:
   # step (20-seed median single-step peak 51 -> 20 BW on the uppercut); flesh sink <= 11 mm, drawn by the
   # flattening deformer. One tissue stiffness for the body, not tuned per take.
   flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
+  # the head slides on its hair layer (friction 0.4, not rubber-on-mat 0.9): a face-first landing
+  # rolls onto a cheek instead of tucking the chin under and propping the chest on the head (2026-11-17)
+  canvas_pairs: {head: {friction: 0.4}}
   self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
                [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
                [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
@@ -57,7 +60,7 @@ controller:
   ko:
     tier: shaped
     off_ramp: 0.04
-    residual: {neck: 0.10, trunk: 0.06, arm: 0.03, leg: 0.03}
+    residual: {neck: 0.04, trunk: 0.06, arm: 0.03, leg: 0.03}   # neck 0.10 -> 0.04 (2026-11-17): at rest the head lies on the canvas, the neck carries none of it
     activation: {tau_up: 0.08, tau_down: 0.18}   # tone bleeds out (~180 ms) instead of dropping
     target_filter: {hz: 6.0, zeta: 1.0}
     tone_wander: {sigma: 0.08, tau: 0.6}
@@ -87,8 +90,9 @@ controller:
          pose: rigid_trunk, replace: true, jitter: 0.08}
       # 5. (v3, owner 2026-11-17) face down, the head rolls onto one cheek (_auto: whichever way it is
       #    turning 0.15 s after the chest lands, when the body roll has decided it; v4) and the chin
-      #    comes out of the tuck: a slow, low-tone drift, so gravity and the canvas do most of it
-      - {after: chest_down, t: 0.15, rise: 0.9, hold: 20.0, fade: 1.0, regions: [neck], tone: 0.2, zeta: 0.6,
+      #    comes out of the tuck: a slow, near-limp drift (tone 0.2 -> 0.06, 2026-11-17: at 0.2 the neck
+      #    pushed the head into the canvas at 2.4x its weight, propping the chest up), gravity does the rest
+      - {after: chest_down, t: 0.15, rise: 0.9, hold: 20.0, fade: 1.0, regions: [neck], tone: 0.06, zeta: 0.6,
          pose: head_rest_cheek_auto, replace: true, jitter: 0.05}
     tremor:
       - {after: head_impact, link: true, mode: torque, amp_frac: 0.02, hz_hi: 8.0, hz_lo: 5.0,

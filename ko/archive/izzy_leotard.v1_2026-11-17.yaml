@@ -1,0 +1,51 @@
+# Izzy (owner-supplied, Daz Genesis 8 Female, Diffeomorphic/MHX rig). Local file only.
+# Source: tools/prep_izzy.py working copy of the owner's upload (outfit and gun removed; the
+# upload is never edited). Bikini (owner 2026-11-12: "use the bikini"): the same garments as
+# Mosin, fitted to this body; the coverage gate must pass before the character is saved.
+# Textures: owner pack (2026-11-13) in assets_cache/izzy/textures; tattoos removed (arms: the
+# pack's ARMS CLEAN map; torso: three small hearts inpainted out).
+name: izzy_leotard
+source:
+  file: assets_cache/izzy/izzy_prep_leotard.blend   # real textures, tattoos removed; hair blond via tools/hair_tint.py (owner 2026-11-13)
+  sha256: null
+hull_hair: {mesh: Hair TURBO, max_dist: 0.22}   # bun/braid roots hit the canvas first (owner: watch clipping)
+# braids: not in the sim; at render each braid bone swings up onto the canvas instead of through it
+floor_chains: {pattern: 'pigtail', radius: 0.022}
+hull: {keep: {foot: 4.0, hand: 3.0}}   # keep heels and fingertips in the hulls (dense Daz toes)
+mass: 58.0            # kg, assumed for a ~1.75 m athletic frame (no measured data)
+bone_map:             # MHX deform bones (".twk" are the deforming copies)
+  pelvis: pelvis.twk
+  spine: spine.twk
+  chest: chest.twk
+  neck: neck.twk
+  head: head
+  upper_arm_L: upper_arm.bend.twk.L
+  forearm_L: forearm.bend.twk.L
+  hand_L: hand.twk.L
+  upper_arm_R: upper_arm.bend.twk.R
+  forearm_R: forearm.bend.twk.R
+  hand_R: hand.twk.R
+  thigh_L: thigh.bend.twk.L
+  shin_L: shin.L
+  foot_L: foot.twk.L
+  thigh_R: thigh.bend.twk.R
+  shin_R: shin.R
+  foot_R: foot.twk.R
+face:
+  # impact on the face (owner 2026-11-12): jaw opens partway (Genesis faces are bone-driven:
+  # lowerJaw) and the skin dents at the contact for ~0.1 s. Angles and depth by eye.
+  impact:
+    meshes: [Genesis 8 Female Mesh]
+    open_bones: {lowerJaw: 14}
+    open_axis: 0
+    dent_mm: 6.0
+    radius_m: 0.04
+outfit:
+  # her own leotard, as shipped with the model (owner 2026-11-14: "the swimsuit outfit that came
+  # with the model"): kept by tools/prep_izzy.py --keep, already rigged; no fitting, same gate
+  body: Genesis 8 Female Mesh
+  bust_bone: lBreast
+  native_garments: [Leotard TURBO]
+  hide_collections: []
+  cover_groups: [KO_bust_apex, KO_crotch_outer]   # made by tools/prep_izzy.py
+  min_coverage: 0.98
