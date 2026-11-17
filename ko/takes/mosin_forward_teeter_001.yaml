@@ -1,0 +1,17 @@
+character: mosin
+arena: ring
+archetype: forward_teeter_ropes
+seed: 1
+quality: draft
+# Owner request 2026-11-11: new sim draft on Mosin (sports set, extras removed, placeholder textures).
+# Start values from the abandoned VRoid slice (takes/abandoned/forward_teeter_001.yaml), re-swept for Mosin.
+# Tuned by eye, not from footage.
+overrides:
+  sim: {duration: 3.6, perturb: 0.05}
+  arena: {rope_distance: 0.8}
+  controller:
+    ko:
+      phases:
+        - {t: 0.04, rise: 0.10, hold: 0.35, fade: 0.30, regions: [arm_L, arm_R], tone: 0.6, pose: arms_forward}
+        - {t: 0.00, rise: 0.02, hold: 1.5, fade: 0.35, regions: [leg_L, leg_R], tone: 1.0}
+        - {t: 0.00, rise: 0.02, hold: 0.30, fade: 0.40, regions: [trunk], tone: 0.8}

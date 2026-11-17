@@ -1,0 +1,47 @@
+# Mosin (owner-supplied rig, Rigify-style control rig). Local file only.
+# Source: a cleaned working copy made by tools/prep_mosin.py from the owner's upload (outfits,
+# rifle, demo camera/light and metarig removed; outfit masks off except the genital mask).
+# Textures: none were supplied; tools/paint_mosin.py paints original ones from the mesh and
+# rebuilds the materials for Cycles (the file's EEVEE toon networks do not evaluate in Cycles).
+# The rig also carries anatomy bones and groups the pipeline does not use; the outfit coverage
+# gate must pass before the character is saved.
+name: mosin
+source:
+  file: assets_cache/mosin/Mosin_eyes.blend   # prep_mosin -> paint_mosin -> eyeballs_mosin
+  sha256: null
+mass: 50.0            # kg, assumed for a 1.54 m frame
+bone_map: {}
+face:
+  # spherical eyeballs on deform bones eye.L/eye.R (tools/eyeballs_mosin.py); gaze = [up_deg,
+  # side_deg], +side = her left. Upper lid sits low on this face: ~12 deg up with blink 0.25
+  # leaves the lower third of the iris visible (checked in stills, 2026-11-12). Tuned by eye.
+  # Expression tracks state (owner 2026-11-12): focused -> flinch -> slack slump ->
+  # jolt at head impact -> tonic grimace, rolled up/left -> slack fade.
+  timeline:
+    - {at: start,                keys: {brows_angry: 0.6, blink: 0.12},                    gaze: [0, 0]}
+    - {at: ko_strike,            keys: {brows_angry: 0.6, blink: 0.12},                    gaze: [0, 0]}
+    - {at: ko_strike, dt: 0.06,  keys: {brows_angry: 0.2, blink: 0.6, mouth_surprised: 0.3}, gaze: [2, 0]}
+    - {at: ko, dt: 0.25,         keys: {brows_worry: 0.3, brow_up_left: 0.2, blink: 0.42, mouth_surprised: 0.45}, gaze: [6, 8]}
+    - {at: head_impact,          keys: {brows_worry: 0.3, brow_up_left: 0.2, blink: 0.45, mouth_surprised: 0.45}, gaze: [6, 8]}
+    - {at: head_impact, dt: 0.06, keys: {brows_worry: 0.35, brow_up_left: 0.2, blink: 0.18, mouth_surprised: 0.6}, gaze: [10, 14]}
+    - {at: head_impact, dt: 0.35, keys: {brows_worry: 0.45, brow_up_left: 0.25, blink: 0.25, mouth_sad: 0.4, mouth_surprised: 0.12}, gaze: [12, 22]}
+    - {at: head_impact, dt: 2.0,  keys: {brows_worry: 0.45, brow_up_left: 0.25, blink: 0.25, mouth_sad: 0.4, mouth_surprised: 0.12}, gaze: [12, 22]}
+    - {at: head_impact, dt: 5.0,  keys: {brows_worry: 0.15, brow_up_left: 0.1, blink: 0.45, mouth_surprised: 0.5}, gaze: [8, 16]}
+  # impact on the face (owner 2026-11-12): mouth opens partway and the skin dents at the
+  # contact for ~0.1 s, so the face is not frozen while spit and the mouthguard fly. By eye.
+  impact:
+    meshes: [Face, Body]
+    open: {mouth_surprised: 0.6, blink: 0.35}
+    dent_mm: 6.0
+    radius_m: 0.04
+outfit:
+  file: assets_cache/calvin_klein/Calvin Klien/calvin klein.blend
+  body: Body
+  bust_bone: DEF-breast.L
+  garments:
+    - {object: Tekken Bra, region: bust, z_offset: 0.03, height_scale: 0.95, ease: 1.0, offset: 0.003, relax: 10, relax_passes: 2}   # tight (owner 2026-11-12)
+  skin_garments:     # briefs cut from her own skin surface: cannot sag (owner 2026-11-12)
+    - {name: KO_briefs, region: hips, waist: 0.05, leg_cut: 0.45, offset: 0.0025, thickness: 0.0015, membrane: 120}
+  hide_collections: []
+  cover_groups: [KO_bust_apex, KO_crotch_outer]   # made by tools/prep_mosin.py
+  min_coverage: 0.98

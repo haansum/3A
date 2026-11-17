@@ -1,0 +1,86 @@
+# Head kick caught mid-cross (owner 2026-11-15): she steps in behind a straight right; the
+# opponent's kick lands on the right side of her jaw, which the punching hand has just left.
+# She is shut off halfway through the punch, and momentum carries her on: the arm keeps
+# travelling, the weight keeps going over the lead leg, and she pitches forward.
+# Springiness (owner note 2026-11-15): a limp body still stores the hit. Tone bleeds out over a
+# few hundred ms rather than dropping to zero, and the joints take the load on lightly damped
+# springs (zeta ~0.3): knees and trunk compress, rebound once, softly, then let go.
+# Every impulse, tone level and timing here is tuned by eye; nothing is footage-validated.
+name: headkick_cross_slide
+sim:
+  dt: 0.002
+  duration: 6.5
+  settle: 0.6
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.18, pose: stance, advance: 0.0}
+      - {t: 0.48, pose: cross, advance: 0.2}     # the full cross (~0.3 s); the kick lands halfway there
+      - {t: 1.6, pose: cross, advance: 0.2}
+strike:
+  t: 0.33                      # halfway through the punch
+  body: head
+  impulse: 11.0                # N s; she is walking into it
+  duration: 0.012
+  dir: [1.0, 0.1, 0.25]        # shin travelling from her right across the jaw, slightly upward
+  frame: world
+  offset: [-0.05, -0.07, -0.06]  # right side of the jaw
+  ko_delay: 0.01
+  prop: shin
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  # fast shutoff: neck at once, arms next, trunk, legs last; whatever still has authority keeps
+  # following the punch reference, so the cross finishes on momentum instead of freezing
+  consciousness:
+    driver: strike
+    ramp: 0.45
+    target: follow
+    assist: cut
+    t_relax: 0.5
+    curves:
+      neck: [[0.0, 0.0], [0.92, 0.0], [1.0, 1.0]]
+      arms: [[0.0, 0.0], [0.6, 0.1], [1.0, 1.0]]
+      trunk: [[0.0, 0.0], [0.5, 0.2], [1.0, 1.0]]
+      legs: [[0.0, 0.0], [0.5, 0.25], [0.8, 0.6], [1.0, 1.0]]
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.10, trunk: 0.06, arm: 0.03, leg: 0.03}
+    activation: {tau_up: 0.08, tau_down: 0.18}   # tone bleeds out (~180 ms) instead of dropping
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.08, tau: 0.6}
+    phases:
+      # 1. whip: the head snaps to her left and springs back with a small elastic overshoot
+      - {t: 0.0, rise: 0.03, hold: 0.28, fade: 0.4, regions: [neck], tone: 1.4, zeta: 0.25,
+         pose: neck_neutral, depth: 1.0}
+      # 2. the load: weight lands on the bent lead leg, knees and trunk compress on light springs,
+      #    rebound once, then the tone bleeds out and she goes on over forward
+      - {t: 0.08, rise: 0.06, hold: 0.45, fade: 0.55, regions: [leg_L, leg_R], tone: 0.55, zeta: 0.3,
+         pose: buckle_forward, replace: true, shape: overshoot, shape_params: {fn: 1.4, zeta: 0.35}, depth: 1.0,
+         stagger: {leg_R: 0.05}, jitter: 0.1}
+      - {t: 0.08, rise: 0.06, hold: 0.45, fade: 0.6, regions: [trunk], tone: 0.45, zeta: 0.3,
+         pose: slump_forward, shape: overshoot, shape_params: {fn: 1.8, zeta: 0.35}, depth: 1.0, jitter: 0.1}
+      # 3. arms: the lead hand drops first; the punching arm keeps travelling out (low gain, late)
+      - {t: 0.05, rise: 0.1, hold: 0.8, fade: 0.5, regions: [arm_L, arm_R], tone: 0.25, pose: arms_drop,
+         stagger: {arm_R: 0.2}, gain: {arm_R: 0.6}, jitter: 0.12}
+      # 4. (v2, owner 2026-11-15) face on the canvas from the kneel: an extensor jolt in the legs
+      #    straightens hips and knees behind her, which drives the folded body forward; she slides
+      #    on her face and chest and ends flat, face down. The trunk unfolds on a light spring.
+      - {after: head_impact, t: 0.03, rise: 0.12, hold: 0.9, fade: 1.2, regions: [leg_L, leg_R], tone: 0.7,
+         pose: extensor_legs, replace: true, shape: crescendo, shape_params: {tau: 0.6},
+         stagger: {leg_R: 0.06}, jitter: 0.08}
+      - {after: head_impact, t: 0.08, rise: 0.15, hold: 0.9, fade: 1.0, regions: [trunk], tone: 0.45, zeta: 0.35,
+         pose: rigid_trunk, replace: true, jitter: 0.08}
+    tremor:
+      - {after: head_impact, link: true, mode: torque, amp_frac: 0.02, hz_hi: 8.0, hz_lo: 5.0,
+         over_gain: 1.5, onset: 0.8, regions: [leg_L, leg_R]}
+outcome:
+  name: headkick_cross_slide

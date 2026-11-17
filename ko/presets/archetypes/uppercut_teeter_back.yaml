@@ -1,0 +1,109 @@
+# Uppercut into a teeter-back fall (owner 2026-11-12). The uppercut drives the chin up and back;
+# she is out on stiff legs and teeters before toppling backward. 0.5 s after her head hits the
+# canvas a follow-up shot lands. The posture then builds: legs scissor to a climax 3 s after the
+# follow-up while the chin lifts, the shoulders roll forward and the upper back curls up off
+# the mat. Shaped-intensity controller + consciousness curves. Every number is tuned by eye.
+name: uppercut_teeter_back
+sim:
+  dt: 0.002
+  duration: 8.5
+  settle: 0.6
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}      # planted: she teeters on the spot (one sway,
+      - {t: 1.5, pose: stance, advance: 0.0}      # ~1.5 s up) instead of being walked back
+strike:
+  t: 0.58
+  body: head
+  impulse: 11.0                # N s
+  duration: 0.012
+  dir: [0.0, 0.75, 0.65]       # from below and in front: lifts the chin, drives the head back
+  frame: world
+  offset: [0.0, -0.085, -0.075]  # under the chin
+  ko_delay: 0.01
+  prop: glove                  # rendered glove (impact frames)
+strikes:
+  - name: followup_1
+    after: head_impact
+    t: 0.5                     # owner: 0.5 s after her head hits the canvas
+    body: head
+    impulse: 5.0
+    duration: 0.012
+    dir: [0.25, 0.0, -1.0]     # punch from above, drives the head into the canvas
+    frame: world
+    offset: [0.0, -0.06, -0.03]
+    prop: glove
+    ko: false
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  # out on her feet: neck lets go at once (the head snaps back), arms next, trunk then, the legs
+  # hold longest so she teeters on them before going back
+  consciousness:
+    driver: strike
+    ramp: 0.9
+    target: follow
+    assist: cut
+    t_relax: 0.6
+    curves:
+      neck: [[0.0, 0.0], [0.92, 0.0], [1.0, 1.0]]
+      arms: [[0.0, 0.0], [0.7, 0.05], [1.0, 1.0]]
+      trunk: [[0.0, 0.0], [0.45, 0.25], [1.0, 1.0]]
+      legs: [[0.0, 0.0], [0.25, 0.45], [0.55, 0.85], [1.0, 1.0]]
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.20, trunk: 0.08, arm: 0.035, leg: 0.035}
+    activation: {tau_up: 0.08, tau_down: 0.06}
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.10, tau: 0.6}
+    pose_sets:
+      arms_peak: shoulders_roll_fwd
+      legs_scissor: {base: scissor_legs, pick: [{from: ankles_crossed, joints: [thigh_L_abd, thigh_R_abd, foot_L_inv, foot_R_inv]}]}
+      axial_peak: {base: curl_core_hard, pick: [{from: chin_up, joints: [neck_flex, head_flex]}]}   # sweep 2026-11-12: chest to ~16 deg off the mat at the climax
+    phases:
+      # 1. on the feet: stiff locked legs and a rigid trunk -> she teeters, then goes back like a plank
+      - {t: 0.05, rise: 0.1, hold: 1.3, fade: 0.6, regions: [leg_L, leg_R], tone: 0.75, pose: extensor_legs,
+         shape: crescendo, shape_params: {tau: 0.15}, depth: {start: 0.3, end: 0.9, tau: 0.3}, jitter: 0.1}
+      - {t: 0.08, rise: 0.1, hold: 1.2, fade: 0.6, regions: [trunk], tone: 0.55, pose: rigid_trunk,
+         shape: crescendo, shape_params: {tau: 0.2}, jitter: 0.1}
+      #    the teeter: drifting back, she half-catches it (hips and trunk lean forward, ankles
+      #    pull), the drift checks and sways, then the catch fails and she goes over
+      - {t: 0.15, rise: 0.12, hold: 0.35, fade: 0.25, regions: [trunk, leg_L, leg_R], tone: 1.0, pose: teeter_catch,
+         replace: true, shape: overshoot, shape_params: {fn: 1.6, zeta: 0.45}, depth: 1.0, stagger: {leg_R: 0.05}, jitter: 0.1}
+      - {t: 0.06, rise: 0.12, hold: 1.4, fade: 0.6, regions: [arm_L, arm_R], tone: 0.35, pose: arms_forward_ragged,
+         shape: crescendo, shape_params: {tau: 0.3}, stagger: {arm_R: 0.07}, gain: {arm_R: 0.85},
+         variety: {depth: [0.6, 1.1]}, jitter: 0.12}
+      # 2. head hits the canvas: a first, moderate tonic build
+      - {after: head_impact, t: 0.03, rise: 0.08, hold: 0.6, fade: 1.0, regions: [arm_L, arm_R], tone: 0.8,
+         pose: '@arms_peak', shape: crescendo, shape_params: {tau: 0.3}, depth: {start: 0.2, end: 0.7, tau: 0.35},
+         variety: {depth: [0.6, 1.1]}, stagger: {arm_R: 0.08}, jitter: 0.1}
+      - {after: head_impact, t: 0.05, rise: 0.08, hold: 0.6, fade: 1.0, regions: [leg_L, leg_R], tone: 0.7,
+         pose: extensor_legs_ragged, shape: crescendo, shape_params: {tau: 0.3}, jitter: 0.1}
+      # 3. after the follow-up: the build. Upper back curls off the mat, shoulders roll forward,
+      #    chin lifts (mixed axial posture: curled trunk, extended neck)
+      - {after: followup_1, t: 0.03, rise: 0.08, hold: 3.4, fade: 2.5, regions: [trunk, neck], tone: 1.4,
+         pose: '@axial_peak', replace: true, shape: crescendo, shape_params: {tau: 0.9},
+         depth: {start: 0.15, end: 1.05, tau: 1.0}, variety: {depth: [0.8, 1.15], spread: 0.08}, jitter: 0.08}
+      - {after: followup_1, t: 0.03, rise: 0.08, hold: 3.4, fade: 2.5, regions: [arm_L, arm_R], tone: 1.15,
+         pose: '@arms_peak', shape: crescendo, shape_params: {tau: 0.8}, depth: {start: 0.4, end: 1.1, tau: 0.9},
+         variety: {depth: [0.8, 1.15]}, stagger: {arm_R: 0.1}, gain: {arm_R: 0.9}, jitter: 0.08}
+      #    legs scissor, building to a climax ~3 s after the follow-up (crescendo tau 1.0 reaches
+      #    ~95% at 3 s), then drain
+      - {after: followup_1, t: 0.05, rise: 0.1, hold: 3.0, fade: 2.0, regions: [leg_L, leg_R], tone: 1.3,
+         pose: '@legs_scissor', replace: true, shape: crescendo, shape_params: {tau: 1.0},
+         depth: {start: 0.2, end: 1.15, tau: 1.0}, stagger: {leg_R: 0.15}, variety: {depth: [0.85, 1.2]}, jitter: 0.06}
+    tremor:
+      - {after: followup_1, link: true, mode: torque, amp_frac: 0.04, hz_hi: 8.5, hz_lo: 5.0,
+         over_gain: 3.0, onset: 1.0, regions: [leg_L, leg_R]}
+      - {after: followup_1, link: true, mode: torque, amp_frac: 0.02, hz_hi: 8.0, hz_lo: 5.0,
+         over_gain: 2.0, onset: 1.5, regions: [arm_L, arm_R, trunk]}
+outcome:
+  name: teeter_back

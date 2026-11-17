@@ -1,0 +1,26 @@
+character: izzy_leotard
+arena: gym
+archetype: hook_slump_back
+seed: 2   # 2026-11-14 sweep with the leotard hull: dt 0.0015 + seed 2 is the one variant passing every gate (canvas 4.9 mm, jitter 0.17 deg, fall -138 deg)
+quality: draft
+# 002 = 001 in her own leotard (owner 2026-11-14).
+# Misread (owner 2026-11-12/13): a feint to the body; she drops her hands to cover it and the
+# real shot, a hook, lands on her uncovered jaw; she slumps, sits down and falls back, head
+# whipping into the canvas. MMA glove prop.
+overrides:
+  sim: {perturb: 0.04, dt: 0.0015}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  strike:
+    # hook landing on the side of the jaw from her left, angled into her: turns the head ~50 deg
+    # to her right and carries her back over her heels (sweep 2026-11-13: a flat hook alone made
+    # her pitch forward on every seed; 15 N s at [-1, 1.6, 0.12] fell back on 3/3 seeds)
+    impulse: 15.0
+    dir: [-1.0, 1.6, 0.12]
+    offset: [0.09, 0.01, -0.04]
+    # hook: the feint goes low to her stomach in front, then the glove swings out wide to her
+    # side at face level and comes round horizontally onto the jaw (v3 2026-11-13: v1's final
+    # approach came from in front and read as a straight).
+    # [dt s, back along strike line m, up m, in front m, out to the striking side m]
+    prop_path: [[-0.46, 0.10, -0.45, 0.45], [-0.32, 0.05, -0.42, 0.35], [-0.20, 0.0, -0.06, 0.30, 0.42],
+                [-0.11, 0.0, -0.03, 0.18, 0.36], [-0.05, 0.0, -0.01, 0.08, 0.20], [-0.02, 0.0, 0.0, 0.02, 0.07]]
+shots: [ref_pan, face]   # live already rendered in the bikini (001); owner 2026-11-14: remaining frames in the leotard

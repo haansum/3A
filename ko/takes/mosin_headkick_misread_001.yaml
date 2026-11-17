@@ -1,0 +1,26 @@
+character: mosin
+arena: ring
+archetype: headkick_chin_whip
+seed: 2
+quality: draft
+# Misread head kick (owner 2026-11-12): she reads the kick from her left as a low kick and drops
+# both hands to catch it at her lead thigh; it rises and lands on her uncovered chin. The KO and
+# fall are the chin-whip archetype. Read timing and the catch pose are eyeballed.
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  motion:
+    reference:
+      type: procedural
+      keys:
+        - {t: 0.0, pose: stance, advance: 0.0}
+        - {t: 0.14, pose: stance, advance: 0.0}      # sees the kick chamber low
+        - {t: 0.40, pose: catch_low_L, advance: 0.03} # hands down at the lead thigh
+        - {t: 1.5, pose: catch_low_L, advance: 0.03}
+  strike:
+    # rendered shin guard only (house rule): travels low first (what she read), then climbs.
+    # [dt from contact s, back along the strike line m, up m, out in front of her m];
+    # presentation only, sim untouched. Swings around in front of her, not through her hip.
+    prop_path: [[-0.42, 0.80, -0.95, 0.45], [-0.22, 0.62, -0.82, 0.45], [-0.10, 0.42, -0.38, 0.30],
+                [-0.04, 0.15, -0.06, 0.06]]
+shots: [live, ref_pan, face]

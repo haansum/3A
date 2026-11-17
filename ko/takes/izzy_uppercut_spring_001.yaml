@@ -1,0 +1,12 @@
+# New project (owner 2026-11-16): uppercut snaps her chin up, springy collapse onto her back,
+# follow-up lands like a hook (head whips to the side), arms lock out straight. Gym, leotard look.
+character: izzy_leotard
+arena: gym
+archetype: uppercut_spring_hook_gnp
+seed: 1
+quality: draft
+overrides:
+  bake: {gaze: {after: ko, rise: 0.12, up_deg: 15, side_deg: 10, side: her_left}}
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+shots: [live, ref_pan, face]

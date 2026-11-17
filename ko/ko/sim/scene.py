@@ -61,6 +61,10 @@ def build(body_frag, arena, dt=0.002):
                     f'damping="{p["spacer_damp"]}" springlength="{hs[i + 1] - hs[i]}">'
                     f'<site site="rope{i}_s{k}"/><site site="rope{i + 1}_s{k}"/></spatial>')
     fr = arena.get('canvas_friction', 0.9)
+    # contact stiffness: default unchanged (golden takes); an arena can stiffen it so impacts
+    # sink less into the canvas (owner 2026-11-13: watch for clipping with the ground)
+    c_ref = arena.get('canvas_solref', '0.006 1')
+    c_imp = arena.get('canvas_solimp', '0.9 0.98 0.002')
     return f'''<mujoco model="ko_take">
   <option timestep="{dt}" integrator="implicitfast" cone="elliptic" impratio="10">
     <flag multiccd="enable"/>
@@ -69,8 +73,8 @@ def build(body_frag, arena, dt=0.002):
   <asset>{assets}</asset>
   <worldbody>
     <light pos="0 0 6" dir="0 0 -1"/>
-    <geom name="canvas" type="plane" size="12 12 .1" friction="{fr}" solref="0.006 1"
-          solimp="0.9 0.98 0.002" rgba=".75 .78 .8 1"/>
+    <geom name="canvas" type="plane" size="12 12 .1" friction="{fr}" solref="{c_ref}"
+          solimp="{c_imp}" rgba=".75 .78 .8 1"/>
     {body}
     {''.join(world)}
   </worldbody>

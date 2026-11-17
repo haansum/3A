@@ -1,0 +1,11 @@
+character: mosin
+arena: ring
+archetype: uppercut_teeter_back
+seed: 1
+quality: draft
+# Uppercut, teeter back, follow-up 0.5 s after head impact, legs scissor to a climax 3 s after
+# the follow-up; chin up, shoulders forward, upper back curls off the mat. Draft (owner 2026-11-12).
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+shots: [live, ref_pan, face]

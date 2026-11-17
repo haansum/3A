@@ -1,0 +1,21 @@
+character: izzy
+arena: gym
+archetype: feint_cross_back
+seed: 1
+quality: draft
+# Misread (owner 2026-11-12): a feint to the body; she drops her hands to cover it and the real
+# shot, a straight right, lands on her uncovered chin; she falls backward. MMA glove prop.
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  strike:
+    # 18 N s, rising slightly, at the point of the chin: the head snaps back ~38 deg in 0.13 s
+    # and she goes over backward (impulse sweep 16/18/20, 2026-11-12; by eye)
+    impulse: 18.0
+    dir: [0.05, 1.0, 0.45]
+    offset: [0.0, -0.10, -0.02]
+    # rendered glove only (house rule): the feint goes to her stomach, pulls back, then the
+    # straight comes up the middle. [dt from contact s, back along the strike line m, up m];
+    # presentation only, sim untouched
+    prop_path: [[-0.42, 0.75, -0.45], [-0.24, 0.40, -0.42], [-0.12, 0.48, -0.16], [-0.05, 0.17, -0.03]]
+shots: [live, ref_pan, face]

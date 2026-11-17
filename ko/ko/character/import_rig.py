@@ -109,7 +109,59 @@ def extract_deform_skeleton(arm):
     deform = [b for b in src if b.use_deform]
     names = {b.name for b in deform}
 
+    # Auto-Rig Pro: the stretch/limb deform bones hang off the root controller (c_traj), not
+    # off each other, so walking up the hierarchy loses the limb chains. Rebuild them by name.
+    arp = 'root.x' in names and any(n.startswith('thigh_stretch.') for n in names)
+    ARP = {'spine_01.x': 'root.x', 'spine_02.x': 'spine_01.x', 'spine_03.x': 'spine_02.x',
+           'neck.x': 'spine_03.x', 'head.x': 'neck.x'}
+    for s_ in ('l', 'r'):
+        ARP.update({f'thigh_stretch.{s_}': 'root.x', f'thigh_twist.{s_}': f'thigh_stretch.{s_}',
+                    f'leg_stretch.{s_}': f'thigh_stretch.{s_}', f'leg_twist.{s_}': f'leg_stretch.{s_}',
+                    f'foot.{s_}': f'leg_stretch.{s_}', f'toes_01.{s_}': f'foot.{s_}',
+                    f'shoulder.{s_}': 'spine_03.x', f'arm_stretch.{s_}': f'shoulder.{s_}',
+                    f'c_arm_twist_offset.{s_}': f'arm_stretch.{s_}',
+                    f'forearm_stretch.{s_}': f'arm_stretch.{s_}',
+                    f'forearm_twist.{s_}': f'forearm_stretch.{s_}', f'hand.{s_}': f'forearm_stretch.{s_}'})
+
+    # MHX (Diffeomorphic Daz import): deforming copies are '<bone>.twk' children of control
+    # bones, and every chain climbs to the non-deform 'hip'. Explicit trunk/limb chain, then a
+    # twin rule ('chest-1' -> 'chest-1.twk', 'hand.L' -> 'hand.twk.L') for everything else.
+    mhx = 'pelvis.twk' in names and any(n.startswith('thigh.bend.twk.') for n in names)
+    MHX = {'spine.twk': 'pelvis.twk', 'spine-1.twk': 'spine.twk', 'chest.twk': 'spine-1.twk',
+           'chest-1.twk': 'chest.twk', 'neck.twk': 'chest-1.twk', 'neck-1.twk': 'neck.twk',
+           'head': 'neck-1.twk', 'Genitals': 'pelvis.twk', 'Anus': 'pelvis.twk'}
+    for s_ in ('L', 'R'):
+        MHX.update({f'clavicle.{s_}': 'chest-1.twk',
+                    f'upper_arm.bend.twk.{s_}': f'clavicle.{s_}',
+                    f'upper_arm.twist.twk.{s_}': f'upper_arm.bend.twk.{s_}',
+                    f'forearm.bend.twk.{s_}': f'upper_arm.twist.twk.{s_}',
+                    f'forearm.twist.twk.{s_}': f'forearm.bend.twk.{s_}',
+                    f'hand.twk.{s_}': f'forearm.twist.twk.{s_}',
+                    f'thigh.bend.twk.{s_}': 'pelvis.twk',
+                    f'thigh.twist.twk.{s_}': f'thigh.bend.twk.{s_}',
+                    f'shin.{s_}': f'thigh.twist.twk.{s_}',
+                    f'foot.twk.{s_}': f'shin.{s_}'})
+
+    def twin(n):
+        import re as _re
+        m = _re.match(r'^(.*)\.([LR])$', n)
+        return f'{m.group(1)}.twk.{m.group(2)}' if m else n + '.twk'
+
     def parent_of(b):
+        if arp and b.name in ARP and ARP[b.name] in names:
+            return ARP[b.name]
+        if mhx:
+            if b.name in MHX and MHX[b.name] in names:
+                return MHX[b.name]
+            a = b.parent
+            while a is not None:
+                if a.name in names and a.name != b.name:
+                    return a.name
+                t_ = twin(a.name)
+                if t_ in names and t_ != b.name:
+                    return t_
+                a = a.parent
+            return None
         a = b.parent
         while a is not None:
             if a.name in names:
@@ -179,6 +231,8 @@ def main(argv=None):
     ap.add_argument('src')
     ap.add_argument('--out', required=True)
     ap.add_argument('--map', help='json {canonical: bone name} overrides')
+    ap.add_argument('--hull-hair', help='json {mesh: name, max_dist: m}: hair close to the head '
+                    'joins the head collision hull (a bun or braids hit the canvas first)')
     ap.add_argument('--name')
     ap.add_argument('--preview-failed-outfit', action='store_true',
                     help='save even if the coverage gate fails (for inspection only)')
@@ -252,10 +306,20 @@ def main(argv=None):
     bpy.context.view_layer.update()
     dg = bpy.context.evaluated_depsgraph_get()
     verts, owners, mesh_names = [], [], []
+    softs = []          # per-vertex soft-tissue label: 0 none, 1 bust left, 2 bust right
+    import re as _re
+    SOFT = _re.compile(r'breast|bust|boob|oppai', _re.I)
     hidden = 0
+    hull_hair = json.load(open(a.hull_hair)) if getattr(a, 'hull_hair', None) else None
+    # shipped garments shape the collision hulls only where they are skin-tight (owner
+    # 2026-11-14 leotard): its loose parts made the torso hull chatter on the canvas (QA jitter
+    # 1.9 deg); leaving it out entirely left a bare torso hull that sinks 5.5 mm on the slam
+    # (the bikini's tight fabric had been part of its hull)
+    no_hull = set(json.load(open(a.outfit)).get('native_garments', [])) if a.outfit else set()
     for ob in skinned_meshes(arm):
-        if SECONDARY.search(ob.name):
+        if SECONDARY.search(ob.name) and not (hull_hair and ob.name == hull_hair.get('mesh')):
             continue
+        tight_only = ob.name in no_hull
         ev = ob.evaluated_get(dg)
         me = ev.to_mesh()
         if len(me.vertices) != len(ob.data.vertices):
@@ -268,6 +332,8 @@ def main(argv=None):
         M = np.array(ob.matrix_world)
         co = co @ M[:3, :3].T + M[:3, 3]
         own = np.full(len(co), -1, dtype=np.int16)
+        soft = np.zeros(len(co), dtype=np.int8)
+        soft_g = {gi: gn for gi, gn in gname.items() if SOFT.search(gn)}
         vis = visible_vertices(ob)
         hidden += int((~vis).sum())
         for v in ob.data.vertices:
@@ -288,8 +354,24 @@ def main(argv=None):
                 best = max(acc, key=acc.get)
                 if acc[best] >= sec:
                     own[v.index] = CANON.index(best)
+            if soft_g:
+                sw = sum(g.weight for g in v.groups if g.group in soft_g)
+                if sw >= 0.5:      # side decided later from the canonical x (+x = her left)
+                    soft[v.index] = 1
+        if tight_only:
+            from mathutils.bvhtree import BVHTree as _BVH
+            bod = bpy.data.objects[json.load(open(a.outfit))['body']].evaluated_get(dg)
+            bm_ = bod.to_mesh()
+            Mb = bod.matrix_world
+            tree_ = _BVH.FromPolygons([Mb @ v.co for v in bm_.vertices], [tuple(p.vertices) for p in bm_.polygons])
+            bod.to_mesh_clear()
+            lim = 0.006
+            far_ = np.array([(tree_.find_nearest(Vector(c_))[3] or 1.0) > lim for c_ in co])
+            own[far_] = -1
+            print(f'[character] hull: {ob.name} tight vertices {int((own >= 0).sum())} of {len(co)} (within 6 mm of skin)')
         verts.append(co)
         owners.append(own)
+        softs.append(soft)
         mesh_names.append(ob.name)
         if ev:
             ev.to_mesh_clear()
@@ -310,8 +392,19 @@ def main(argv=None):
             if not is_child:
                 o.hide_render = True
                 hidden_objs.append(o.name)
+    if hull_hair and hull_hair.get('mesh') in mesh_names:
+        # hair joins the head hull only within max_dist of the head's skin centroid
+        hi = CANON.index('head')
+        k_ = mesh_names.index(hull_hair['mesh'])
+        skin_head = np.concatenate([v[o == hi] for j, (v, o) in enumerate(zip(verts, owners)) if j != k_])
+        c_ = skin_head.mean(0)
+        far = np.linalg.norm(verts[k_] - c_, axis=1) > float(hull_hair.get('max_dist', 0.13))
+        owners[k_] = np.where((owners[k_] == hi) & ~far, hi, -1).astype(owners[k_].dtype)
+        print(f'[character] hull hair: {int((owners[k_] == hi).sum())} verts of {hull_hair["mesh"]} '
+              f'join the head hull (within {hull_hair.get("max_dist", 0.13)} m)')
     verts = np.concatenate(verts)
     owners = np.concatenate(owners)
+    softs = np.concatenate(softs)
     body = verts[owners >= 0]
     if len(body) < 100:
         raise SystemExit('no skin vertices weighted to the mapped skeleton')
@@ -362,8 +455,9 @@ def main(argv=None):
         print('WARNING: feet point to +Y after canonicalising from the shoulders; '
               'left/right bone names may be swapped on this rig', file=sys.stderr)
     json.dump(skel, open(os.path.join(a.out, 'skeleton.json'), 'w'), indent=1)
+    soft_lab = np.where(softs > 0, np.where(cverts[:, 0] >= 0, 1, 2), 0).astype(np.int8)
     np.savez_compressed(os.path.join(a.out, 'skin.npz'), verts=cverts.astype(np.float32),
-                        owner=owners)
+                        owner=owners, soft=soft_lab)
 
     try:
         bpy.ops.file.pack_all()

@@ -1,0 +1,17 @@
+character: mosin
+arena: ring
+archetype: headkick_chin_whip
+seed: 1
+quality: draft
+# Variant B, mixed posture: left arm from the fencing posture, right arm decorticate; legs
+# extensor with the crossed-ankle adduction and foot inversion picked in; trunk curled while the
+# head arches back. Tuned by eye.
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  controller:
+    ko:
+      pose_sets:
+        arms_peak: {by_region: {arm_L: fencing_extreme, arm_R: decorticate_extreme}}
+        legs_peak: {base: extensor_legs_ragged, pick: [{from: ankles_crossed, joints: [thigh_L_abd, thigh_R_abd, foot_L_inv, foot_R_inv, thigh_L_twist, thigh_R_twist]}]}
+        axial_peak: {base: curl_core_hard, pick: [{from: arch_neck_hard, joints: [neck_flex, head_flex]}]}

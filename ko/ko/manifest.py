@@ -88,10 +88,15 @@ def resolve(take_path, quality=None):
     if os.path.exists(src):
         lock['character']['source']['sha256'] = hashlib.sha256(open(src, 'rb').read()).hexdigest()
     k = {}
-    k['character'] = sha([lock['character']['source'], lock['character'].get('bone_map'),
-                          lock['character'].get('outfit'),
-                          code_hash('character')])[:12]
-    k['body'] = sha([k['character'], lock['character']['mass'], code_hash('body')])[:12]
+    ck = [lock['character']['source'], lock['character'].get('bone_map'),
+          lock['character'].get('outfit'), code_hash('character')]
+    if lock['character'].get('hull_hair'):          # appended only when set: old keys unchanged
+        ck.append({'hull_hair': lock['character']['hull_hair']})
+    k['character'] = sha(ck)[:12]
+    bk = [k['character'], lock['character']['mass'], code_hash('body')]
+    if lock['character'].get('hull'):
+        bk.append({'hull': lock['character']['hull']})
+    k['body'] = sha(bk)[:12]
     k['sim'] = sha([k['body'], lock['arena'], lock['sim'], lock['motion'], lock.get('strike'),
                     lock.get('strikes'),
                     lock['controller'], code_hash('sim')])[:12]
@@ -99,8 +104,10 @@ def resolve(take_path, quality=None):
     k['bake'] = sha([k['sim'], k['character'], lock.get('bake'), lock['render']['fps'],
                      lock['character'].get('face'),
                      code_hash('bake')])[:12]
-    k['render'] = sha([k['bake'], lock['arena'], lock['render'], lock.get('strikes'),
-                       code_hash('render')])[:12]
+    rk = [k['bake'], lock['arena'], lock['render'], lock.get('strikes'), code_hash('render')]
+    if lock['character'].get('floor_chains'):
+        rk.append({'floor_chains': lock['character']['floor_chains']})
+    k['render'] = sha(rk)[:12]
     lock['keys'] = k
     lock['hash'] = sha(lock)[:12]
     return lock

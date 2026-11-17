@@ -90,7 +90,7 @@ def joint_table(stem, side, d, fwd, palm=None):
     raise KeyError(stem)
 
 
-def clean_points(pts, a, b, side):
+def clean_points(pts, a, b, side, keep=2.0):
     """Drop stray vertices (hidden template geometry, loose garment hems) that would inflate
     the hull: anything much farther from the bone axis than the bulk. Then keep left/right
     limbs on their own side of the sagittal plane so the legs do not start interpenetrating."""
@@ -102,7 +102,7 @@ def clean_points(pts, a, b, side):
         dist = np.linalg.norm(pts - (a + t[:, None] * ab), axis=1)
     else:
         dist = np.linalg.norm(pts - np.median(pts, axis=0), axis=1)
-    pts = pts[dist <= 2.0 * np.percentile(dist, 80) + 1e-6]
+    pts = pts[dist <= keep * np.percentile(dist, 80) + 1e-6]
     if side and b is not None and abs(b[0] - a[0]) < 0.5 * abs(b[2] - a[2]):   # legs only
         sgn = 1.0 if side == 'L' else -1.0
         pts = pts.copy()
@@ -129,7 +129,11 @@ def hull_points(pts):
     return p
 
 
-def build(char_dir, mass=60.0):
+def build(char_dir, mass=60.0, hull_opts=None):
+    """hull_opts: {'keep': {stem: factor}} widens the stray-vertex filter per segment. Dense
+    toe meshes (Daz) pull the foot's median forward so the default (2.0) drops the heel
+    (Izzy, 2026-11-13: heels 37 mm through the canvas in render)."""
+    keep_f = (hull_opts or {}).get('keep', {})
     skel = json.load(open(os.path.join(char_dir, 'skeleton.json')))
     skin = np.load(os.path.join(char_dir, 'skin.npz'))
     J = {k: np.array(v) for k, v in skel['joints'].items()}
@@ -147,7 +151,8 @@ def build(char_dir, mass=60.0):
         else:
             d = np.array([0, 0, 1.0])
         pts = skin['verts'][skin['owner'] == CANON.index(name)].astype(float)
-        pts = clean_points(pts, J[name], J[f'{child}_{side}'] if child else None, side)
+        pts = clean_points(pts, J[name], J[f'{child}_{side}'] if child else None, side,
+                           keep=float(keep_f.get(stem, 2.0)))
         hp = hull_points(pts)
         b = {'name': name, 'parent': PARENT[name], 'stem': stem, 'side': side,
              'region': REGION[stem] + (f'_{side}' if side else ''),
@@ -155,6 +160,17 @@ def build(char_dir, mass=60.0):
              'mass': mass * MASS_FRACTION[stem],
              'hull': (hp - J[name]).round(5).tolist() if hp is not None else None,
              'limb_dir': d.tolist(), 'joints': []}
+        # soft tissue the rigid segment hull cannot represent on its own: a separate convex
+        # hull per breast (vertices weighted >= 0.5 to the rig's breast bones, garment included).
+        # Massless and collision-free unless a take pairs it explicitly (sim.self_pairs).
+        if 'soft' in skin.files and name == 'chest':
+            for lab, nm in ((1, 'bust_L'), (2, 'bust_R')):
+                sp_ = skin['verts'][(skin['soft'] == lab) & (skin['owner'] == CANON.index(name))].astype(float)
+                if len(sp_) >= 30:
+                    hs = hull_points(sp_)
+                    if hs is not None:
+                        b.setdefault('soft', []).append({'name': nm, 'hull': (hs - J[name]).round(5).tolist(),
+                                                         'n_vertices': int(len(sp_))})
         if name != 'pelvis':
             pn = palm_normal(hp, side) if stem == 'hand' else None
             for dof, axis, lo, hi, tq, off in joint_table(stem, side, d, fwd, pn):
@@ -172,9 +188,10 @@ def build(char_dir, mass=60.0):
 
 
 def to_mjcf(spec, pos=(0, 0, 0), contact='solref="0.005 1" solimp="0.95 0.99 0.001"',
-            friction=0.9):
+            friction=0.9, self_pairs=None, exclude_pairs=None):
     """-> (asset xml, worldbody xml, actuator xml, contact-exclude xml). Root body is placed at `pos` (+ rest height)."""
     by = {b['name']: b for b in spec['bodies']}
+    wanted = {n_ for pr in (self_pairs or []) for n_ in pr}
     kids = {}
     for b in spec['bodies']:
         kids.setdefault(b['parent'], []).append(b['name'])
@@ -203,6 +220,12 @@ def to_mjcf(spec, pos=(0, 0, 0), contact='solref="0.005 1" solimp="0.95 0.99 0.0
         else:
             x.append(f'<geom name="g_{name}" type="sphere" size="0.04" mass="{b["mass"]:.4f}" '
                      f'friction="{friction}" {contact}/>')
+        for sg in b.get('soft', []):
+            if sg['name'] in wanted:       # emitted only when used: old takes keep their geom ids
+                v = ' '.join(f'{c:.5f}' for p_ in sg['hull'] for c in p_)
+                assets.append(f'<mesh name="m_{sg["name"]}" vertex="{v}"/>')
+                x.append(f'<geom name="g_{sg["name"]}" type="mesh" mesh="m_{sg["name"]}" mass="0" '
+                         f'contype="0" conaffinity="0" friction="{friction}" {contact}/>')
         for k in kids.get(name, []):
             x.append(emit(k))
         x.append('</body>')
@@ -218,6 +241,19 @@ def to_mjcf(spec, pos=(0, 0, 0), contact='solref="0.005 1" solimp="0.95 0.99 0.0
             if o['name'] < b['name'] and o['parent'] == b['parent'] and b['parent'] \
                     and not (b['stem'] == o['stem'] == 'thigh'):
                 excl.append(f'<exclude body1="{o["name"]}" body2="{b["name"]}"/>')
+    # take-level exclusions (owner 2026-11-16, crossed ankles): the midline-clipped thigh hulls are
+    # rigid, so two adducted thighs lock at the midline and ankles can never cross; real inner
+    # thighs compress there. Shin/foot contacts stay, so the crossed lower legs still rest on each other.
+    for a_, b_ in (exclude_pairs or []):
+        excl.append(f'<exclude body1="{a_}" body2="{b_}"/>')
+    # explicit self-contacts that the exclusions above would otherwise drop (e.g. a forearm
+    # folded across the chest is a grandchild of the chest). A <pair> always collides.
+    names = {b['name'] for b in spec['bodies']} | {sg['name'] for b in spec['bodies']
+                                                   for sg in b.get('soft', []) if sg['name'] in wanted}
+    for a_, b_ in (self_pairs or []):
+        if a_ in names and b_ in names:
+            excl.append(f'<pair geom1="g_{a_}" geom2="g_{b_}" condim="3" '
+                        f'friction="{friction * 0.7:.2f} {friction * 0.7:.2f} 0.005 0.0001 0.0001" {contact}/>')
     return ''.join(assets), body, ''.join(acts), ''.join(excl)
 
 

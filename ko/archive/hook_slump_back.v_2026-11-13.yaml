@@ -1,0 +1,103 @@
+# Feint and hook, slump then backward fall (owner 2026-11-13): a feint to the body pulls her
+# hands down; the real shot is a hook to the uncovered jaw from her left. She slumps forward
+# (head drops, knees fold), the hips sink behind her heels so she sits down instead of pitching
+# forward, the trunk goes back over the hips and the limp neck lets the head whip into the canvas.
+# Then the tonic build of feint_cross_back. Every number is tuned by eye; contact depth is checked.
+name: hook_slump_back
+sim:
+  dt: 0.002
+  duration: 8.5
+  settle: 0.6
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.16, pose: stance, advance: 0.0}     # reads the feint going to the body
+      - {t: 0.40, pose: cover_body, advance: 0.0} # hands down over the stomach, chin open
+      - {t: 1.5, pose: cover_body, advance: 0.0}
+strike:
+  t: 0.58
+  body: head
+  impulse: 12.0                # N s
+  duration: 0.012
+  dir: [-1.0, 1.8, 0.12]       # hook from her left across the jaw, a little into her and rising
+  frame: world
+  offset: [0.05, -0.07, -0.06]   # left side of the jaw
+  ko_delay: 0.01
+  prop: glove                  # rendered glove (impact frames)
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  # out on her feet: neck lets go at once (the head snaps back), arms next, trunk then, the legs
+  # hold longest so she teeters on them before going back
+  consciousness:
+    driver: strike
+    ramp: 0.9
+    target: follow
+    assist: cut
+    t_relax: 0.6
+    curves:
+      neck: [[0.0, 0.0], [0.97, 0.0], [1.0, 1.0]]
+      arms: [[0.0, 0.0], [0.7, 0.05], [1.0, 1.0]]
+      trunk: [[0.0, 0.0], [0.45, 0.25], [1.0, 1.0]]
+      legs: [[0.0, 0.0], [0.3, 0.3], [0.6, 0.7], [1.0, 1.0]]
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.08, trunk: 0.08, arm: 0.035, leg: 0.035}
+    activation: {tau_up: 0.08, tau_down: 0.06}
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.10, tau: 0.6}
+    pose_sets:
+      arms_peak: shoulders_roll_fwd
+      legs_scissor: {base: scissor_legs, pick: [{from: ankles_crossed, joints: [thigh_L_abd, thigh_R_abd, foot_L_inv, foot_R_inv]}]}
+      axial_peak: {base: curl_core_hard, pick: [{from: chin_up, joints: [neck_flex, head_flex]}]}   # sweep 2026-11-12: chest to ~16 deg off the mat at the climax
+    phases:
+      # 1. the hook turns the head; she slumps: head and shoulders drop forward, knees dip, arms drop
+      - {t: 0.04, rise: 0.1, hold: 0.7, fade: 0.2, regions: [neck], tone: 0.6, pose: slump_hard,
+         replace: true, shape: crescendo, shape_params: {tau: 0.15}, depth: {start: 0.3, end: 1.4, tau: 0.2}, jitter: 0.1}
+      - {t: 0.04, rise: 0.1, hold: 0.45, fade: 0.3, regions: [trunk], tone: 0.6, pose: hunch_back,
+         replace: true, shape: crescendo, shape_params: {tau: 0.15}, jitter: 0.08}
+      - {t: 0.08, rise: 0.08, hold: 0.15, fade: 0.15, regions: [leg_L, leg_R], tone: 0.6, pose: knees_give,
+         shape: crescendo, shape_params: {tau: 0.1}, depth: {start: 0.4, end: 1.4, tau: 0.12}, stagger: {leg_R: 0.05}, jitter: 0.1}
+      - {t: 0.06, rise: 0.12, hold: 1.4, fade: 0.6, regions: [arm_L, arm_R], tone: 0.3, pose: arms_drop,
+         shape: crescendo, shape_params: {tau: 0.25}, stagger: {arm_R: 0.08}, gain: {arm_R: 0.85},
+         variety: {depth: [0.6, 1.1]}, jitter: 0.12}
+      # 2. the legs lock and she goes over backward like a plank; the trunk straightens back over
+      #    the hips; the neck stays limp, so the dropped head lags, then whips into the canvas
+      - {t: 0.35, rise: 0.12, hold: 1.0, fade: 0.6, regions: [leg_L, leg_R], tone: 1.1, pose: extensor_legs,
+         replace: true, shape: crescendo, shape_params: {tau: 0.12}, jitter: 0.08}
+      - {t: 0.4, rise: 0.1, hold: 0.6, fade: 0.4, regions: [trunk], tone: 1.8, pose: trunk_throw_back,
+         replace: true, shape: crescendo, shape_params: {tau: 0.12}, jitter: 0.06}
+      # 2. head hits the canvas: a first, moderate tonic build
+      - {after: head_impact, t: 0.03, rise: 0.08, hold: 0.6, fade: 1.0, regions: [arm_L, arm_R], tone: 0.8,
+         pose: '@arms_peak', shape: crescendo, shape_params: {tau: 0.3}, depth: {start: 0.2, end: 0.7, tau: 0.35},
+         variety: {depth: [0.6, 1.1]}, stagger: {arm_R: 0.08}, jitter: 0.1}
+      - {after: head_impact, t: 0.05, rise: 0.08, hold: 0.6, fade: 1.0, regions: [leg_L, leg_R], tone: 0.7,
+         pose: extensor_legs_ragged, shape: crescendo, shape_params: {tau: 0.3}, jitter: 0.1}
+      # 3. ~0.5 s after the head lands: the build. Upper back curls off the mat, shoulders roll forward,
+      #    chin lifts (mixed axial posture: curled trunk, extended neck)
+      - {after: head_impact, t: 0.5, rise: 0.08, hold: 3.4, fade: 2.5, regions: [trunk, neck], tone: 1.4,
+         pose: '@axial_peak', replace: true, shape: crescendo, shape_params: {tau: 0.9},
+         depth: {start: 0.15, end: 1.05, tau: 1.0}, variety: {depth: [0.8, 1.15], spread: 0.08}, jitter: 0.08}
+      - {after: head_impact, t: 0.5, rise: 0.08, hold: 3.4, fade: 2.5, regions: [arm_L, arm_R], tone: 1.15,
+         pose: '@arms_peak', shape: crescendo, shape_params: {tau: 0.8}, depth: {start: 0.4, end: 1.1, tau: 0.9},
+         variety: {depth: [0.8, 1.15]}, stagger: {arm_R: 0.1}, gain: {arm_R: 0.9}, jitter: 0.08}
+      #    legs scissor, building to a climax ~3.5 s after the head lands (crescendo tau 1.0 reaches
+      #    ~95% at 3 s), then drain
+      - {after: head_impact, t: 0.52, rise: 0.1, hold: 3.0, fade: 2.0, regions: [leg_L, leg_R], tone: 1.3,
+         pose: '@legs_scissor', replace: true, shape: crescendo, shape_params: {tau: 1.0},
+         depth: {start: 0.2, end: 1.15, tau: 1.0}, stagger: {leg_R: 0.15}, variety: {depth: [0.85, 1.2]}, jitter: 0.06}
+    tremor:
+      - {after: head_impact, link: true, mode: torque, amp_frac: 0.04, hz_hi: 8.5, hz_lo: 5.0,
+         over_gain: 3.0, onset: 1.0, regions: [leg_L, leg_R]}
+      - {after: head_impact, link: true, mode: torque, amp_frac: 0.02, hz_hi: 8.0, hz_lo: 5.0,
+         over_gain: 2.0, onset: 1.5, regions: [arm_L, arm_R, trunk]}
+outcome:
+  name: slump_sit_back

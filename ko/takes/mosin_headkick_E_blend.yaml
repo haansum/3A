@@ -1,0 +1,15 @@
+character: mosin
+arena: ring
+archetype: headkick_chin_whip
+seed: 1
+quality: draft
+# Variant E, weighted blend: arms halfway between fencing and decerebrate extension; trunk and
+# neck arched (the decerebrate feature) instead of curled. Tuned by eye.
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  controller:
+    ko:
+      pose_sets:
+        arms_peak: [[fencing_extreme, 0.5], [decerebrate_extreme, 0.5]]
+        axial_peak: arch_neck_hard

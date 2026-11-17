@@ -55,17 +55,22 @@ def build(take, quality=None, to='render', force=()):
                     argv += ['--map', mp]
                 if lock['character'].get('outfit'):
                     oc = dict(lock['character']['outfit'])
-                    oc['file'] = os.path.join(manifest.ROOT, oc['file'])
+                    if oc.get('file'):
+                        oc['file'] = os.path.join(manifest.ROOT, oc['file'])
                     op = os.path.join(d, 'outfit.json')
                     json.dump(oc, open(op, 'w'))
                     argv += ['--outfit', op]
+                if lock['character'].get('hull_hair'):
+                    hp_ = os.path.join(d, 'hull_hair.json')
+                    json.dump(lock['character']['hull_hair'], open(hp_, 'w'))
+                    argv += ['--hull-hair', hp_]
                 import_rig.main(argv)
             elif s == 'body':
                 from .body import gen_body
                 import shutil
                 for f in ('skeleton.json', 'skin.npz'):
                     shutil.copy(os.path.join(dirs['character'], f), d)
-                spec = gen_body.build(d, lock['character']['mass'])
+                spec = gen_body.build(d, lock['character']['mass'], lock['character'].get('hull'))
                 json.dump(spec, open(os.path.join(d, 'body.json'), 'w'))
             elif s == 'sim':
                 from .sim import run

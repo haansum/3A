@@ -36,7 +36,81 @@ def resample(z, fps):
     return ft, pos, quat, rope, tone, i0
 
 
+FIST_DEG = {'01': 78.0, '02': 95.0, '03': 62.0}          # per finger segment, full fist (eyeballed)
+THUMB_DEG = {'01': 22.0, '02': 30.0, '03': 38.0}
+
+
+def fist_weight(fc, events, tt):
+    """0 = open (rest), 1 = closed fist. Windows (owner 2026-11-14): closed through the stance
+    until the KO, then loosening to a relaxed curl; closing again with the tonic build after
+    the head lands, held through the climax, then draining back to relaxed."""
+    relax = fc.get('relaxed', 0.3)
+    t_ko = events.get('ko', 0.0)
+    rel = fc.get('release', 0.25)
+    if tt <= t_ko:
+        w = fc.get('stance', 1.0)
+    else:
+        u = min(1.0, (tt - t_ko) / rel)
+        w = fc.get('stance', 1.0) + (relax - fc.get('stance', 1.0)) * u * u * (3 - 2 * u)
+    ton = fc.get('tonic')
+    t_hi = events.get(ton.get('after', 'head_impact')) if ton else None
+    if ton and t_hi is not None:
+        t0 = t_hi + ton.get('t', 0.5)
+        t1 = t0 + ton.get('hold', 3.4)
+        if tt > t0:
+            a = 1.0 - math.exp(-(tt - t0) / max(ton.get('tau', 0.6), 1e-3))
+            if tt > t1:
+                a *= max(0.0, 1.0 - (tt - t1) / max(ton.get('fade', 2.5), 1e-3))
+            w = max(w, relax + (ton.get('peak', 1.0) - relax) * a)
+    return w
+
+
+def fist_layer(fc, arm, pbs, neutral, events, extra):
+    """Curl the fingers (f_<finger>.0N.<side>) and thumb into a fist. The curl direction is
+    measured per bone from the hand's own geometry: the palm normal comes from the knuckle row
+    and the hand's long axis, and each segment bends about the local axis whose rotation swings
+    its tip toward the palm. Nothing about the rig's axis conventions is assumed."""
+    n = 0
+    for side in ('L', 'R'):
+        def head(nm):
+            return neutral[nm].to_translation() if nm in neutral else None
+        idx, pin, mid = head(f'f_index.01.{side}'), head(f'f_pinky.01.{side}'), head(f'f_middle.01.{side}')
+        hand = next((b for b in (f'hand.{side}', f'hand.twk.{side}', f'hand.fk.{side}') if b in neutral), None)
+        if None in (idx, pin, mid) or hand is None:
+            continue
+        a = (mid - neutral[hand].to_translation()).normalized()       # along the hand
+        b = (idx - pin).normalized()                                    # across, toward the thumb
+        palm = a.cross(b).normalized() * (1.0 if side == 'L' else -1.0)
+        centre = mid + palm * 0.03 - a * 0.03
+        for nm in [p for p in pbs.keys() if p.endswith('.' + side)]:
+            m = re.match(r'^(f_(index|middle|ring|pinky)|thumb)\.(0[123])\.' + side + '$', nm)
+            if not m or nm not in neutral:
+                continue
+            seg = m.group(3)
+            thumb = m.group(1) == 'thumb'
+            N = neutral[nm].to_3x3().normalized()
+            d = N.col[1].normalized()                                  # bone direction (local Y)
+            best = None
+            for k in ((0, 2) if thumb else (0,)):
+                ax = N.col[k].normalized()
+                for sgn in (1.0, -1.0):
+                    d2 = Matrix.Rotation(sgn * math.radians(30), 3, ax) @ d
+                    score = d2.dot(palm) if not thumb else -((neutral[nm].to_translation() + d2 * 0.04) - centre).length
+                    if best is None or score > best[0]:
+                        best = (score, k, sgn)
+            _, k, sgn = best
+            deg = (THUMB_DEG if thumb else FIST_DEG)[seg]
+            axis_local = Vector([1.0 if i == k else 0.0 for i in range(3)])
+
+            def f(tt, axis_local=axis_local, ang=sgn * math.radians(deg)):
+                return Quaternion(axis_local, ang * fist_weight(fc, events, tt))
+            extra[nm] = f
+            n += 1
+    return n
+
+
 def run(lock, char_dir, sim_dir, out_dir, fps=None):
+    bpy.context.preferences.filepaths.save_version = 0   # no .blend1 backups (filled the disk 2026-11-14)
     fps = fps or lock['render']['fps']
     skel = json.load(open(os.path.join(char_dir, 'skeleton.json')))
     z = np.load(os.path.join(sim_dir, 'sim.npz'))
@@ -136,6 +210,38 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
                     gaze_keys.append((ob, kb.name, face_cfg.get('gaze_up', 0.6)))
                 elif want_side * d_her[0] > 0.6 * np.linalg.norm(d_her):
                     gaze_keys.append((ob, kb.name, face_cfg.get('gaze_side', 0.35)))
+    # face timeline (character preset): expression + gaze keyed to sim events, so the face
+    # tracks her state (focused -> flinch -> slack -> tonic grimace -> fade). Replaces the
+    # take-level gaze and the legacy KO-ramped keys when present.
+    tl = face_cfg.get('timeline') or []
+    tl_pts = []
+    for ent in tl:
+        t0_ = 0.0 if ent.get('at', 'start') == 'start' else events.get(ent['at'])
+        if t0_ is None:
+            continue
+        tl_pts.append((t0_ + float(ent.get('dt', 0.0)), ent))
+    tl_pts.sort(key=lambda x: x[0])
+    if tl_pts:
+        gaze_keys = []
+        def tl_gaze(tt):
+            pts = [(t_, e.get('gaze', [0, 0])) for t_, e in tl_pts]
+            if tt <= pts[0][0]:
+                return pts[0][1]
+            for (ta, ga), (tb, gb) in zip(pts, pts[1:]):
+                if tt <= tb:
+                    u = (tt - ta) / max(tb - ta, 1e-6)
+                    u = u * u * (3 - 2 * u)
+                    return [ga[0] + (gb[0] - ga[0]) * u, ga[1] + (gb[1] - ga[1]) * u]
+            return pts[-1][1]
+        if eye_bones:
+            for eb_ in eye_bones:
+                def f(tt, eb_=eb_):
+                    up_, side_ = tl_gaze(tt)          # degrees; +side = her left
+                    return local_delta(eb_, (0, 0, 1), math.radians(side_)) @ \
+                        local_delta(eb_, (1, 0, 0), -math.radians(up_))
+                extra[eb_] = f
+        layers_used.append({'face_timeline': len(tl_pts), 'gaze_bones': eye_bones})
+        g = None
     if gaze_keys:
         layers_used.append({'gaze_keys': [k for _, k, _ in gaze_keys]})
     elif g and eye_bones:
@@ -164,6 +270,24 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
                 return local_delta(name_, (1, 0, 0), ang)     # about her left axis = curl under
             extra[name_] = f
         layers_used.append({'toe_curl': len(toes)})
+    # pointe (owner 2026-11-14 "toes point like a ballerina"): the sim's ankle stops at -45 deg,
+    # so the rest of the line comes from the midfoot (tarsal bone, not sim-owned) arching on top
+    pt_ = bcfg.get('pointe')
+    if pt_:
+        n_p = 0
+        for sd_ in ('L', 'R'):
+            for nm_ in (f'tarsal.{sd_}', f'tarsal.twk.{sd_}'):
+                if nm_ in pbs and nm_ not in body_of:
+                    def f(tt, nm_=nm_):
+                        return local_delta(nm_, (1, 0, 0), math.radians(pt_.get('tarsal_deg', 28)) * ramp(pt_, tt))
+                    extra[nm_] = f
+                    n_p += 1
+                    break
+        layers_used.append({'pointe': n_p})
+    fc_ = bcfg.get('fists')
+    if fc_:
+        n_f = fist_layer(fc_, arm, pbs, neutral, events, extra)
+        layers_used.append({'fists': n_f})
     for n_ in extra:
         pbs[n_].rotation_mode = 'QUATERNION'
         for c in pbs[n_].constraints:
@@ -217,7 +341,25 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
     # face: shape keys named in the manifest, ramped in at the KO. Eyes stay open (house rule).
     t_ko = float(z['t_ko'])
     face_keys = []
-    if t_ko >= 0:
+    if tl_pts:
+        allk = sorted({k for _, e in tl_pts for k in (e.get('keys') or {})})
+        for ob in bpy.data.objects:
+            if ob.type != 'MESH' or not ob.data.shape_keys:
+                continue
+            kbs_ = ob.data.shape_keys.key_blocks
+            ad = ob.data.shape_keys.animation_data
+            for kname in allk:
+                kb = kbs_.get(kname)
+                if kb is None:
+                    continue
+                if ad:
+                    for drv in [d for d in ad.drivers if d.data_path == f'key_blocks["{kname}"].value']:
+                        ad.drivers.remove(drv)
+                for t_, e in tl_pts:
+                    kb.value = float((e.get('keys') or {}).get(kname, 0.0))
+                    kb.keyframe_insert('value', frame=max(1, int(round(t_ * fps)) + 1))
+                face_keys.append(f'{ob.name}:{kname}')
+    elif t_ko >= 0:
         fk = int(t_ko * fps) + 1
         for ob in bpy.data.objects:
             if ob.type != 'MESH' or not ob.data.shape_keys:

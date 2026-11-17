@@ -1,0 +1,14 @@
+character: mosin
+arena: ring
+archetype: headkick_chin_whip
+seed: 1
+quality: draft
+# Variant C, overshoot-settle escalation forced (the look reserved for whipping falls and
+# powerbombs): the posture spikes past its target, then settles. Tuned by eye.
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  controller:
+    ko:
+      shape_sets:
+        escalate: {shape: overshoot, shape_params: {fn: 2.0, zeta: 0.30}}

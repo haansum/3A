@@ -1,0 +1,27 @@
+character: mosin
+arena: ring
+archetype: stiff_back_hook
+seed: 2
+quality: draft
+# Tonic posture demo (sym_raise), v2 (owner 2026-11-12: more extreme and exaggerated, less perfect;
+# slump forward between the hit and the fall). Mid-ring, ropes play no part. Tuned by eye.
+overrides:
+  sim: {perturb: 0.05}
+  strike: {impulse: 10.0}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  outcome: {max_knee_flex_deg: 45}   # the requested forward slump bends the knees before the topple
+  controller:
+    ko:
+      phases:
+        # the hit folds her: head drops, shoulders round, knees give a little, arms float up
+        - {t: 0.0, rise: 0.10, hold: 0.45, fade: 0.25, regions: [trunk, neck], tone: 0.45, pose: slump_hard}
+        - {t: 0.0, rise: 0.08, hold: 0.45, fade: 0.25, regions: [leg_L, leg_R], tone: 0.55, pose: knees_give}
+        # then locks and topples back
+        - {t: 0.50, rise: 0.06, hold: 2.0, fade: 0.5, regions: [leg_L, leg_R], tone: 0.85, pose: extensor_legs}
+        - {t: 0.50, rise: 0.08, hold: 2.0, fade: 0.5, regions: [trunk, neck], tone: 0.6, pose: rigid_trunk}
+        - {t: 0.05, rise: 0.15, hold: 2.5, fade: 0.5, regions: [arm_L, arm_R], tone: 0.6, pose: arms_forward_ragged}
+        # escalation on the canvas: harder, rises fast, holds longer
+        - {after: head_impact, t: 0.02, rise: 0.05, hold: 1.8, fade: 3.0, regions: [arm_L, arm_R], tone: 1.3, pose: arms_up_extreme}
+        - {after: head_impact, t: 0.02, rise: 0.05, hold: 1.8, fade: 3.0, regions: [leg_L, leg_R], tone: 1.3, pose: extensor_legs_ragged}
+        - {after: head_impact, t: 0.03, rise: 0.07, hold: 1.8, fade: 3.0, regions: [trunk, neck], tone: 1.1, pose: curl_core_hard}
+    tremor: {hz: 8.0, amp_deg: 3.2, onset: 1.2}

@@ -1,0 +1,119 @@
+# Head kick catches the chin (owner 2026-11-12): head whips to one side, springs elastically back
+# to roughly where it was, then the posture slumps and she folds. On the canvas the tonic posture
+# builds as a crescendo; a bounce or second contact ratchets it up; a very fast head impact
+# switches the escalation to overshoot-settle (whip into the canvas).
+# Uses the shaped-intensity controller (ko/sim/intensity.py). Every number is tuned by eye.
+name: headkick_chin_whip
+sim:
+  dt: 0.002
+  duration: 7.0
+  settle: 0.6
+  # forearms and hands collide with the chest (the default exclusions drop grandchild pairs,
+  # which let a flexed arm sink ~66 mm into the chest: owner note 2026-11-12)
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               # the bust as its own convex shapes (rig breast-bone weights): lets the upper arm,
+               # which the chest hull overlaps at the shoulder by design, still meet the bust
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 0.45, pose: stance, advance: 0.04}     # stepping in when the kick lands
+      - {t: 1.5, pose: stance, advance: 0.04}
+strike:
+  t: 0.58
+  body: head
+  impulse: 9.0                 # N s, a clean catch; mostly spins the head about the neck
+  duration: 0.012
+  dir: [-1.0, 0.05, 0.25]      # shin travelling from her left across the chin, slightly upward
+  frame: world
+  offset: [0.0, -0.085, -0.075]  # tip of the chin
+  ko_delay: 0.01
+  prop: shin                   # rendered shin guard (impact frames)
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  # global consciousness L falls 1 -> 0 over 0.55 s; each region maps L to its own authority:
+  # neck lets go at once (the whip), arms next, trunk then, legs last (out on her feet: they
+  # keep tracking the stance until L ~ 0.6, then buckle). Curves are [[L, authority], ...].
+  consciousness:
+    driver: strike
+    ramp: 0.55
+    target: follow          # with authority, regions keep following the stance reference
+    assist: cut
+    t_relax: 0.5
+    curves:
+      neck: [[0.0, 0.0], [0.92, 0.0], [1.0, 1.0]]
+      arms: [[0.0, 0.0], [0.75, 0.05], [1.0, 1.0]]
+      trunk: [[0.0, 0.0], [0.5, 0.2], [1.0, 1.0]]
+      legs: [[0.0, 0.0], [0.3, 0.4], [0.6, 0.85], [1.0, 1.0]]
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.20, trunk: 0.08, arm: 0.035, leg: 0.035}
+    # sharp authored changes without kicks: activation dynamics on tone, a critically damped
+    # trajectory on the targets (its velocity feeds the servo), slow seeded tone wander
+    activation: {tau_up: 0.08, tau_down: 0.06}   # grid 2026-11-12: ~3x lower torque-rate spikes at escalation
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.10, tau: 0.6}
+    # the posture vocabulary of this take; variants override these, not the phase list
+    pose_sets:
+      arms_peak: fencing_extreme
+      legs_peak: extensor_legs_ragged
+      axial_peak: curl_core_hard
+    shape_sets:
+      escalate: {shape: crescendo, shape_params: {tau: 0.35}}
+      transient: {shape: ratchet, shape_params: {steps: 4, step_dt: 0.2, step_rise: 0.08, start: 0.4}}
+    phases:
+      # 1. whip, then the neck springs back to neutral with a slight elastic overshoot
+      #    (lightly damped spring: zeta 0.25 -> back within 10 deg in ~190 ms, ~4 deg overshoot,
+      #    measured in the sim 2026-11-12)
+      - {t: 0.0, rise: 0.03, hold: 0.30, fade: 0.40, regions: [neck], tone: 1.6, zeta: 0.25,
+         pose: neck_neutral, depth: 1.0}
+      # 2. slump: trunk and head fold forward, knees give, arms drop loose and unequal
+      - {t: 0.32, rise: 0.1, hold: 1.0, fade: 0.5, regions: [trunk], tone: 0.5, pose: slump_hard,
+         shape: crescendo, shape_params: {tau: 0.35}, depth: {start: 0.0, end: 1.1, tau: 0.4},
+         variety: {depth: [0.7, 1.2], spread: 0.1}, jitter: 0.12}
+      - {t: 0.55, rise: 0.1, hold: 0.9, fade: 0.5, regions: [neck], tone: 0.45, pose: slump_hard, replace: true,
+         shape: crescendo, shape_params: {tau: 0.3}, depth: {start: 0.0, end: 1.0, tau: 0.35}, jitter: 0.12}
+      - {t: 0.38, rise: 0.1, hold: 0.9, fade: 0.4, regions: [leg_L, leg_R], tone: 0.5, pose: knees_give,
+         shape: crescendo, shape_params: {tau: 0.3}, depth: {start: 0.0, end: 1.3, tau: 0.35},
+         stagger: {leg_R: 0.07}, jitter: 0.15}
+      - {t: 0.06, rise: 0.1, hold: 1.2, fade: 0.5, regions: [arm_L, arm_R], tone: 0.3, pose: arms_drop,
+         shape: crescendo, shape_params: {tau: 0.25}, stagger: {arm_R: 0.08}, gain: {arm_R: 0.85},
+         variety: {depth: [0.6, 1.15]}, jitter: 0.15}
+      # 3. on the canvas: crescendo into the tonic posture (overshoot-settle when the head
+      #    lands very fast: a whipping fall)
+      - {after: head_impact, t: 0.03, rise: 0.06, hold: 1.8, fade: 3.0, regions: [arm_L, arm_R], tone: 1.15,
+         pose: '@arms_peak', shape_set: escalate, depth: {start: 0.3, end: 1.0, tau: 0.45},
+         variety: {depth: [0.55, 1.15], spread: 0.12, key_frac: 0.5, keep_key: 0.7, jitter_key_deg: 3, jitter_minor_deg: 9},
+         stagger: {arm_R: 0.09}, gain: {arm_R: 0.88}, jitter: 0.12,
+         scale_by: {event: head_impact, key: speed, map: [[1.0, 0.8], [3.0, 1.0], [5.0, 1.15]]},
+         shape_if: [{event: head_impact, key: speed, gt: 5.0, shape: overshoot, shape_params: {fn: 2.0, zeta: 0.30}}]}
+      - {after: head_impact, t: 0.05, rise: 0.08, hold: 1.8, fade: 3.0, regions: [leg_L, leg_R], tone: 1.1,
+         pose: '@legs_peak', shape_set: escalate, depth: {start: 0.3, end: 1.0, tau: 0.55},
+         variety: {depth: [0.55, 1.15]}, stagger: {leg_L: 0.12, leg_R: 0.2}, jitter: 0.12,
+         scale_by: {event: head_impact, key: speed, map: [[1.0, 0.8], [3.0, 1.0], [5.0, 1.15]]},
+         shape_if: [{event: head_impact, key: speed, gt: 5.0, shape: overshoot, shape_params: {fn: 1.8, zeta: 0.35}}]}
+      - {after: head_impact, t: 0.04, rise: 0.08, hold: 1.8, fade: 3.0, regions: [trunk, neck], tone: 1.0,
+         pose: '@axial_peak', shape_set: escalate, depth: {start: 0.2, end: 1.0, tau: 0.5},
+         variety: {depth: [0.6, 1.1]}, jitter: 0.12, replace: true}
+      # 4. transient escalation: the first of a head bounce or a follow-up shot ratchets the
+      #    posture deeper, past full tone (straining past max drives the tremor)
+      - {after: [head_impact_2, followup_1], fallback: {after: head_impact, t: 0.9}, t: 0.02,
+         rise: 0.05, hold: 0.9, fade: 1.6, regions: [arm_L, arm_R], tone: 1.35,
+         pose: '@arms_peak', shape_set: transient, depth: {start: 0.0, end: 1.2}, jitter: 0.1}
+      - {after: [head_impact_2, followup_1], fallback: {after: head_impact, t: 0.9}, t: 0.02,
+         rise: 0.05, hold: 0.9, fade: 1.6, regions: [leg_L, leg_R], tone: 1.3,
+         pose: '@legs_peak', shape_set: transient, depth: {start: 0.0, end: 1.2}, jitter: 0.1}
+    tremor:
+      # intensity-linked, injected as torque so the 3 Hz servo cannot filter it out
+      - {after: head_impact, link: true, mode: torque, amp_frac: 0.035, hz_hi: 8.5, hz_lo: 5.0,
+         over_gain: 2.5, onset: 0.5}
+outcome:
+  name: headkick_fold
+  max_knee_flex_deg: 90

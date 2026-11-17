@@ -1,0 +1,35 @@
+# Boxing ring, one simulated rope side (the one the take needs); the render shows all four.
+# Every rope number here is ASSUMED, not measured from a real ring.
+name: gym
+canvas_friction: 0.9
+rope_distance: 1.7      # m from her start position to the rope side she faces
+ring_size: 6.0
+rope:
+  span: 6.0
+  heights: [0.46, 0.76, 1.07, 1.37]
+  preload: 2000.0       # N
+  k_end: 20000.0        # N/m at each end
+  rho: 1.0              # kg/m
+  transverse_damp: 8.0  # 1/s, in-house damping element (bench: built-in damping cannot reach this mode)
+  spacer_k: 8000.0
+# Stiffer canvas contact than the default ring (owner 2026-11-13: watch for clipping): peak
+# sink at a hard backward fall 4.5 mm (head 1.0 mm) vs 6-12 mm at the default.
+canvas_solref: '0.003 1'
+canvas_solimp: '0.97 0.995 0.001'
+# Picture: the owner's gym (assets_cache/gym/MightyMicksGym.blend). Its ring canvas top is at
+# z = 1.02 m and its ring is centred on the origin, ~7.2 m outside, ropes on four corner posts
+# (measured from the file's bounding boxes, 2026-11-12). The sim keeps the numbers above.
+scene:
+  file: assets_cache/gym/MightyMicksGym.blend
+  scene_name: Map_Shared_MightyMicks_Meshes
+  # 1.000 (owner 2026-11-16 "is she lying on the canvas or hovering?"): 1.02 was the canvas object's
+  # bounding box, which includes a raised edge; a raycast grid over the ring measures the playing
+  # surface flat at 1.000 m (+-0.1 mm). At 1.02 every gym take rendered her ~20 mm above the canvas.
+  canvas_top: 1.000
+  ring_center: [0.0, 0.0]
+  # owner 2026-11-12: remove the hanging banners
+  hide: [BannerA2.001, BannerA3.001, BannerB2_16.001, BannerB_8.001, BannerC2.001, BannerC_11.001]
+  # hide_above: 1.9  (off: hiding the ceiling left a black void above the walls)     # m over the canvas: ceiling, beams, sprinklers, light fixtures (cameras sit up to ~3 m)
+  rig_lights: false   # the gym's own ring and room lights only
+  exposure: -1.5      # EV; the gym's ring spots are strong (checked on stills 2026-11-12)
+cam_max_z: 2.5            # ceiling panels at 2.99 m above the canvas (measured 2026-11-14)

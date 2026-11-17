@@ -5,6 +5,8 @@ Not implemented yet (need the baked render mesh): render-mesh penetration, hair/
 stability, framing and occlusion. They are listed in the report as 'todo' so nobody reads a
 pass as covering them.
 """
+import json
+
 import numpy as np
 
 TH = dict(limit_overshoot_deg=5.0, spike_rad_s=30.0, spike_window_s=0.033,
@@ -62,9 +64,18 @@ def check(sim_path, lock):
     a = np.linalg.norm(z['assist'][:, :3], axis=1) / W
     cap = lock['motion'].get('assist_cap', 0.15)
     post = t >= t_ko if t_ko >= 0 else np.zeros(len(t), bool)
+    ev_ = json.loads(str(z['events'])) if 'events' in z else {}
+    if 'recovered' in ev_:                    # consciousness came back (flash / scripted driver)
+        post &= t < ev_['recovered']
     add(1, 'root_assist_within_cap', a.max() <= cap * TH['assist_slack'], round(float(a.max()), 3), cap,
         f'mean {a[~post].mean():.3f} of body weight before the KO')
-    add(1, 'root_assist_zero_after_ko', not a[post].any(), round(float(a[post].max()) if post.any() else 0, 4), 0)
+    cons_ = (lock.get('controller') or {}).get('consciousness') or {}
+    if cons_.get('assist', 'cut' if cons_.get('driver', 'strike') == 'strike' else 'scale') == 'scale' and 'L' in z:
+        lim = cap * TH['assist_slack'] * z['L'] + 1e-6         # balance returns with consciousness
+        add(1, 'root_assist_scaled_by_L', not (a[post] > lim[post]).any(),
+            round(float((a[post] - lim[post]).max()) if post.any() else 0, 4), 0)
+    else:
+        add(1, 'root_assist_zero_after_ko', not a[post].any(), round(float(a[post].max()) if post.any() else 0, 4), 0)
 
     # contacts between body and ropes / canvas
     b_rope = (is_rope[g1] & is_body[g2]) | (is_rope[g2] & is_body[g1])

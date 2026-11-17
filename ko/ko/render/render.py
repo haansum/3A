@@ -108,8 +108,53 @@ def write_pc2(path, frames):
         fh.write(frames.astype('<f4').tobytes())
 
 
+def load_scene_arena(a, root, coll):
+    """Owner-supplied arena (e.g. a gym .blend): append every object of one scene and place it
+    so its canvas surface sits at the sim canvas (z = 0) and its ring centre on the sim ring
+    centre. The sim itself still uses the arena preset's numbers; this is the picture only."""
+    sa = a['scene']
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), sa['file'])
+    with bpy.data.libraries.load(path, link=False) as (src, dst):
+        dst.scenes = [sa.get('scene_name', src.scenes[0])]
+    scn = dst.scenes[0]
+    gym_root = bpy.data.objects.new('arena_scene_root', None)
+    add(gym_root, root, coll)
+    cx, cy = sa.get('ring_center', [0.0, 0.0])
+    gym_root.location = (-cx + sa.get('offset', [0, 0])[0], -cy + sa.get('offset', [0, 0])[1],
+                         -float(sa['canvas_top']))
+    gym_root.rotation_euler = (0, 0, math.radians(sa.get('yaw_deg', 0.0)))
+    n = 0
+    for o in scn.objects:
+        if o.type == 'CAMERA':
+            continue
+        if o.name not in coll.objects:
+            coll.objects.link(o)
+        if o.parent is None:
+            o.parent = gym_root
+        n += 1
+    # overhead geometry (ceiling, beams, fixtures) above `hide_above` m over the canvas: hidden
+    # from render so high camera positions see the ring, not the ceiling tiles
+    ha = sa.get('hide_above')
+    if ha is not None:
+        bpy.context.view_layer.update()
+        for o in scn.objects:
+            if o.type == 'MESH':
+                zmin = min((o.matrix_world @ Vector(c)).z for c in o.bound_box)   # already canvas-relative (parented)
+                if zmin > ha:
+                    o.visible_camera = False      # still blocks and bounces light
+    print(f'[render] arena: hid overhead geometry from camera above {ha} m')
+    for name in sa.get('hide', []):
+        if name in bpy.data.objects:
+            bpy.data.objects[name].hide_render = True
+    bpy.data.scenes.remove(scn)
+    print(f'[render] arena scene: {n} objects from {sa["file"]}')
+    return []
+
+
 def build_arena(lock, fr, root, coll):
     a = lock['arena']
+    if a.get('scene'):
+        return load_scene_arena(a, root, coll)
     p = a['rope']
     y0 = a['rope_y']                      # simulated side (she faces it); ring extends to +y
     x0, x1, y1 = -RING / 2, RING / 2, y0 + RING
@@ -179,6 +224,186 @@ def smooth_path(p, fps, sec=0.6):
     return np.stack([np.convolve(pad[:, i], w, 'valid') for i in range(3)], 1)
 
 
+def refine_face_cam(sc, cam_ob, root, fps, n, every=3, dist=0.82):
+    """Occlusion-aware face shot: at sampled frames, try camera directions around where her
+    face points and keep the clear view (ray-cast against the rendered meshes, to both eyes)
+    nearest straight-on and nearest the previous choice; then smooth and key it.
+    Eyes come from the eye.L / eye.R deform bones (else a point in front of the head)."""
+    import math as _m
+    arm = next((o for o in bpy.data.objects if o.type == 'ARMATURE' and 'eye.L' in o.pose.bones), None)
+    if arm is None or cam_ob is None:
+        return None
+    hb = next((b for b in ('DEF-spine.006', 'head', 'DEF-head') if b in arm.pose.bones), None)
+    Rw = root.matrix_world
+    Ri = Rw.inverted()
+    chosen, prev = {}, None
+    report = {'sampled': 0, 'clear': 0}
+    for f in range(1, n + 1, every):
+        sc.frame_set(f)
+        dg = bpy.context.evaluated_depsgraph_get()
+        eL = arm.matrix_world @ arm.pose.bones['eye.L'].head
+        eR = arm.matrix_world @ arm.pose.bones['eye.R'].head
+        eye = (eL + eR) / 2
+        if hb:   # head rotation since rest; at rest she faces -Y with +Z up
+            pb_ = arm.pose.bones[hb]
+            hm = (arm.matrix_world @ pb_.matrix @ pb_.bone.matrix_local.inverted()).to_3x3()
+        else:
+            hm = Matrix.Identity(3)
+        fwd = (hm @ Vector((0, -1, 0))).normalized()
+        up = (hm @ Vector((0, 0, 1))).normalized()
+        if abs(fwd.dot(up)) > 0.9:
+            up = Vector((0, 0, 1))
+        best, best_s = None, 1e9
+        for yaw in (0, 25, -25, 50, -50, 75, -75, 100, -100):
+            for tilt in (0, 25, 50, 70):
+                d = Matrix.Rotation(_m.radians(yaw), 3, up) @ fwd
+                ax = d.cross(up)
+                if ax.length > 1e-6:
+                    d = Matrix.Rotation(_m.radians(tilt), 3, ax.normalized()) @ d
+                d.normalize()
+                cpos = eye + d * dist
+                if cpos.z < 0.1:
+                    continue
+                seen = 0
+                for e_ in (eL, eR):
+                    v = cpos - e_
+                    L_ = v.length
+                    hit, loc, *_ = sc.ray_cast(dg, e_ + v.normalized() * 0.035, v.normalized(), distance=L_)
+                    seen += not hit
+                if seen == 0:
+                    continue
+                # both eyes clear beats one; then nearest straight-on, then nearest previous
+                s_ = (2 - seen) * 4.0 + (abs(yaw) + tilt) / 50.0 + (0 if prev is None else 3.0 * (d - prev).length)
+                if s_ < best_s:
+                    best, best_s = d, s_
+        report['sampled'] += 1
+        if best is not None:
+            report['clear'] += 1
+            prev = best
+        if prev is not None:
+            chosen[f] = (Ri @ (eye + prev * dist), Ri @ eye, Ri.to_3x3() @ up)
+    if not chosen:
+        return report
+    fs = np.array(sorted(chosen))
+    P = np.array([chosen[f][0][:] for f in fs])
+    A = np.array([chosen[f][1][:] for f in fs])
+    allf = np.arange(1, n + 1)
+    Pi = np.stack([np.interp(allf, fs, P[:, k]) for k in range(3)], 1)
+    Ai = np.stack([np.interp(allf, fs, A[:, k]) for k in range(3)], 1)
+    U = np.array([chosen[f][2][:] for f in fs])
+    Ui = np.stack([np.interp(allf, fs, U[:, k]) for k in range(3)], 1)
+    Pi = smooth_path(Pi, fps, 0.3)
+    Ai = smooth_path(Ai, fps, 0.12)
+    Ui = smooth_path(Ui, fps, 0.3)
+    cam_ob.animation_data_clear()
+    aim = cam_ob.constraints['Track To'].target if 'Track To' in cam_ob.constraints else None
+    # explicit orientation instead of Track To: the frame's up follows the top of her head, so a
+    # face seen from straight above (lying on her back) is upright in frame, not upside down
+    for c_ in list(cam_ob.constraints):
+        cam_ob.constraints.remove(c_)
+    cam_ob.rotation_mode = 'QUATERNION'
+    for f in allf:
+        P_, A_, U_ = Vector(Pi[f - 1]), Vector(Ai[f - 1]), Vector(Ui[f - 1])
+        fw = (A_ - P_).normalized()
+        upc = (U_ - fw * U_.dot(fw))
+        if upc.length < 1e-4:
+            upc = Vector((0, 0, 1)) - fw * fw.z
+        upc.normalize()
+        rt = fw.cross(upc).normalized()
+        R_ = Matrix((rt, upc, -fw)).transposed()
+        cam_ob.location = tuple(P_)
+        cam_ob.rotation_quaternion = R_.to_quaternion()
+        cam_ob.keyframe_insert('location', frame=int(f))
+        cam_ob.keyframe_insert('rotation_quaternion', frame=int(f))
+        if aim is not None:
+            aim.location = tuple(A_)
+            aim.keyframe_insert('location', frame=int(f))
+        if cam_ob.data.dof.use_dof and aim is not None:
+            cam_ob.data.dof.focus_object = aim
+    cam_ob.data.lens = 50                       # owner 2026-11-12: slightly wider than 60 mm / 0.62 m
+    return report
+
+
+def snap_contact(sc, root, frame, pt, dvec, group='DEF-spine.006', radius=0.035, wmin=0.5):
+    """First point of her rendered head skin that a prop travelling along dvec through pt meets.
+
+    The sim's strike point is head COM + an offset on the convex hull: right for the torque arm,
+    but several cm off the skinned mesh's chin. For the picture, slide it onto the skin: among
+    head-weighted vertices (Body, Face) within `radius` of the strike line, the one met first
+    (smallest projection on dvec). Falls back to the nearest head vertex. Root-local coords.
+    Returns (point, shift_m)."""
+    sc.frame_set(int(round(frame)))
+    dg = bpy.context.evaluated_depsgraph_get()
+    inv = root.matrix_world.inverted()
+    P = []
+    groups = [group] if isinstance(group, str) else list(group)
+    import re as _re
+    skip = _re.compile(r'hair|brow|lash|eyelash|beard|KO_prop|glove_|shin_|mma', _re.I)
+    for ob in [o for o in bpy.data.objects if o.type == 'MESH' and not o.hide_render
+               and not skip.search(o.name) and any(g in o.vertex_groups for g in groups)]:
+        gis = {ob.vertex_groups[g].index for g in groups if g in ob.vertex_groups}
+        sel = [v.index for v in ob.data.vertices
+               if sum(g.weight for g in v.groups if g.group in gis) >= wmin]
+        saved = [(md, md.show_viewport) for md in ob.modifiers if md.type != 'ARMATURE']
+        for md, _ in saved:
+            md.show_viewport = False
+        dg.update()
+        me = ob.evaluated_get(dg).to_mesh()
+        mw = inv @ ob.matrix_world
+        if len(me.vertices) == len(ob.data.vertices):
+            P += [mw @ me.vertices[i].co for i in sel]
+        ob.evaluated_get(dg).to_mesh_clear()
+        for md, s in saved:
+            md.show_viewport = s
+    dg.update()
+    if not P:
+        return pt, 0.0
+    A = np.array([p[:] for p in P])
+    d = np.array(dvec[:]) / max(dvec.length, 1e-9)
+    rel = A - np.array(pt[:])
+    s = rel @ d
+    lat = np.linalg.norm(rel - np.outer(s, d), axis=1)
+    near = lat < radius
+    k = int(np.argmin(np.where(near, s, np.inf))) if near.any() else int(np.argmin(np.linalg.norm(rel, axis=1)))
+    q = Vector(A[k].tolist())
+    return q, float((q - pt).length)
+
+
+def autoframe(loc, pts, fps, fill=0.75, aspect=16 / 9, lens_rng=(18.0, 120.0), sec=1.2):
+    """Full-body framing (owner 2026-11-14: full-body shots fill more of the frame). For a
+    fixed camera position, per frame: aim at the centre of her angular bounding box and pick
+    the focal length that makes the box span `fill` of the frame (36 mm sensor, horizontal
+    fit). Both are smoothed over `sec` so the framing breathes rather than pumps.
+    pts: (n_frames, n_points, 3) canonical. Returns (aim points (n, 3), lenses (n,))."""
+    loc = np.asarray(loc, float)
+    n = len(pts)
+    aims, lenses = np.zeros((n, 3)), np.zeros(n)
+    for i in range(n):
+        P = np.asarray(pts[i], float)
+        c = P.mean(0)
+        for _ in range(2):
+            f_ = c - loc
+            f_ /= np.linalg.norm(f_)
+            r_ = np.cross(f_, [0.0, 0.0, 1.0])
+            r_ /= max(np.linalg.norm(r_), 1e-9)
+            u_ = np.cross(r_, f_)
+            v = P - loc
+            z = v @ f_
+            tx, ty = (v @ r_) / z, (v @ u_) / z
+            cx, cy = 0.5 * (tx.min() + tx.max()), 0.5 * (ty.min() + ty.max())
+            c = loc + (f_ + r_ * cx + u_ * cy) * np.linalg.norm(c - loc)
+        ex = 0.5 * (tx.max() - tx.min())
+        ey = 0.5 * (ty.max() - ty.min())
+        lenses[i] = np.clip(18.0 * fill / max(ex, ey * aspect, 1e-4), *lens_rng)
+        aims[i] = c
+    k = max(1, int(sec * fps))
+    ker = np.ones(k) / k
+    pad = lambda a: np.concatenate([np.repeat(a[:1], k, 0), a, np.repeat(a[-1:], k, 0)])  # noqa: E731
+    lenses = np.convolve(pad(lenses), ker, 'same')[k:-k]
+    aims = np.stack([np.convolve(pad(aims[:, j]), ker, 'same')[k:-k] for j in range(3)], 1)
+    return aims, lenses
+
+
 def make_cameras(lock, fr, root, coll, fps):
     """Shot template. Canonical coords: she starts at the origin facing -y, ropes at y = rope_y."""
     y0 = lock['arena']['rope_y']
@@ -209,7 +434,28 @@ def make_cameras(lock, fr, root, coll, fps):
         shots[name] = ob
         return ob
 
-    cam('live', (5.8, mid[1] + 1.2, 4.0), 55, target=mid + [0, 0, -0.45])
+    # arenas with a roof (gym) cap camera height below it: the 4 m live cam sat above the
+    # 2.99 m ceiling and saw only ceiling tiles (2026-11-14)
+    zmax = lock['arena'].get('cam_max_z')
+    if zmax:
+        # under a roof the camera cannot clear the ropes from 5.8 m out: come in to just outside
+        # them (rope_y + 1 m) and keep below the ceiling
+        cz = min(4.0, zmax)
+        live_loc = (0.5 * (pel[0][0] + rest[0]) + abs(y0) + 1.0, mid[1] + 1.0, cz)
+    else:
+        live_loc = (5.8, mid[1] + 1.2, 4.0)
+    # full body fills ~75% of the frame (owner 2026-11-14): follow her, zoom keyed per frame.
+    # Body points: head (+crown), pelvis, feet, padded for limb volume
+    crown = head + np.array([0.0, 0.0, 0.12])
+    body_pts = np.stack([crown, head, pel, fr['foot_L'], fr['foot_R']], 1) if 'foot_L' in fr else \
+        np.stack([crown, head, pel], 1)
+    pad_ = np.array([[0.18, 0, 0], [-0.18, 0, 0], [0, 0.18, 0], [0, -0.18, 0]])
+    body_pts = np.concatenate([body_pts] + [body_pts[:, 2:3] + d for d in pad_], 1)
+    aims_, lens_ = autoframe(live_loc, body_pts, fps, fill=0.75)
+    ob_live = cam('live', live_loc, float(lens_[0]), follow=aims_)
+    for f_i, L_ in enumerate(lens_):
+        ob_live.data.lens = float(L_)
+        ob_live.data.keyframe_insert('lens', frame=f_i + 1)
     cam('tight', (2.3, mid[1] + 1.6, 1.0), 60, follow=track)
     # referee pan (house style): stands beside where she comes to rest, follows the fall, then
     # pans over the body from the feet and ends on her face. Placed on the side her face is
@@ -241,6 +487,34 @@ def make_cameras(lock, fr, root, coll, fps):
     cam('referee', (-1.6, y0 + 2.4, 1.6), 50, follow=track)
     cam('opponent', (0.5, y0 + 0.25, 1.5), 24, follow=track)
     orb = cam('orbit', (3.0, y0 + 0.4, 1.3), 85, follow=np.repeat(rest[None] + [0, 0, 0.2], len(pel), 0))
+    # face: follows the direction her face points (head orientation), so her expression reads
+    # at the hit, at the canvas impact and once she settles. Direction smoothed over ~0.35 s so
+    # the whip plays inside the frame instead of swinging the camera; kept above the canvas
+    # when she lands face-down (the camera then looks in from the side her face is turned to).
+    if 'head_quat' in fr:
+        q_ = np.asarray(fr['head_quat'])
+        w_, x_, y_, z_ = q_[:, 0], q_[:, 1], q_[:, 2], q_[:, 3]
+        fwd = -np.stack([2 * (x_ * y_ - z_ * w_), 1 - 2 * (x_ * x_ + z_ * z_), 2 * (y_ * z_ + x_ * w_)], 1)
+        upv = np.stack([2 * (x_ * z_ + y_ * w_), 2 * (y_ * z_ - x_ * w_), 1 - 2 * (x_ * x_ + y_ * y_)], 1)
+        fwd = smooth_path(fwd, fps, 0.35)
+        upv = smooth_path(upv, fps, 0.35)
+        fwd[:, 2] = np.maximum(fwd[:, 2], -0.15)
+        fwd /= np.linalg.norm(fwd, axis=1, keepdims=True) + 1e-9
+        upv /= np.linalg.norm(upv, axis=1, keepdims=True) + 1e-9
+        hd = smooth_path(head, fps, 0.12)
+        eye = hd + upv * 0.06 + fwd * 0.05
+        # lying down: also move out past the crown of her head, so her own shoulder, arm and
+        # chest never sit between the lens and the face (weight = how horizontal the head is)
+        crown = upv.copy()
+        crown[:, 2] = 0.0
+        lying = np.clip(1.0 - np.abs(upv[:, 2]), 0.0, 1.0)[:, None]
+        locs = eye + fwd * (0.75 - 0.2 * lying) + crown * 0.45 * lying + np.array([0, 0, 0.10]) * (1 - lying) \
+            + np.array([0, 0, 0.05]) * lying
+        locs[:, 2] = np.maximum(locs[:, 2], 0.10)
+        fc_ = cam('face', tuple(locs[0]), 50, follow=eye, fstop=4.0)
+        for f in range(n):
+            fc_.location = tuple(locs[f])
+            fc_.keyframe_insert('location', frame=f + 1)
     for f in (0, n - 1):                       # quarter orbit around the rest position, eased
         a = math.radians(-20 + 90 * f / max(1, n - 1))
         orb.location = (rest[0] + 3.2 * math.cos(a), rest[1] + 3.2 * math.sin(a), 1.3)
@@ -270,7 +544,61 @@ def encode(frames_glob, out, fps, lossless):
                     'glob', '-i', frames_glob, *codec, out], check=True)
 
 
+def floor_chains(sc, skel, pattern, floor_z, radius, n):
+    """Floor collision for dangling chains the sim does not model (braids, ponytails): per
+    frame, root to tip, any bone whose tail would sit below floor_z + radius is swung about its
+    head so the tail rests on that height (children follow). Keyed per frame. Returns the worst
+    correction in degrees and how many keys were set."""
+    import re as _re
+    rx = _re.compile(pattern, _re.I)
+    bones = [pb for pb in skel.pose.bones if rx.search(pb.name)]
+    if not bones:
+        return 0.0, 0
+
+    def depth(pb):
+        d_, p_ = 0, pb.parent
+        while p_ is not None:
+            d_, p_ = d_ + 1, p_.parent
+        return d_
+    bones.sort(key=depth)
+    for pb in bones:
+        pb.rotation_mode = 'QUATERNION'
+    M = skel.matrix_world
+    Minv = M.inverted()
+    worst, keys = 0.0, 0
+    lim = floor_z + radius
+    for f in range(1, n + 1):
+        sc.frame_set(f)
+        for pb in bones:                 # reset to the baked (rest) rotation first
+            pb.rotation_quaternion = (1, 0, 0, 0)
+        bpy.context.view_layer.update()
+        for pb in bones:
+            h, t = M @ pb.head, M @ pb.tail
+            if t.z >= lim:
+                pb.keyframe_insert('rotation_quaternion', frame=f)
+                continue
+            L = (t - h).length
+            dz = lim - h.z
+            if abs(dz) >= L:
+                dz = max(-L * 0.999, min(L * 0.999, dz))
+            hor = Vector((t.x - h.x, t.y - h.y, 0.0))
+            if hor.length < 1e-6:
+                hor = Vector((1.0, 0.0, 0.0))
+            want = hor.normalized() * math.sqrt(max(L * L - dz * dz, 0.0)) + Vector((0, 0, dz))
+            q = (t - h).rotation_difference(want)
+            worst = max(worst, math.degrees(q.angle))
+            R3 = Minv.to_3x3() @ q.to_matrix() @ M.to_3x3()
+            hl = pb.head.copy()
+            mat = Matrix.Translation(hl) @ R3.to_4x4() @ Matrix.Translation(-hl) @ pb.matrix
+            pb.matrix = mat
+            bpy.context.view_layer.update()
+            pb.keyframe_insert('rotation_quaternion', frame=f)
+            keys += 1
+    return worst, keys
+
+
 def run(lock, bake_dir, sim_dir, out_dir, stills=False):
+    bpy.context.preferences.filepaths.save_version = 0   # no .blend1 backups (filled the disk 2026-11-14)
     R = lock['render']
     fps = R['fps']
     fr = np.load(os.path.join(bake_dir, 'frames.npz'))
@@ -309,32 +637,99 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
         md = ob.modifiers.new('sim', 'MESH_CACHE')
         md.cache_format, md.filepath = 'PC2', pc
         md.frame_start, md.forward_axis, md.up_axis = 1, 'POS_Y', 'POS_Z'
-    lights(root, coll)
+    if lock['arena'].get('scene') and not lock['arena']['scene'].get('rig_lights', True):
+        w_ = bpy.data.worlds.new('KO_world')
+        w_.use_nodes = True
+        w_.node_tree.nodes['Background'].inputs[0].default_value = (0.004, 0.004, 0.006, 1)
+        bpy.context.scene.world = w_
+    else:
+        lights(root, coll)
+    fc_ = lock['character'].get('floor_chains')
+    if fc_:
+        skel_o = bpy.data.objects.get('KO_skeleton')
+        if skel_o is not None:
+            w_, k_ = floor_chains(sc, skel_o, fc_['pattern'], root.matrix_world.translation.z,
+                                  fc_.get('radius', 0.02), n)
+            print(f'[render] floor chains ({fc_["pattern"]}): {k_} corrections, worst {w_:.0f} deg')
     shots = make_cameras(lock, fr, root, coll, fps)
-    # opponent: only the glove is ever rendered (house rule), one per strike that asks for it
+    if 'face' in shots:
+        rep_ = refine_face_cam(sc, shots['face'], root, fps, n)
+        print('[render] face shot line-of-sight:', rep_)
+    # opponent: only the strike prop is ever rendered (house rule), one per strike that asks for
+    # it: prop 'glove' (punches) or 'shin' (kicks), modelled in props.py with the striking face
+    # on the origin. At the hit frame the face sits on the strike point (an impact frame shows
+    # real contact); for ~60 ms it rides along with her head, then pulls back.
+    from . import props as PR
+    hd_ = np.asarray(fr['head'])
     for st in (json.loads(str(fr['strikes'])) if 'strikes' in fr else []):
-        if st.get('prop') != 'glove':
+        kind = st.get('prop')
+        if kind not in PR.PROPS:
             continue
-        u_, v_ = np.meshgrid(np.linspace(0, 2 * np.pi, 16, endpoint=False), np.linspace(0.12, np.pi - 0.12, 9))
-        pts = np.stack([0.062 * np.sin(v_) * np.cos(u_), 0.062 * np.sin(v_) * np.sin(u_),
-                        0.085 * np.cos(v_)], -1).reshape(-1, 3)
-        faces = [(r * 16 + c, r * 16 + (c + 1) % 16, (r + 1) * 16 + (c + 1) % 16, (r + 1) * 16 + c)
-                 for r in range(8) for c in range(16)]
-        gm = bpy.data.meshes.new('glove')
-        gm.from_pydata(pts.tolist(), [], faces)
-        gm.materials.append(mat('KO_glove', (0.25, 0.005, 0.005), 0.4))
-        for poly in gm.polygons:
-            poly.use_smooth = True
-        gl = add(bpy.data.objects.new('glove_' + st['name'], gm), root, coll)
-        dvec, pt = np.array(st['dir']), np.array(st['point'])
-        gl.rotation_euler = Vector(dvec).to_track_quat('Z', 'Y').to_euler()
+        gl = PR.PROPS[kind](f'{kind}_' + st['name'], coll)
+        gl.parent = root
+        dvec = Vector(st['dir']).normalized()
+        pt = Vector(st['point'])
+        gl.rotation_mode = 'QUATERNION'
+        gl.rotation_quaternion = dvec.to_track_quat('Z', 'Y')
         fhit = st['t'] * fps + 1
-        for df, back in ((-0.22, 0.75), (0.0, 0.09), (0.06, 0.09), (0.40, 0.70)):
-            gl.location = pt - dvec * back
-            gl.keyframe_insert('location', frame=fhit + df * fps)
-        for fch, hide in ((1, True), (fhit - 0.24 * fps, False), (fhit + 0.42 * fps, True)):
+        head_bone = ((lock['character'].get('bone_map') or {}).get('head')
+                     or ('DEF-spine.006' if 'DEF-spine.006' in {g.name for o in bpy.data.objects if o.type == 'MESH' for g in o.vertex_groups} else 'head'))
+        skel_ = bpy.data.objects.get('KO_skeleton')
+        if skel_ is not None and head_bone in skel_.data.bones:
+            hb_ = skel_.data.bones[head_bone]
+            head_bone = [hb_.name] + [c.name for c in hb_.children_recursive]
+        pt, shift = snap_contact(sc, root, fhit, pt, dvec, group=head_bone)
+        gl['contact'] = list(pt)                 # root-local; impact_frame.py reads it
+        fcfg = (lock['character'].get('face') or {}).get('impact')
+        if fcfg:
+            from . import fx as FXR
+            arm_ = next((o for o in bpy.data.objects if o.type == 'ARMATURE' and o.name == 'KO_skeleton'), None)
+            rep_f = FXR.face_impact(sc, arm_.name if arm_ else '', fcfg, root.matrix_world @ pt,
+                                    root.matrix_world.to_3x3() @ dvec, fhit, name=st['name'])
+            print(f'[render] face impact {st["name"]}: {rep_f}')
+        print(f'[render] {kind} {st["name"]}: contact snapped {shift * 1000:.0f} mm onto the skin')
+        ih = int(min(len(hd_) - 1, max(0, round(st['t'] * fps))))
+        rel = pt - Vector(hd_[ih])               # contact point relative to her head at the hit
+        # authored approach path (presentation only): [[dt, back along the strike line, up], ...]
+        scfg = lock.get('strike') if st['name'] == 'ko_strike' else next(
+            (s_ for s_ in (lock.get('strikes') or []) if s_.get('name') == st['name']), {})
+        ppath = (scfg or {}).get('prop_path')
+        if ppath:
+            # optional 4th value: out in front of her (her facing at the hit, horizontal), so a
+            # path can swing around her body instead of through it
+            ih_ = int(min(len(hd_) - 1, max(0, round(st['t'] * fps))))
+            fwd_ = Vector((0.0, -1.0, 0.0))
+            if 'chest_fwd' in fr:
+                fwd_ = Vector(fr['chest_fwd'][ih_].tolist())
+            fwd_.z = 0.0
+            fwd_.normalize()
+            # optional 5th value: out to her side, on the side the blow came from (hook arcs)
+            side_ = Vector((0.0, 0.0, 1.0)).cross(fwd_)
+            if side_.dot(-dvec) < 0:
+                side_ = -side_
+            keys = [(float(e_[0]), pt - dvec * float(e_[1]) + Vector((0, 0, float(e_[2])))
+                     + fwd_ * (float(e_[3]) if len(e_) > 3 else 0.0)
+                     + side_ * (float(e_[4]) if len(e_) > 4 else 0.0)) for e_ in ppath]
+            keys.append((0.0, pt))
+        else:
+            keys = [(-0.10, pt - dvec * 0.55), (-0.04, pt - dvec * 0.16), (0.0, pt)]
+        t_show = min(k_[0] for k_ in keys) - 0.01
+        for dts in (0.03, 0.06):                 # follow-through: stay on the moving chin
+            j = int(min(len(hd_) - 1, ih + round(dts * fps)))
+            keys.append((dts, Vector(hd_[j]) + rel - dvec * 0.004))
+        j = int(min(len(hd_) - 1, ih + round(0.06 * fps)))
+        keys.append((0.30, Vector(hd_[j]) + rel - dvec * 0.45))
+        for dts, loc in keys:
+            gl.location = loc
+            gl.keyframe_insert('location', frame=fhit + dts * fps)
+        for fch, hide in ((1, True), (fhit + t_show * fps, False), (fhit + 0.32 * fps, True)):
             gl.hide_render = hide
             gl.keyframe_insert('hide_render', frame=max(1, fch))
+        if gl.animation_data and gl.animation_data.action:
+            for fc in getattr(gl.animation_data.action, 'fcurves', []):
+                if fc.data_path == 'location':
+                    for kp in fc.keyframe_points:
+                        kp.interpolation = 'LINEAR'
 
     sc.render.engine = R['engine']
     sc.render.resolution_x, sc.render.resolution_y = R['res']
@@ -343,6 +738,13 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
     sc.render.image_settings.file_format = 'PNG'
     sc.render.use_motion_blur = bool(R['motion_blur'])
     sc.cycles.samples = R['samples']
+    # memory: 4K Daz texture sets plus a full gym exceed the workspace (OOM 2026-11-13); cap
+    # textures for drafts (Simplify > texture limit). Finals: R['texture_limit'] = 'OFF'.
+    tl = str(R.get('texture_limit', '2048'))
+    if tl != 'OFF':
+        sc.render.use_simplify = True
+        sc.cycles.texture_limit_render = tl
+        sc.cycles.texture_limit = tl
     sc.render.use_persistent_data = True     # keep textures and static geometry between frames
     if R.get('max_subdiv') is not None:
         sc.render.use_simplify = True
@@ -357,6 +759,7 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
     sc.cycles.device = 'CPU'
     sc.view_settings.view_transform = 'AgX'
     sc.view_settings.look = 'AgX - Medium High Contrast'
+    sc.view_settings.exposure = float((lock['arena'].get('scene') or {}).get('exposure', 0.0))
     sc.camera = shots[R['shots'][0]]
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out_dir, 'scene.blend'), compress=True,
                                 relative_remap=True)
@@ -369,7 +772,7 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
     if stills:
         # look check: a handful of stills per shot at the take's key moments, minutes not tens
         # of minutes. Catches framing, occlusion, face and prop problems before the video.
-        keys_t = [t_ko + 0.45] + [ev_t[k] + d for k, d in (('head_impact', 0.25), ('followup_1', -0.03),
+        keys_t = [t_ko + 0.45] + [ev_t[k] + d for k, d in (('head_impact', 0.25), ('head_impact', 1.2), ('followup_1', -0.03),
                                                            ('followup_1', 1.6)) if k in ev_t] + [n / fps - 0.1]
         tiles = []
         for name in R['shots']:

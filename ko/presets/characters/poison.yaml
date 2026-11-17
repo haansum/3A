@@ -1,0 +1,27 @@
+# Poison (owner-supplied, Auto-Rig Pro body rig + Faceit face rig, Unreal-style game export).
+# Local file only. The model is suit-only: no body under the clothes (ray-cast check
+# 2026-11-12), so the owner's bikini request waits for a base body from the owner. Until then
+# this preset only feeds the sim (mass layout, collision hulls from the suited mesh).
+name: poison
+source:
+  file: assets_cache/poison/Poison.blend
+  sha256: null
+mass: 60.0            # kg, assumed for a ~1.78 m athletic frame (no measured data)
+bone_map:             # ARP deform bones (auto-map does not know ARP's *_stretch names)
+  pelvis: root.x
+  spine: spine_01.x
+  chest: spine_03.x
+  neck: neck.x
+  head: head.x
+  upper_arm_L: arm_stretch.l
+  forearm_L: forearm_stretch.l
+  hand_L: hand.l
+  upper_arm_R: arm_stretch.r
+  forearm_R: forearm_stretch.r
+  hand_R: hand.r
+  thigh_L: thigh_stretch.l
+  shin_L: leg_stretch.l
+  foot_L: foot.l
+  thigh_R: thigh_stretch.r
+  shin_R: leg_stretch.r
+  foot_R: foot.r

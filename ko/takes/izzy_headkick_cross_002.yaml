@@ -1,0 +1,12 @@
+# v2 (owner 2026-11-15 22:33): from f47 she slides forward on her face and ends face down.
+# Head kick caught mid-cross, shut off halfway through the punch, momentum carries her forward;
+# springy limp body (owner 2026-11-15). Gym, leotard look as in the chair take.
+character: izzy_leotard
+arena: gym
+archetype: headkick_cross_slide
+seed: 1
+quality: draft
+overrides:
+  sim: {perturb: 0.04}
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+shots: [live, ref_pan, face]
