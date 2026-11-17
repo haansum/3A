@@ -13,8 +13,28 @@ import numpy as np
 
 TH = dict(limit_overshoot_deg=5.0, spike_rad_s=30.0, spike_window_s=0.033,
           spike_contact_window_s=0.05, foot_slide_m=0.02, planted_load_frac=0.2,
-          sim_penetration_mm=5.0, self_penetration_mm=10.0, jitter_deg_rms=0.5,
+          sim_penetration_mm=5.0, flesh_penetration_mm=12.0, self_penetration_mm=10.0, jitter_deg_rms=0.5,
           assist_slack=1.02)
+
+
+def canvas_penetration(gn, g1, g2, cd, flesh=None):
+    """Deepest canvas penetration in mm -> (bony segments, fleshy segments).
+
+    The rigid hulls stand in for a body whose pelvis, trunk, thighs and upper arms carry
+    1-3 cm of compressible tissue. A flesh hull sinking ~1 cm into the canvas is the tissue
+    flattening, which the render shows with the canvas-flattening deformer (nothing renders
+    below the canvas); the same sink on a bony segment (head, hands, shins, feet) is clipping."""
+    from ..sim.scene import FLESH_SEGMENTS
+    fl = set('g_' + s for s in (flesh or FLESH_SEGMENTS))
+    gn = list(gn)
+    is_can = np.array([n == 'canvas' for n in gn])
+    is_body = np.array([n.startswith('g_') for n in gn])
+    is_fl = np.array([n in fl for n in gn])
+    hit = (is_can[g1] & is_body[g2]) | (is_can[g2] & is_body[g1])
+    fl_hit = hit & (is_fl[g1] | is_fl[g2])
+    bone = hit & ~fl_hit
+    mm = lambda b: float(-cd[b].min() * 1000) if b.any() else 0.0
+    return max(mm(bone), 0.0), max(mm(fl_hit), 0.0)
 
 
 def _band(q, dt, lo, hi, order=6):
@@ -266,13 +286,15 @@ def check(sim_path, lock):
 
     # 2. motion quality ---------------------------------------------------------------------
     pen_rope = -cd[b_rope].min() * 1000 if b_rope.any() else 0.0
-    pen_can = -cd[b_can].min() * 1000 if b_can.any() else 0.0
+    pen_can, pen_flesh = canvas_penetration(gn, g1, g2, cd)
     b_self = is_body[g1] & is_body[g2]
     pen_self = -cd[b_self].min() * 1000 if b_self.any() else 0.0
     add(2, 'sim_penetration_rope_mm', pen_rope <= TH['sim_penetration_mm'], round(float(pen_rope), 1),
         TH['sim_penetration_mm'])
     add(2, 'sim_penetration_canvas_mm', pen_can <= TH['sim_penetration_mm'], round(float(pen_can), 1),
-        TH['sim_penetration_mm'])
+        TH['sim_penetration_mm'], 'bony segments (head, neck, forearms, hands, shins, feet)')
+    add(2, 'sim_penetration_canvas_flesh_mm', pen_flesh <= TH['flesh_penetration_mm'], round(float(pen_flesh), 1),
+        TH['flesh_penetration_mm'], 'pelvis, trunk, thighs, upper arms: tissue compression, drawn by the flattening deformer')
     add(2, 'sim_penetration_self_mm', pen_self <= TH['self_penetration_mm'], round(float(pen_self), 1),
         TH['self_penetration_mm'])
 

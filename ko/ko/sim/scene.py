@@ -14,6 +14,10 @@ ROPE_DEFAULT = dict(span=6.0, nseg=16, radius=0.0125, preload=2000.0, k_end=2000
                     contact='solref="0.005 1" solimp="0.95 0.99 0.001"', friction=0.9)
 
 
+# segments whose hull covers soft tissue thick enough to compress against the canvas
+# (sim.flesh_contact, and the canvas-penetration gate's flesh limit)
+FLESH_SEGMENTS = ('pelvis', 'spine', 'chest', 'thigh_L', 'thigh_R', 'upper_arm_L', 'upper_arm_R')
+
 def rope_xml(name, y, z, x0, p):
     lc = p['span'] - p['gap']
     seg = lc / p['nseg']
