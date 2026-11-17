@@ -356,29 +356,31 @@ def rebounds(tr, i0, i1, body='pelvis', min_mm=8.0):
 
 
 @pred
-def limit_springs(tr, i0, i1, near_deg=6.0, back_deg=2.0, within=0.3, min_speed=60.0):
+def limit_springs(tr, i0, i1, near_deg=6.0, back_deg=4.0, within=0.35, min_speed=60.0, gap=0.5):
     """Joints reaching the end of their range and springing back: count of events where a joint
     arrives within `near_deg` of a limit faster than `min_speed` deg/s and moves back out by at
-    least `back_deg` within `within` seconds. A hard stop that sticks scores 0."""
+    least `back_deg` within `within` seconds. At most one event per joint every `gap` seconds,
+    so a joint rattling on its stop counts once, not dozens of times. A stop that sticks scores 0."""
     if not tr.limits:
         return float('nan')
     w = max(1, int(within / tr.dt))
+    g = max(1, int(gap / tr.dt))
     n = 0
     for j, (lo, hi) in tr.limits.items():
         q = tr.joints[j][i0:i1]
         if len(q) < 3:
             continue
         v = np.gradient(q, tr.dt)
+        last = -g
         for lim, sgn in ((lo, -1.0), (hi, 1.0)):
             near = np.abs(q - lim) < near_deg
-            arrive = np.nonzero(near[1:] & ~near[:-1])[0] + 1
-            for a in arrive:
-                if sgn * v[max(0, a - 1)] < min_speed:
+            for a in np.nonzero(near[1:] & ~near[:-1])[0] + 1:
+                if a - last < g or sgn * v[max(0, a - 1)] < min_speed:
                     continue
                 seg = q[a:a + w]
-                peak = seg[np.argmax(sgn * seg)] if len(seg) else q[a]
-                if len(seg) and np.max(sgn * (peak - seg)) >= back_deg:
+                if len(seg) and np.max(sgn * (seg[np.argmax(sgn * seg)] - seg)) >= back_deg:
                     n += 1
+                    last = a
     return float(n)
 
 

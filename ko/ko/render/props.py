@@ -207,4 +207,42 @@ def make_mma_glove(name, coll):
     return ob
 
 
-PROPS = {'glove': make_mma_glove, 'glove_box': make_glove, 'mma_glove': make_mma_glove, 'shin': make_shin_guard}
+def make_boxing_glove(name, coll, rgb=(0.36, 0.012, 0.016)):
+    """Boxing glove, about 12 oz, closed fist, knuckles forward (+Z), back of the hand up (+Y).
+    Built to read at 640 px (2026-11-17: the 4 oz MMA glove read as a dark mug): a large
+    rounded mitt with a knuckle roll, a separate thumb lobe along the side, a long cuff and a
+    white strap band. Original design; sizes approximate."""
+    leather = _mat('KO_box_leather', rgb, 0.32, 0.15)
+    strap = _mat('KO_box_strap', (0.85, 0.85, 0.83), 0.5)
+    lining = _mat('KO_box_lining', (0.05, 0.05, 0.055), 0.8)
+    mitt = _fused([
+        lambda bm: _ellipsoid(bm, (0.122, 0.104, 0.150), (0, 0.000, -0.074), 32, 18),   # main mitt
+        lambda bm: _ellipsoid(bm, (0.128, 0.084, 0.070), (0, 0.012, -0.032), 32, 16),   # knuckle roll
+        lambda bm: _ellipsoid(bm, (0.040, 0.050, 0.110), (-0.060, -0.016, -0.080), 18, 12),  # thumb lobe
+        lambda bm: _ellipsoid(bm, (0.096, 0.088, 0.085), (0, -0.004, -0.150), 24, 14),  # wrist taper
+    ], 0.0032)
+    _tmp_me = bpy.data.meshes.new('_tmp3')
+
+    def put(src):
+        def f(bm):
+            src.to_mesh(_tmp_me)
+            bm.from_mesh(_tmp_me)
+        return f
+
+    def cuff(bm):
+        _cyl(bm, 0.047, 0.105, (0, -0.004, -0.215), segs=48, caps=False, radius2=0.044)
+
+    def band(bm):
+        _cyl(bm, 0.0495, 0.040, (0, -0.004, -0.205), segs=48, caps=False, radius2=0.0485)
+
+    def cap(bm):
+        _cyl(bm, 0.0435, 0.004, (0, -0.004, -0.267), segs=48)
+
+    ob = _obj(name, [(put(mitt), leather), (cuff, leather), (band, strap), (cap, lining)], coll)
+    mitt.free()
+    bpy.data.meshes.remove(_tmp_me)
+    return ob
+
+
+PROPS = {'glove': make_boxing_glove, 'boxing_glove': make_boxing_glove, 'glove_box': make_glove, 'mma_glove': make_mma_glove,
+         'shin': make_shin_guard}

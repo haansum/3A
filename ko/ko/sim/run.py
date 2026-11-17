@@ -31,6 +31,14 @@ def run(cfg, char_dir, out_dir=None, record=True):
     m = mujoco.MjModel.from_xml_string(scene.build(gen_body.to_mjcf(spec, self_pairs=sim.get('self_pairs'),
                                                                         exclude_pairs=sim.get('exclude_pairs')),
                                                     cfg['arena'], dt))
+    if sim.get('limit_solref'):
+        # soft end of range (owner 2026-11-17: joints spring at the end of their range; a hard
+        # stop also chattered when limp feet rested on it): [time constant s, damping ratio] for
+        # every body joint's limit; ropes untouched. Off by default, so old takes are unchanged.
+        tc_, dr_ = (float(x) for x in sim['limit_solref'])
+        for b_ in spec['bodies']:
+            for j_ in b_['joints']:
+                m.jnt_solref[m.joint(j_['name']).id] = (tc_, dr_)
     d = mujoco.MjData(m)
     assert m.joint('root').dofadr[0] == 0
     ctl_cfg = dict(cfg['controller'], seed=sim.get('seed', 0), dt=dt)

@@ -404,6 +404,10 @@ def autoframe(loc, pts, fps, fill=0.75, aspect=16 / 9, lens_rng=(18.0, 120.0), s
     k = max(1, int(sec * fps))
     ker = np.ones(k) / k
     pad = lambda a: np.concatenate([np.repeat(a[:1], k, 0), a, np.repeat(a[-1:], k, 0)])  # noqa: E731
+    # widest lens needed anywhere in the window first, then smooth: an average of tight and wide
+    # framings cropped her while standing (2026-11-17); this never zooms in past what fits
+    from scipy.ndimage import minimum_filter1d
+    lenses = minimum_filter1d(lenses, size=2 * k + 1, mode='nearest')
     lenses = np.convolve(pad(lenses), ker, 'same')[k:-k]
     aims = np.stack([np.convolve(pad(aims[:, j]), ker, 'same')[k:-k] for j in range(3)], 1)
     return aims, lenses
