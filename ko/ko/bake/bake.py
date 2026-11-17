@@ -386,7 +386,7 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
            'round_trip_max_joint_position_error_mm': round(err_mm, 2),
            'face_shape_keys_driven': face_keys, 'directed_layers': layers_used,
            'not_baked_yet': ['fingers', 'spring-bone hair', 'soft tissue', 'cloth']}
-    np.savez_compressed(os.path.join(out_dir, 'frames.npz'), t=ft, rope=rope, tone=tone,
+    np.savez_compressed(os.path.join(out_dir, 'frames.npz'), t=ft, rope=rope, tone=tone, bodies=pos,
                         pelvis=pos[:, names.index('pelvis')], head=pos[:, names.index('head')],
                         head_quat=quat[:, names.index('head')],
                         foot_L=pos[:, names.index('foot_L')], foot_R=pos[:, names.index('foot_R')],

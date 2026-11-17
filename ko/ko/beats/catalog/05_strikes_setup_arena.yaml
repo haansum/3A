@@ -64,6 +64,10 @@ levers:
   - {id: follow.punch, label: Follow-up punch from above on the grounded head, kind: strike,
      say: [followup shot, follow-up shot, follow up strike, followup strike, ground strike, ground and pound, follow-up hit, followup hit, gnp, hammerfist],
      layer: {strike: {after: 'touch:head', t: 1.0, body: head, dir: [-0.45, 0.0, -0.9], frame: world, offset: [0, -0.06, -0.03], impulse: [3, 9], prop: glove, ko: false}}, src: log}
+  - {id: follow.soccer_kick, label: Follow-up kick to the head of a grounded fighter (soccer kick), kind: strike, side: LR,
+     say: [soccer kick, kick to the head on the ground, kicks her head on the canvas, follow-up kick],
+     layer: {strike: {after: 'touch:head', t: 1.4, body: head, dir: [-1.0, 0.15, -0.3], frame: world, offset: [0.06, -0.06, -0.03],
+             impulse: [5, 12], prop: shin, ko: false, duration: 0.02}}, src: log}
   - {id: follow.count, label: Number of follow-up strikes,
      say: [single followup, one followup, two followup, multiple followup, 2nd follow-up, second follow-up, several shots, three shots], layer: {follow_count: true}, src: log}
   - {id: follow.delay, label: 'Follow-up lands this long after she hits the canvas (house: 1 s)',

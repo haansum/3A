@@ -1,24 +1,20 @@
 take: izzy_headkick_cross_002
-approved: false
+approved: true
+approved_note: 'Owner rulings 2026-11-17: sides free unless stated; head turns with the follow-up; maximum shoulder
+  roll and arm and leg extension after the follow-up.'
 seed: 1
 prose: A head kick clips her as she throws a cross. She falls forward, hands don't break the fall, slides along
   the canvas and ends face down.
 strikes:
-- lever: strike.cross
-  name: ko_strike
-  i: 0.6
 - lever: strike.head_kick
   name: ko_strike
   i: 0.6
-  side: L
-  chosen: seed
+  side: any
   mods:
   - hit.clip
 beats:
 - id: b1
   'on': ko
-  say: A head kick clips her as she throws a cross. She falls forward, hands don't break the fall, slides along
-    the canvas and ends face down.
   levers:
   - id: setup.mid_punch
     i: 0.6
@@ -29,5 +25,8 @@ beats:
   - id: ground.slide
     i: 0.6
   - id: rest.prone
+    i: 0.6
+  - id: rest.head_turned
+    side: any
     i: 0.6
 unmatched: []

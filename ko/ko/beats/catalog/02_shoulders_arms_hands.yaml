@@ -4,8 +4,11 @@ levers:
   # ---- shoulders ----
   - {id: shoulder.roll_forward, label: Shoulders roll / hunch forward, region: arm, side: LR, default_side: both,
      say: [shoulders roll forward, shoulders hunched forward, shoulders rolling forward, shoulders round, shoulders hunch, shoulders curl in],
-     pose: {upper_arm_$S_twist: [0, 40], upper_arm_$S_flex: [30, 55]},
+     pose: {upper_arm_$S_twist: [0, 40]},
      note: 'no clavicle joint yet: approximated by internal rotation + upper-back flexion', also: [{id: trunk.upper_back_hunch, i: 0.6}], src: log}
+  - {id: neck.turn_with_strike, label: 'Head turns the way the blow pushed it, and stays there',
+     say: [head turns in the direction of the follow up, head turns with the punch, head turns with the kick, head whips to the side, whips the head to the side, head whips with the shot],
+     check: {pred: turn_follows_strike, min: [0.2, 0.6]}, src: log}
   - {id: shoulder.shrug, label: Shoulders shrug up toward the ears, region: arm, side: LR, default_side: both,
      say: [shoulders shrug, shrugging, shoulders up to ears, shoulders lift], note: needs clavicle joint, src: log}
   - {id: shoulder.raise_arm, label: Upper arm lifted away from the body (elevation), region: arm, side: LR,

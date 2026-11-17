@@ -2,7 +2,7 @@
 
 Generated from `ko/beats/catalog/*.yaml` by `python -m ko.beats.catalog`. Do not edit here.
 
-350 levers. 69 checks, 62 drives, 80 drives+checks, 1 partial, 138 planned.
+354 levers. 72 checks, 63 drives, 80 drives+checks, 1 partial, 138 planned.
 
 - **drives+checks**: prose sets it, the sim is driven toward it, the checker measures it.
 - **drives**: set and driven, not measured yet.
@@ -61,6 +61,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 | OK | id | What it is | Phrases that trigger it | Status | Src | Note |
 | --- | --- | --- | --- | --- | --- | --- |
 |   | `shoulder.roll_forward` | Shoulders roll / hunch forward (L/R) | shoulders roll forward; shoulders hunched forward; shoulders rolling forward; shoulders round | drives+checks | log | no clavicle joint yet: approximated by internal rotation + upper-back flexion |
+|   | `neck.turn_with_strike` | Head turns the way the blow pushed it, and stays there | head turns in the direction of the follow up; head turns with the punch; head turns with the kick; head whips to the side | checks | log |  |
 |   | `shoulder.shrug` | Shoulders shrug up toward the ears (L/R) | shoulders shrug; shrugging; shoulders up to ears; shoulders lift | planned | log | needs clavicle joint |
 |   | `shoulder.raise_arm` | Upper arm lifted away from the body (elevation) (L/R) | arm raised; arm lifts; arm up; arm rises | drives+checks | log |  |
 |   | `shoulder.arm_overhead` | Arm up over the head (L/R) | arm overhead; arm above head; arm over her head; hand above head | drives+checks | new |  |
@@ -113,7 +114,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `trunk.hip_hinge` | Folds at the hips (trunk stays straighter than a slump) (L/R) | hinge at the hips; hip hinge; folds at the waist; bends at the hips | drives+checks | log |  |
 |   | `trunk.back_arch` | Back arches (extension) | back arch; arches her back; spine arches; back bows | drives+checks | log |  |
 |   | `trunk.back_curl` | Back curls forward (flexion) instead of arching | back curl; core crunch; crunching; curls up | drives+checks | log |  |
-|   | `trunk.upper_back_hunch` | Upper back hunches up off the canvas | upper back hunch; hunch her upper back; upper back off the mat; hunching off canvas | drives+checks | log |  |
+|   | `trunk.upper_back_hunch` | Upper back hunches up off the canvas | upper back hunch; hunch her upper back; upper back off the mat; hunching off canvas | drives+checks | log | measured at the base of the neck (the top of the chest); the chest body origin is its own pivot and cannot rise |
 |   | `trunk.rigid_plank` | Trunk rigid as a board | rigid trunk; stiff as a board; plank; body rigid | drives+checks | bible |  |
 |   | `trunk.limp` | Trunk goes soft and folds with gravity (melt) | trunk limp; body melts; melts; crumples | drives+checks | bible |  |
 |   | `trunk.side_bend` | Trunk bends sideways (L/R) | side bend; bends sideways; leans to her; torso tilts | drives+checks | new |  |
@@ -145,7 +146,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `legs.one_straight_one_bent` | One leg stiff straight, the other bent (side = straight leg) (L/R) | one leg straight one bent; one leg stiff the other bent; one knee bent the other straight | drives+checks | new |  |
 |   | `legs.stanky` | Standing wobble: knees dip and catch, feet stutter ("chicken dance") | stanky leg; chicken dance; wobbly legs; legs wobble | planned | new | needs the stagger-step controller |
 |   | `legs.pedal` | Slow alternating leg movement on the canvas (pedalling) | pedalling; legs pedal; bicycle; legs slowly kick | drives+checks | new |  |
-|   | `legs.heels_lifted` | Heels held off the canvas while she lies there (legs stiff, feet hovering) (L/R) | heels lifted; heels off the canvas; heels up; heels raised | checks | log | height is the foot body origin above the sim canvas; a jackknifed leg fails the knee check |
+|   | `legs.heels_lifted` | Heels held off the canvas while she lies there (legs stiff, feet hovering) (L/R) | heels lifted; heels off the canvas; heels up; heels raised | checks | log | lift = ankle height above where it sits when the heel rests on the canvas; a jackknifed leg fails the knee check |
 |   | `rest.on_canvas` | She rests on the canvas: rendered skin touches the rendered floor, no hover and no sinking | resting on the canvas; lying on the canvas; not hovering; touching the canvas | planned | log | needs the render-space ground probe (baked skin against the rendered canvas surface) |
 |   | `feet.point` | Feet point (plantarflex) (L/R) | feet point; toes point; pointed feet; pointed toes | drives+checks | bible |  |
 |   | `feet.flex_up` | Feet pulled up toward the shins (L/R) | feet flex up; feet pulled up; dorsiflex; toes pulled back toward shin | drives+checks | new |  |
@@ -200,6 +201,8 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `fall.spin` | Body spins about vertical as it falls (L/R) | spins as she falls; corkscrews down; twists as she falls; pirouette | checks | new |  |
 |   | `fall.no_spin` | Little or no spin on the canvas | reduce the amount she spins; no spin; less spin; doesn't spin | checks | log |  |
 |   | `fall.momentum_carries` | Momentum carries through the shutdown (keeps travelling the way she was moving) | momentum carries; momentum survives; keeps moving; carried by her momentum | checks | bible |  |
+|   | `fall.springy_collapse` | Springy collapse: the limp body loads like a spring, rebounds once or twice softly, then lets go | springy collapse; springy; loads like a spring; springs back | checks | log |  |
+|   | `joints.end_range_spring` | Joints spring back softly at the end of their range instead of stopping dead | spring in her joints; end of range; springs at the end of range; joints bounce at the limit | checks | log | driven by sim.limit_solref (soft, lightly damped joint limits) |
 |   | `fall.over_own_legs` | Folds down over her own legs (knees bend under her as she goes back) | folds over her legs; legs fold under her as she falls; sits back onto her heels; collapses over her legs | checks | new |  |
 |   | `ground.head_bounce` | Head bounces off the canvas | head bounce; head bounces; head rebounds; head hits the ground | checks | log |  |
 |   | `ground.single_bounce` | At most one head bounce | one bounce; single bounce; bounces once | checks | log |  |
@@ -244,6 +247,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `hit.walked_into` | She was moving into it (closing speed adds) | walks into; walked into; runs into; steps into the punch | drives | new |  |
 |   | `hit.retreating` | She was giving ground when hit | backing up; retreating; moving backward when; gives ground | drives | log |  |
 |   | `follow.punch` | Follow-up punch from above on the grounded head | followup shot; follow-up shot; follow up strike; followup strike | drives | log |  |
+|   | `follow.soccer_kick` | Follow-up kick to the head of a grounded fighter (soccer kick) (L/R) | soccer kick; kick to the head on the ground; kicks her head on the canvas; follow-up kick | drives | log |  |
 |   | `follow.count` | Number of follow-up strikes | single followup; one followup; two followup; multiple followup | planned | log |  |
 |   | `follow.delay` | Follow-up lands this long after she hits the canvas (house: 1 s) | 1s after she's hit the ground; a second after; right after she lands; seconds after she hits | planned | log |  |
 |   | `follow.harder` | Follow-up hits harder and more pronounced | hit harder; harder and more pronounced; heavier shot; bigger shot | drives | log |  |

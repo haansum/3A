@@ -1,5 +1,8 @@
 take: izzy_hook_chair_001
-approved: false
+approved: true
+approved_note: 'Owner rulings 2026-11-17: sides free unless stated; head turns with the follow-up; maximum shoulder
+  roll and arm and leg extension after the follow-up. Back curl set to maximum to match the owner note "core and
+  shoulders hunched".'
 seed: 1
 prose: 'A hook to the jaw. Her legs give out and she sits straight down as if into a chair, lands on her seat first,
   then goes flat on her back. A follow-up shot on the ground and the tonic posture intensifies: legs lift, back
@@ -8,8 +11,7 @@ strikes:
 - lever: strike.hook
   name: ko_strike
   i: 0.6
-  side: L
-  chosen: seed
+  side: any
   mods:
   - hit.jaw_tip
 - lever: follow.punch
@@ -18,12 +20,10 @@ strikes:
 beats:
 - id: b1
   'on': ko
-  say: A hook to the jaw. Her legs give out and she sits straight down as if into a chair, lands on her seat first,
-    then goes flat on her back.
   levers:
   - id: legs.buckle
-    i: 0.6
     side: both
+    i: 0.6
   - id: fall.straight_down
     i: 0.6
   - id: fall.sit_then_back
@@ -32,15 +32,12 @@ beats:
     i: 0.6
 - id: b2
   'on': followup_1
-  say: 'A follow-up shot on the ground and the tonic posture intensifies: legs lift, back curls.'
   levers:
   - id: tone.intensify
     i: 0.6
   - id: legs.raise
-    i: 0.6
     side: both
-  - id: trunk.back_curl
     i: 0.6
-unmatched:
-- beat: b2
-  text: the tonic posture
+  - id: trunk.back_curl
+    i: 1.0
+unmatched: []

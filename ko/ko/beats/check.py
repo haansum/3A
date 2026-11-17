@@ -115,11 +115,39 @@ def check(tr, sheet):
         bw = named_window(tr, 'beat', t0, t1)
         tone_now = PRED['tone'](tr, tr.i(bw[0]), max(tr.i(bw[1]), tr.i(bw[0]) + 1), agg='p90')
         seen = set()
+        _eval = _beat_eval(tr, b, t0, t1, bw, prev_tone, row, levers)
         for entry in b.get('levers', []):
             if entry['id'] not in levers:
                 rows.append({'beat': b['id'], 'on': b['on'], 'lever': entry['id'], 'side': '', 'check': 'known lever',
                              'value': None, 'want': 'in catalog', 'pass': False, 'note': 'unknown lever id'})
                 continue
+            if entry.get('side') == 'any':
+                # either side satisfies the claim: judge both, keep the better (owner 2026-11-17)
+                n0, best = len(rows), None
+                for sd in ('L', 'R'):
+                    trial = dict(entry, side=sd)
+                    seen_t = set(seen)
+                    _eval(trial, seen_t)
+                    got = rows[n0:]
+                    del rows[n0:]
+                    key = (sum(r['pass'] is False for r in got), -sum(r['pass'] is True for r in got))
+                    if best is None or key < best[0]:
+                        best = (key, got, seen_t)
+                for r in best[1]:
+                    r['note'] = (r['note'] + ' (either side allowed)').strip()
+                rows.extend(best[1])
+                seen |= best[2]
+                continue
+            _eval(entry, seen)
+        prev_tone = tone_now
+    n = {'pass': sum(r['pass'] is True for r in rows), 'fail': sum(r['pass'] is False for r in rows),
+         'unverified': sum(r['pass'] is None for r in rows)}
+    return {'rows': rows, 'summary': n, 'pass': n['fail'] == 0, 'events': {k: round(v, 3) for k, v in tr.events.items()},
+            'approved': bool(sheet.get('approved'))}
+
+
+def _beat_eval(tr, b, t0, t1, bw, prev_tone, row, levers):
+    def _eval(entry, seen):
             for lv, side, i, neg, judged in resolve(entry, levers):
                 if not judged or (lv['id'], side) in seen:
                     continue
@@ -173,11 +201,7 @@ def check(tr, sheet):
                     did = True
                 if not did and not lv.get('expands'):
                     row(lv, side, '-', None, '-', None, lv.get('note') or 'no measurement exists yet')
-        prev_tone = tone_now
-    n = {'pass': sum(r['pass'] is True for r in rows), 'fail': sum(r['pass'] is False for r in rows),
-         'unverified': sum(r['pass'] is None for r in rows)}
-    return {'rows': rows, 'summary': n, 'pass': n['fail'] == 0, 'events': {k: round(v, 3) for k, v in tr.events.items()},
-            'approved': bool(sheet.get('approved'))}
+    return _eval
 
 
 def show(rep, file=sys.stdout):

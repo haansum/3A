@@ -230,7 +230,12 @@ def refine_face_cam(sc, cam_ob, root, fps, n, every=3, dist=0.82):
     nearest straight-on and nearest the previous choice; then smooth and key it.
     Eyes come from the eye.L / eye.R deform bones (else a point in front of the head)."""
     import math as _m
-    arm = next((o for o in bpy.data.objects if o.type == 'ARMATURE' and 'eye.L' in o.pose.bones), None)
+    # the animated deform skeleton, never a static control rig that also carries eye bones
+    # (2026-11-17: the Genesis control rig was picked, so the face camera aimed at where her head
+    # was before the strike on every frame)
+    cands = [o for o in bpy.data.objects if o.type == 'ARMATURE' and 'eye.L' in o.pose.bones]
+    cands.sort(key=lambda o: (o.name != 'KO_skeleton', not (o.animation_data and o.animation_data.action)))
+    arm = cands[0] if cands else None
     if arm is None or cam_ob is None:
         return None
     hb = next((b for b in ('DEF-spine.006', 'head', 'DEF-head') if b in arm.pose.bones), None)
@@ -451,6 +456,12 @@ def make_cameras(lock, fr, root, coll, fps):
         np.stack([crown, head, pel], 1)
     pad_ = np.array([[0.18, 0, 0], [-0.18, 0, 0], [0, 0.18, 0], [0, -0.18, 0]])
     body_pts = np.concatenate([body_pts] + [body_pts[:, 2:3] + d for d in pad_], 1)
+    if 'bodies' in fr:
+        # every sim body (hands and forearms included: arms locked overhead were cropped,
+        # 2026-11-17), padded by 0.1 m for limb volume
+        B_ = np.asarray(fr['bodies'])
+        pad2 = np.array([[0.1, 0, 0], [-0.1, 0, 0], [0, 0.1, 0], [0, -0.1, 0], [0, 0, 0.1], [0, 0, -0.06]])
+        body_pts = np.concatenate([body_pts] + [B_ + d for d in pad2], 1)
     aims_, lens_ = autoframe(live_loc, body_pts, fps, fill=0.75)
     ob_live = cam('live', live_loc, float(lens_[0]), follow=aims_)
     for f_i, L_ in enumerate(lens_):

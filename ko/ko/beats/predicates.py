@@ -291,6 +291,97 @@ def monotone_drift(tr, i0, i1, joint, side=None):
     return float(q[-k:].mean() - q[:k].mean())
 
 
+@pred
+def lift(tr, i0, i1, body, agg='median', rest_at=0.0):
+    """Height of a body above where it sits when that part rests on the canvas, metres. The
+    resting height is taken as the body's height at `rest_at` (default: standing, t = 0, where
+    a foot's origin sits at ankle height, the same as a heel resting on the canvas)."""
+    z0 = tr.pos[tr.i(rest_at), tr.b(body), 2]
+    return _agg(tr.pos[i0:i1, tr.b(body), 2] - z0, agg)
+
+
+@pred
+def rise(tr, i0, i1, body, lead=0.15, agg='max'):
+    """How far a body rises during the window above where it was just before, metres
+    (upper back coming up off the canvas, head lifting)."""
+    k = max(1, int(lead / tr.dt))
+    z0 = float(np.median(tr.pos[max(0, i0 - k):max(1, i0), tr.b(body), 2]))
+    return _agg(tr.pos[i0:i1, tr.b(body), 2] - z0, agg)
+
+
+@pred
+def turn_follows_strike(tr, i0, i1, strike=None, lead=0.05):
+    """Does the head turn the way the strike pushed it? Cosine between the change in the head's
+    facing direction (before the strike -> settled in the window) and the strike direction:
+    1 = turned fully with the blow, 0 = sideways, negative = against it."""
+    if strike is None:                       # the latest strike at or before the window opens
+        prior = [s for s in tr.strikes if s.get('t', 1e9) <= tr.t[i0] + 0.05]
+        st = prior[-1] if prior else None
+    else:
+        st = next((s for s in tr.strikes if s.get('name') == strike), None)
+    if st is None:
+        return float('nan')
+    d = np.asarray(st['dir'], float)
+    d = d / max(np.linalg.norm(d), 1e-9)
+    ia = tr.i(st['t'] - lead)
+    f = tr.axis('head', 'front')
+    k = max(i0 + 1, i1)
+    df = np.median(f[max(i0, k - int(0.5 / tr.dt)):k], axis=0) - f[ia]
+    n = np.linalg.norm(df)
+    return float(df @ d / n) if n > 1e-6 else 0.0
+
+
+@pred
+def rebounds(tr, i0, i1, body='pelvis', min_mm=8.0):
+    """Number of visible vertical rebounds of a body (a rise of at least `min_mm` after a low
+    point). A springy landing has one or two; a dead drop none; chatter shows as many tiny ones
+    below the threshold, which are not counted."""
+    z = tr.pos[i0:i1, tr.b(body), 2]
+    if len(z) < 3:
+        return 0.0
+    k = max(1, int(0.02 / tr.dt))
+    z = np.convolve(z, np.ones(k) / k, 'same')
+    lo, n, rising = z[0], 0, False
+    for v in z[1:]:
+        if not rising:
+            lo = min(lo, v)
+            if v - lo > min_mm / 1000:
+                n += 1
+                rising, hi = True, v
+        else:
+            hi = max(hi, v)
+            if hi - v > min_mm / 1000:
+                rising, lo = False, v
+    return float(n)
+
+
+@pred
+def limit_springs(tr, i0, i1, near_deg=6.0, back_deg=2.0, within=0.3, min_speed=60.0):
+    """Joints reaching the end of their range and springing back: count of events where a joint
+    arrives within `near_deg` of a limit faster than `min_speed` deg/s and moves back out by at
+    least `back_deg` within `within` seconds. A hard stop that sticks scores 0."""
+    if not tr.limits:
+        return float('nan')
+    w = max(1, int(within / tr.dt))
+    n = 0
+    for j, (lo, hi) in tr.limits.items():
+        q = tr.joints[j][i0:i1]
+        if len(q) < 3:
+            continue
+        v = np.gradient(q, tr.dt)
+        for lim, sgn in ((lo, -1.0), (hi, 1.0)):
+            near = np.abs(q - lim) < near_deg
+            arrive = np.nonzero(near[1:] & ~near[:-1])[0] + 1
+            for a in arrive:
+                if sgn * v[max(0, a - 1)] < min_speed:
+                    continue
+                seg = q[a:a + w]
+                peak = seg[np.argmax(sgn * seg)] if len(seg) else q[a]
+                if len(seg) and np.max(sgn * (peak - seg)) >= back_deg:
+                    n += 1
+    return float(n)
+
+
 # -- timing ---------------------------------------------------------------------------------
 @pred
 def event_gap(tr, i0, i1, a, b):

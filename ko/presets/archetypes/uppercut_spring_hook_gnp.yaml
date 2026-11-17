@@ -1,6 +1,6 @@
 # Uppercut snaps the chin up -> springy collapse (owner note 2026-11-15: the limp body loads like a
 # spring and softly springs back, not a critically damped servo) -> flat on her back -> follow-up
-# that lands like a hook, whipping her head to the side -> arms lock out straight (owner 2026-11-16).
+# that whips her head to the side (a soccer kick since 2026-11-17) -> arms lock out straight (owner 2026-11-16).
 # Springiness: tone bleeds out over ~200 ms (tau_down), and the load phases run on lightly damped
 # springs (zeta 0.3) with an overshoot shape: knees/trunk compress, rebound once, the rebound tips
 # her back over her hips, then let go. No rigid_trunk servo at zeta 1 anywhere.
@@ -41,12 +41,12 @@ strikes:
     after: head_impact
     t: 1.4                       # once she has settled on her back
     body: head
-    impulse: 7.0
-    duration: 0.012
-    dir: [-1.0, 0.0, -0.3]       # hook-like: across the face from her left, mostly sideways, a little down
+    impulse: 8.0                 # owner 2026-11-17: the follow-up is a soccer kick, not a hook (v1 in archive/)
+    duration: 0.02               # a shin stays in contact longer than a glove
+    dir: [-1.0, 0.15, -0.3]      # the shin sweeps across the face from her left, a little down
     frame: world
     offset: [0.06, -0.06, -0.03]   # left cheek / jaw
-    prop: glove
+    prop: shin
     ko: false
 controller:
   track_hz: 3.0

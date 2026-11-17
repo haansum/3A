@@ -69,7 +69,9 @@ controller:
       - {t: 0.08, rise: 0.06, hold: 0.45, fade: 0.6, regions: [trunk], tone: 0.45, zeta: 0.3,
          pose: slump_forward, shape: overshoot, shape_params: {fn: 1.8, zeta: 0.35}, depth: 1.0, jitter: 0.1}
       # 3. arms: the lead hand drops first; the punching arm keeps travelling out (low gain, late)
-      - {t: 0.05, rise: 0.1, hold: 0.8, fade: 0.5, regions: [arm_L, arm_R], tone: 0.25, pose: arms_drop,
+      #    (v3, 2026-11-17) arms trail almost limp: with 0.25 tone they braced and took 0.8 body
+      #    weight through the hands as she went down; out cold, nothing reaches for the canvas
+      - {t: 0.05, rise: 0.1, hold: 0.8, fade: 0.5, regions: [arm_L, arm_R], tone: 0.06, pose: arms_trail,
          stagger: {arm_R: 0.2}, gain: {arm_R: 0.6}, jitter: 0.12}
       # 4. (v2, owner 2026-11-15) face on the canvas from the kneel: an extensor jolt in the legs
       #    straightens hips and knees behind her, which drives the folded body forward; she slides
@@ -79,6 +81,10 @@ controller:
          stagger: {leg_R: 0.06}, jitter: 0.08}
       - {after: head_impact, t: 0.08, rise: 0.15, hold: 0.9, fade: 1.0, regions: [trunk], tone: 0.45, zeta: 0.35,
          pose: rigid_trunk, replace: true, jitter: 0.08}
+      # 5. (v3, owner 2026-11-17) face down, the head rolls onto her right cheek and the chin
+      #    comes out of the tuck: a slow, low-tone drift, so gravity and the canvas do most of it
+      - {after: head_impact, t: 0.25, rise: 0.9, hold: 20.0, fade: 1.0, regions: [neck], tone: 0.2, zeta: 0.6,
+         pose: head_rest_cheek_R, replace: true, jitter: 0.05}
     tremor:
       - {after: head_impact, link: true, mode: torque, amp_frac: 0.02, hz_hi: 8.0, hz_lo: 5.0,
          over_gain: 1.5, onset: 0.8, regions: [leg_L, leg_R]}

@@ -40,13 +40,16 @@ class Trace:
     """t, dt, bodies[list], pos (T,B,3), R (T,B,3,3), joints {name: deg (T,)},
     tone {region: (T,)}, load {body: canvas normal force (T,)}, events {name: s}, weight N."""
 
-    def __init__(self, t, bodies, pos, quat, joints, tone, load, events, weight, rope_load=None):
+    def __init__(self, t, bodies, pos, quat, joints, tone, load, events, weight, rope_load=None, strikes=None,
+                 limits=None):
         self.t, self.dt = np.asarray(t), float(t[1] - t[0])
         self.bodies, self.pos, self.R = list(bodies), np.asarray(pos), quat_R(quat)
         self.joints, self.tone, self.load = joints, tone, load
         self.rope_load = rope_load or {}
         self.weight = float(weight)
         self.events = dict(events)
+        self.strikes = list(strikes or [])      # [{name, t, point, dir}] as the sim logged them
+        self.limits = dict(limits or {})        # joint -> (lo, hi) degrees
         self._derive_events()
 
     # -- construction ----------------------------------------------------------------------
@@ -78,7 +81,9 @@ class Trace:
             ev['ko'] = float(z['t_ko'])
         return cls(t, bn, z['xpos'], z['xquat'], {n: q[:, i] for i, n in enumerate(jn)},
                    {str(r): z['tone'][:, i] for i, r in enumerate(z['regions'])}, load, ev,
-                   float(z['mass']) * 9.81, rope_load)
+                   float(z['mass']) * 9.81, rope_load,
+                   json.loads(str(z['strikes'])) if 'strikes' in z.files else [],
+                   {n: tuple(np.degrees(z['joint_range'][i])) for i, n in enumerate(jn)} if 'joint_range' in z.files else {})
 
     def _derive_events(self):
         """Events every scenario can refer to, found from the record itself (not from what the

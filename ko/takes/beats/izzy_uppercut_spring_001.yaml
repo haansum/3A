@@ -1,5 +1,7 @@
 take: izzy_uppercut_spring_001
-approved: false
+approved: true
+approved_note: 'Owner rulings 2026-11-17: sides free unless stated; head turns with the follow-up; maximum shoulder
+  roll and arm and leg extension after the follow-up.'
 seed: 1
 prose: 'An uppercut on the chin. She falls back with a springy collapse and ends on her back. When her head hits
   the canvas the body stiffens. The follow-up shot whips her head to the side and the tonic posture intensifies:
@@ -11,21 +13,24 @@ strikes:
   i: 0.6
   mods:
   - hit.jaw_tip
-- lever: follow.punch
+- lever: follow.soccer_kick
   name: followup_1
-  i: 0.5
+  i: 0.6
+  side: any
 beats:
 - id: b1
   'on': ko
-  say: An uppercut on the chin. She falls back with a springy collapse and ends on her back.
   levers:
+  - id: fall.springy_collapse
+    i: 0.6
   - id: fall.backward
     i: 0.6
   - id: rest.supine
     i: 0.6
+  - id: joints.end_range_spring
+    i: 0.3
 - id: b2
   'on': touch:head
-  say: When her head hits the canvas the body stiffens.
   levers:
   - id: ground.head_bounce
     i: 0.6
@@ -33,35 +38,32 @@ beats:
     i: 0.6
 - id: b3
   'on': followup_1
-  say: 'The follow-up shot whips her head to the side and the tonic posture intensifies: tight fists, arms locked
-    at different angles, upper back hunched, legs extended and pointed, ankles crossed, heels lifted.'
   levers:
-  - id: neck.turn
+  - id: neck.turn_with_strike
     i: 0.6
-    chosen: seed
-    side: L
   - id: tone.intensify
     i: 0.6
   - id: hand.fist
-    i: 0.6
     side: both
-  - id: arms.locked_unequal
     i: 0.6
-    chosen: seed
-    side: R
+  - id: arms.locked_unequal
+    side: any
+    i: 1.0
+  - id: shoulder.roll_forward
+    side: both
+    i: 1.0
   - id: trunk.upper_back_hunch
     i: 0.6
   - id: legs.extend_stiff
-    i: 0.6
     side: both
+    i: 1.0
+  - id: feet.point
+    side: both
+    i: 1.0
   - id: legs.ankles_cross
+    side: any
     i: 0.6
-    side: L
   - id: legs.heels_lifted
-    i: 0.6
     side: both
-unmatched:
-- beat: b1
-  text: with a springy collapse
-- beat: b3
-  text: the tonic posture
+    i: 0.6
+unmatched: []

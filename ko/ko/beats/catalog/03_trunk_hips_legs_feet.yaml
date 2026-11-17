@@ -18,7 +18,8 @@ levers:
   - {id: trunk.upper_back_hunch, label: Upper back hunches up off the canvas, region: trunk,
      say: [upper back hunch, hunch her upper back, upper back off the mat, hunching off canvas, shoulders lift off the mat, upper back off canvas],
      pose: {chest_flex: [0, 28], neck_flex: [0, 18]},
-     check: {pred: height_diff, a: chest, b: pelvis, min: [0.01, 0.10]}, src: log}
+     check: {pred: rise, body: neck, min: [0.02, 0.06]},
+     note: 'measured at the base of the neck (the top of the chest); the chest body origin is its own pivot and cannot rise', src: log}
   - {id: trunk.rigid_plank, label: Trunk rigid as a board, region: trunk,
      say: [rigid trunk, stiff as a board, plank, body rigid, like a statue, like a tree, timber, stiff body],
      pose: {spine_flex: [0, 0], chest_flex: [0, 0], spine_lat: [0, 0], chest_lat: [0, 0]}, layer: {tone: [0.6, 1.0]},
@@ -128,8 +129,8 @@ levers:
 
   - {id: legs.heels_lifted, label: 'Heels held off the canvas while she lies there (legs stiff, feet hovering)', side: LR, default_side: both,
      say: [heels lifted, heels off the canvas, heels up, heels raised, heels hover, feet hover, heels cm up, heels cm off],
-     check: [{pred: height, body: foot_$S, min: [0.06, 0.15], max: [0.22, 0.35]}, {pred: joint, joint: shin_$S_flex, max: 40}],
-     note: 'height is the foot body origin above the sim canvas; a jackknifed leg fails the knee check', src: log}
+     check: [{pred: lift, body: foot_$S, min: [0.05, 0.12], max: [0.22, 0.32]}, {pred: joint, joint: shin_$S_flex, max: 40}],
+     note: 'lift = ankle height above where it sits when the heel rests on the canvas; a jackknifed leg fails the knee check', src: log}
   - {id: rest.on_canvas, label: 'She rests on the canvas: rendered skin touches the rendered floor, no hover and no sinking',
      say: [resting on the canvas, lying on the canvas, not hovering, touching the canvas, on the canvas or hovering, skin on the canvas],
      note: needs the render-space ground probe (baked skin against the rendered canvas surface), src: log}

@@ -203,10 +203,17 @@ POSES = {
     # arms lock straight, elbows at 0, raised toward the ceiling lying on her back; L/R uneven
     # (v3 owner 2026-11-16 13:26: "one arm angled higher, one lower") left swept up past vertical
     # toward her head, right low toward her hip and lifted off the mat; both elbows locked
+    # face-down rest (owner 2026-11-17: a tucked chin face down reads inorganic): the head rolls
+    # onto one cheek, the neck slightly extended rather than flexed
+    'head_rest_cheek_R': {'neck_flex': -8, 'neck_lat': -14, 'neck_twist': -70, 'head_flex': -4, 'head_lat': -8},
+    'head_rest_cheek_L': {'neck_flex': -8, 'neck_lat': 14, 'neck_twist': 70, 'head_flex': -4, 'head_lat': 8},
+    # arms that trail the fall instead of reaching for the canvas (no protective reaction)
+    'arms_trail': {'upper_arm_L_abd': -80, 'upper_arm_L_flex': -15, 'forearm_L_flex': 20, 'hand_L_flex': 20,
+                   'upper_arm_R_abd': -80, 'upper_arm_R_flex': -15, 'forearm_R_flex': 20, 'hand_R_flex': 20},
     'arms_extended_straight': {'upper_arm_L_abd': -8, 'upper_arm_L_flex': 128, 'forearm_L_flex': 0,
-                               'hand_L_flex': 60, 'upper_arm_L_twist': 24,
+                               'hand_L_flex': 60, 'upper_arm_L_twist': 45,
                                'upper_arm_R_abd': -26, 'upper_arm_R_flex': 38, 'forearm_R_flex': 0,
-                               'hand_R_flex': 55, 'upper_arm_R_twist': 10},
+                               'hand_R_flex': 55, 'upper_arm_R_twist': 45},
     # springy load (owner 2026-11-15 note): knees and hips fold shallow under the dropping weight
     # (not the deep chair sit); an overshoot shape on light damping makes them rebound once
     # hook follow-up lying down: head whipped to her right and left there (twist sign measured on

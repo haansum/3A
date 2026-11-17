@@ -82,7 +82,7 @@ levers:
      check: {pred: travel, body: head, toward: left, sign_by_side: 1, min: 0.4, when: fall_end}, src: new}
   - {id: fall.straight_down, label: Drops straight down in place,
      say: [drops straight down, collapses in place, falls in place, crumples straight down, drops where she stands, sits straight down],
-     check: {pred: travel, body: pelvis, toward: back, min: -0.35, max: 0.35, when: fall_end}, src: bible}
+     check: {pred: travel, body: pelvis, toward: back, min: -0.35, max: 0.35, when: fall}, src: bible}
   - {id: fall.timber, label: 'Timber: rigid topple with straight hips and knees',
      say: [timber, like a tree, statue topple, falls like a plank, rigid topple, tips over stiff, stiff fall],
      check: [{pred: joint, joint: shin_L_flex, agg: max, max: 35, when: fall}, {pred: joint, joint: thigh_L_flex, agg: max, max: 40, when: fall}], src: bible}
@@ -111,6 +111,13 @@ levers:
   - {id: fall.momentum_carries, label: 'Momentum carries through the shutdown (keeps travelling the way she was moving)',
      say: [momentum carries, momentum survives, keeps moving, carried by her momentum, momentum sends her],
      check: {pred: travel, body: pelvis, toward: back, min: 0.2, when: fall_end}, src: bible}
+  - {id: fall.springy_collapse, label: 'Springy collapse: the limp body loads like a spring, rebounds once or twice softly, then lets go',
+     say: [springy collapse, springy, loads like a spring, springs back, softly springs back, spring in her],
+     check: {pred: rebounds, body: pelvis, min: 1, max: 3, when: fall_end}, src: log}
+  - {id: joints.end_range_spring, label: 'Joints spring back softly at the end of their range instead of stopping dead',
+     say: [spring in her joints, end of range, springs at the end of range, joints bounce at the limit, end rom],
+     check: {pred: limit_springs, min: [1, 4], when: take},
+     note: 'driven by sim.limit_solref (soft, lightly damped joint limits)', src: log}
   - {id: fall.over_own_legs, label: Folds down over her own legs (knees bend under her as she goes back),
      say: [folds over her legs, legs fold under her as she falls, sits back onto her heels, collapses over her legs],
      check: {pred: joint, joint: shin_L_flex, agg: max, min: 100, when: fall}, src: new}

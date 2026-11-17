@@ -100,7 +100,9 @@ def resolve(take_path, quality=None):
     k['sim'] = sha([k['body'], lock['arena'], lock['sim'], lock['motion'], lock.get('strike'),
                     lock.get('strikes'),
                     lock['controller'], code_hash('sim')])[:12]
-    k['qa'] = sha([k['sim'], lock.get('outcome'), code_hash('qa')])[:12]
+    sp_ = os.path.join(ROOT, 'takes', 'beats', lock['take'] + '.yaml')
+    sheet_txt = open(sp_).read() if os.path.exists(sp_) else None     # a sheet edit re-runs QA
+    k['qa'] = sha([k['sim'], lock.get('outcome'), sheet_txt, code_hash('qa')])[:12]
     k['bake'] = sha([k['sim'], k['character'], lock.get('bake'), lock['render']['fps'],
                      lock['character'].get('face'),
                      code_hash('bake')])[:12]

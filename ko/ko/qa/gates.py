@@ -7,6 +7,8 @@ pass as covering them.
 """
 import json
 
+import os
+
 import numpy as np
 
 TH = dict(limit_overshoot_deg=5.0, spike_rad_s=30.0, spike_window_s=0.033,
@@ -214,10 +216,20 @@ def check(sim_path, lock):
              'tone': 'standing < after head impact < after follow-up',
              'ankle_gap_after_followup_m': '<=0.02 (crossed)', 'max_foot_height_after_followup_m': '<=0.30', 'face_up_at_rest': '>=0.5'})
 
-    if oc.get('name') == 'beats':
+    # the owner's beat sheet for this take, when there is one (takes/beats/<take>.yaml or the
+    # take's `sheet:` key): checked in addition to any archetype outcome (2026-11-17)
+    sheet_ = oc.get('sheet') if oc.get('name') == 'beats' else None
+    if sheet_ is None and lock.get('take'):
+        import yaml as _yaml
+        from .. import manifest as _mf
+        sp_ = lock.get('sheet') or os.path.join(_mf.ROOT, 'takes', 'beats', lock['take'] + '.yaml')
+        sp_ = sp_ if os.path.isabs(sp_) else os.path.join(_mf.ROOT, sp_)
+        if os.path.exists(sp_):
+            sheet_ = _yaml.safe_load(open(sp_))
+    if sheet_ is not None:
         from ..beats import check as bcheck
         from ..beats.trace import Trace
-        brep = bcheck.check(Trace.load(sim_path), oc['sheet'])
+        brep = bcheck.check(Trace.load(sim_path), sheet_)
         rep['beats'] = brep
         n = brep['summary']
         add(1, 'beats', brep['pass'], n, {'fail': 0},
