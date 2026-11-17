@@ -800,8 +800,10 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
         # of minutes. Catches framing, occlusion, face and prop problems before the video.
         keys_t = [t_ko + 0.45] + [ev_t[k] + d for k, d in (('head_impact', 0.25), ('head_impact', 1.2), ('followup_1', -0.03),
                                                            ('followup_1', 1.6)) if k in ev_t] + [n / fps - 0.1]
+        # explicit times / shots (comic and contact sheets: the same fast path, ~10 s a frame)
+        keys_t = R.get('still_times') or keys_t
         tiles = []
-        for name in R['shots']:
+        for name in R.get('still_shots') or R['shots']:
             sc.camera = shots[name]
             for kt in keys_t:
                 f = int(min(n, max(1, kt * fps + 1)))

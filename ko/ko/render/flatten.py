@@ -24,7 +24,19 @@ canvas, mapped to world by the canonical root."""
 import bpy
 
 
-def _group(floor_z, band, bulge):
+def _matrix(N, M):
+    """constant 4x4 (mathutils Matrix) as a Combine Matrix node; inputs are column-major"""
+    n = N.new('FunctionNodeCombineMatrix')
+    for c in range(4):
+        for r in range(4):
+            n.inputs[c * 4 + r].default_value = M[r][c]
+    return n.outputs[0]
+
+
+def _group(floor_z, band, bulge, M):
+    # M: the object's world matrix, as a constant. An earlier version read it live through Self
+    # Object -> Object Info; that made every mesh depend on itself and cost ~7.5 min of scene sync
+    # per frame on the standing frames (measured 2026-11-17: frame 17 463 s with it, 8 s without)
     ng = bpy.data.node_groups.new('KO_canvas_flatten', 'GeometryNodeTree')
     ng.interface.new_socket(name='Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
     ng.interface.new_socket(name='Geometry', in_out='OUTPUT', socket_type='NodeSocketGeometry')
@@ -45,13 +57,9 @@ def _group(floor_z, band, bulge):
 
     pos = N.new('GeometryNodeInputPosition').outputs[0]
     nrm = N.new('GeometryNodeInputNormal').outputs[0]
-    selfo = N.new('GeometryNodeSelfObject')
-    oi = N.new('GeometryNodeObjectInfo')
-    oi.transform_space = 'ORIGINAL'
-    L.new(selfo.outputs[0], oi.inputs['Object'])
-    M = oi.outputs['Transform']
-    inv = N.new('FunctionNodeInvertMatrix')
-    L.new(M, inv.inputs[0])
+    Mi = M.inverted()
+    M = _matrix(N, M)
+    inv = _matrix(N, Mi)
 
     tp = N.new('FunctionNodeTransformPoint')            # local -> world
     L.new(pos, tp.inputs['Vector'])
@@ -62,7 +70,10 @@ def _group(floor_z, band, bulge):
     z = sep.outputs['Z']
 
     d = math('SUBTRACT', z, floor_z)
-    soft = math('ADD', math('MULTIPLY', math('EXPONENT', math('DIVIDE', math('SUBTRACT', d, band), band)), band), floor_z)
+    # exponent clamped to <= 0: outside the band it is unused, but unclamped it overflowed float32
+    # for anything > ~0.7 m up (exp(212) = inf when standing), inf * 0 in the mix gave NaN vertex
+    # positions, and Cycles spent ~8 min a frame building its BVH from them (2026-11-17)
+    soft = math('ADD', math('MULTIPLY', math('EXPONENT', math('MINIMUM', math('DIVIDE', math('SUBTRACT', d, band), band), 0.0)), band), floor_z)
     below = math('LESS_THAN', d, band)                  # 1 inside the band
     znew = N.new('ShaderNodeMix')                        # float mix: below ? soft : z
     znew.data_type = 'FLOAT'
@@ -86,7 +97,7 @@ def _group(floor_z, band, bulge):
 
     back = N.new('FunctionNodeTransformPoint')          # world -> local
     L.new(comb.outputs[0], back.inputs['Vector'])
-    L.new(inv.outputs[0], back.inputs['Transform'])
+    L.new(inv, back.inputs['Transform'])
     sp = N.new('GeometryNodeSetPosition')
     L.new(gi.outputs[0], sp.inputs['Geometry'])
     L.new(back.outputs[0], sp.inputs['Position'])
@@ -95,15 +106,26 @@ def _group(floor_z, band, bulge):
 
 
 def apply(floor_z, band=0.008, bulge=0.25, sink=0.0015, objects=None):
-    """Add the deformer to every visible armature-deformed mesh. -> names of the meshes changed."""
-    ng = _group(floor_z - sink, band, bulge)
+    """Add the deformer to every visible armature-deformed mesh. -> names of the meshes changed.
+    Each mesh gets its own group holding its world matrix, which must not change over the take
+    (rigged meshes move by their bones, not their object transform): checked at the first and
+    last frame, and a moving mesh is skipped with a message rather than flattened wrongly."""
+    sc = bpy.context.scene
+    f_now = sc.frame_current
+    obs = [ob for ob in (objects if objects is not None else bpy.data.objects)
+           if ob.type == 'MESH' and not ob.hide_render and any(m.type == 'ARMATURE' for m in ob.modifiers)]
+    sc.frame_set(sc.frame_start)
+    m0 = {ob.name: ob.matrix_world.copy() for ob in obs}
+    sc.frame_set(sc.frame_end)
+    m1 = {ob.name: ob.matrix_world.copy() for ob in obs}
+    sc.frame_set(f_now)
     done = []
-    for ob in objects if objects is not None else bpy.data.objects:
-        if ob.type != 'MESH' or ob.hide_render:
-            continue
-        if not any(m.type == 'ARMATURE' for m in ob.modifiers):
+    for ob in obs:
+        a_, b_ = m0[ob.name], m1[ob.name]
+        if max(abs(a_[r][c] - b_[r][c]) for r in range(4) for c in range(4)) > 1e-6:
+            print(f'[flatten] {ob.name}: object transform is animated, not flattened')
             continue
         md = ob.modifiers.new('KO_canvas_flatten', 'NODES')
-        md.node_group = ng
+        md.node_group = _group(floor_z - sink, band, bulge, a_)
         done.append(ob.name)
     return done

@@ -1,11 +1,13 @@
 """Comic-page version of a contact sheet (owner 2026-11-16: "present it in comic style").
 
-    python3 tools/comic_sheet.py SHEET.jpg OUT.jpg --times t1,t2,... [--res 640]
+    python3 tools/comic_sheet.py SHEET.jpg OUT.jpg [--res 640] [--layout TAKE] [--title TEXT]
 
 Crops the tiles back out of a contact_sheet.py sheet (same layout constants) and lays them out
 as a comic page: black-bordered panels of varied size, white gutters, caption boxes and a
-few SFX. Layout and captions below are for izzy_uppercut_spring_001; panel picks are weighted
-to the knockdown, descent and aftermath (house rule: >= 70% of panels).
+few SFX. LAYOUTS holds panel picks and captions per take (default: the original
+izzy_uppercut_spring_001 page); picks index the sheet's tiles in order and are weighted to the
+knockdown, descent and aftermath (house rule: >= 70% of panels). Comic effects belong on these
+sheets only; no blood or injury detail.
 """
 import sys
 
@@ -37,13 +39,20 @@ def font(sz, bold=True):
 # rows of (tile index, relative width, caption, sfx); row height in px
 # row height is derived so the narrowest panel keeps ~1.8:1 (close to the 16:9 frames, so the
 # crop never takes her head or feet off)
-ROWS = [
+LAYOUTS = {
+    'izzy_uppercut_spring_001': ('IZZY  ·  UPPERCUT', [
     [(0, 1.0, 'She steps in.', None), (1, 1.15, None, 'KRAK!')],
     [(3, 1.0, 'Chin snapped up. Lights out.', None), (5, 1.0, None, None), (7, 1.0, 'The knees load...', None)],
     [(9, 1.15, '...and spring her back.', None), (10, 1.0, None, 'THUD')],
     [(12, 1.0, 'Flat out.', None), (13, 1.0, None, 'WHAP!'), (15, 1.0, None, None)],
     [(16, 1.0, None, None), (18, 1.15, 'Locked up: fists clenched, toes pointed, ankles crossed.', None)],
-]
+    ]),
+}
+lay = a[a.index('--layout') + 1] if '--layout' in a else 'izzy_uppercut_spring_001'
+TITLE, ROWS = LAYOUTS[lay]
+if '--title' in a:
+    TITLE = a[a.index('--title') + 1]
+
 W, G, M = 2400, 18, 40
 
 
@@ -56,7 +65,7 @@ ROWS = [(row_h(p), p) for p in ROWS]
 H = M * 2 + sum(h for h, _ in ROWS) + G * (len(ROWS) - 1) + 90
 page = Image.new('RGB', (W, H), (250, 248, 240))
 d = ImageDraw.Draw(page)
-d.text((M, 22), 'IZZY  ·  UPPERCUT', fill=(20, 20, 20), font=font(52))
+d.text((M, 22), TITLE, fill=(20, 20, 20), font=font(52))
 y = M + 90
 for h, panels in ROWS:
     tot = sum(p[1] for p in panels)
