@@ -114,9 +114,17 @@ def contact_time(tr, i0, i1, part, surface='canvas', min_bw=0.03):
 
 
 @pred
-def contact_peak_bw(tr, i0, i1, part):
-    """Peak canvas force on the part, in body weights."""
-    return float(tr.part_load(part)[i0:i1].max() / tr.weight) if i1 > i0 else 0.0
+def contact_peak_bw(tr, i0, i1, part, window=0.02):
+    """Peak canvas force on the part in body weights, averaged over 20 ms. A single 2 ms
+    solver step can read 5-10 times higher and is not what a viewer or a body would register."""
+    if i1 <= i0:
+        return 0.0
+    f = tr.part_load(part)[i0:i1] / tr.weight
+    k = max(1, int(window / tr.dt))
+    if len(f) <= k:
+        return float(f.mean())
+    c = np.cumsum(np.insert(f, 0, 0.0))
+    return float(((c[k:] - c[:-k]) / k).max())
 
 
 @pred
@@ -192,8 +200,10 @@ def height(tr, i0, i1, body, agg='median'):
 def travel(tr, i0, i1, body='pelvis', toward='back'):
     """Displacement across the window along a direction of her heading frame, m."""
     H = tr.heading()
-    d = {'front': H[:, 0], 'back': -H[:, 0], 'left': H[:, 1], 'right': -H[:, 1], 'up': UP}[toward]
     p = tr.pos[:, tr.b(body)]
+    if toward == 'any':                    # distance along the canvas, whichever way she went
+        return float(np.linalg.norm((p[max(i1 - 1, i0)] - p[i0])[:2]))
+    d = {'front': H[:, 0], 'back': -H[:, 0], 'left': H[:, 1], 'right': -H[:, 1], 'up': UP}[toward]
     return float((p[max(i1 - 1, i0)] - p[i0]) @ d)
 
 

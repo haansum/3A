@@ -126,6 +126,13 @@ levers:
      layer: {tremor: {hz: [0.6, 1.4], amp_deg: [6, 25], joints: [thigh_L_flex, thigh_R_flex], antiphase: true}},
      check: {pred: oscillation, joints: [thigh_L_flex, thigh_R_flex], lo_hz: 0.4, hi_hz: 1.8, min: [1.5, 8]}, src: new}
 
+  - {id: legs.heels_lifted, label: 'Heels held off the canvas while she lies there (legs stiff, feet hovering)', side: LR, default_side: both,
+     say: [heels lifted, heels off the canvas, heels up, heels raised, heels hover, feet hover, heels cm up, heels cm off],
+     check: [{pred: height, body: foot_$S, min: [0.06, 0.15], max: [0.22, 0.35]}, {pred: joint, joint: shin_$S_flex, max: 40}],
+     note: 'height is the foot body origin above the sim canvas; a jackknifed leg fails the knee check', src: log}
+  - {id: rest.on_canvas, label: 'She rests on the canvas: rendered skin touches the rendered floor, no hover and no sinking',
+     say: [resting on the canvas, lying on the canvas, not hovering, touching the canvas, on the canvas or hovering, skin on the canvas],
+     note: needs the render-space ground probe (baked skin against the rendered canvas surface), src: log}
   # ---- ankles / feet / toes ----
   - {id: feet.point, label: Feet point (plantarflex), region: leg, side: LR, default_side: both,
      say: [feet point, toes point, pointed feet, pointed toes, feet extend, plantarflex],

@@ -2,7 +2,7 @@
 
 Generated from `ko/beats/catalog/*.yaml` by `python -m ko.beats.catalog`. Do not edit here.
 
-347 levers. 68 checks, 62 drives, 79 drives+checks, 1 partial, 137 planned.
+350 levers. 69 checks, 62 drives, 80 drives+checks, 1 partial, 138 planned.
 
 - **drives+checks**: prose sets it, the sim is driven toward it, the checker measures it.
 - **drives**: set and driven, not measured yet.
@@ -89,6 +89,7 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `arms.not_propping` | Arm must not hold her body up (flattens as tone fades) (L/R) | not keeping her up; holding up her body with her arm; let it flatten; not propping | checks | log |  |
 |   | `arms.pinned_under` | Arm trapped under her body (L/R) | arm trapped under; arm under her body; arm pinned beneath; lying on her arm | checks | new |  |
 |   | `arms.draped_on_rope` | Arm(s) draped over a rope (L/R) | arm draped over the rope; arms over the ropes; arm hooked on the rope; arms hang over | checks | log |  |
+|   | `arms.locked_unequal` | Both arms locked straight but held at different angles (side = the higher arm) (L/R) | arms locked at different angles; arms at different angles; arms locked out at different; arms straight at different heights | drives+checks | log |  |
 |   | `wrist.flex` | Wrist bends down toward the palm (L/R) | wrists bend down; wrist flex; wrists curl; wrist drop | drives+checks | log |  |
 |   | `wrist.extend` | Wrist cocked back (L/R) | wrist cocked back; wrist extend; wrists bent back; hands bent back | drives+checks | new |  |
 |   | `wrist.pronate` | Forearm/hand turns palm-down and inward (L/R) | pronate; palms turn down; hands rotate inward; wrists rotate in | drives+checks | new |  |
@@ -144,6 +145,8 @@ Source: **log** = from your instruction log, **bible** = Animation Bible vocabul
 |   | `legs.one_straight_one_bent` | One leg stiff straight, the other bent (side = straight leg) (L/R) | one leg straight one bent; one leg stiff the other bent; one knee bent the other straight | drives+checks | new |  |
 |   | `legs.stanky` | Standing wobble: knees dip and catch, feet stutter ("chicken dance") | stanky leg; chicken dance; wobbly legs; legs wobble | planned | new | needs the stagger-step controller |
 |   | `legs.pedal` | Slow alternating leg movement on the canvas (pedalling) | pedalling; legs pedal; bicycle; legs slowly kick | drives+checks | new |  |
+|   | `legs.heels_lifted` | Heels held off the canvas while she lies there (legs stiff, feet hovering) (L/R) | heels lifted; heels off the canvas; heels up; heels raised | checks | log | height is the foot body origin above the sim canvas; a jackknifed leg fails the knee check |
+|   | `rest.on_canvas` | She rests on the canvas: rendered skin touches the rendered floor, no hover and no sinking | resting on the canvas; lying on the canvas; not hovering; touching the canvas | planned | log | needs the render-space ground probe (baked skin against the rendered canvas surface) |
 |   | `feet.point` | Feet point (plantarflex) (L/R) | feet point; toes point; pointed feet; pointed toes | drives+checks | bible |  |
 |   | `feet.flex_up` | Feet pulled up toward the shins (L/R) | feet flex up; feet pulled up; dorsiflex; toes pulled back toward shin | drives+checks | new |  |
 |   | `feet.invert` | Soles turn inward (L/R) | feet turn inward; soles inward; feet invert; sickled feet | drives+checks | new |  |

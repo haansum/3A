@@ -1,0 +1,46 @@
+take: izzy_hook_chair_001
+approved: false
+seed: 1
+prose: 'A hook to the jaw. Her legs give out and she sits straight down as if into a chair, lands on her seat first,
+  then goes flat on her back. A follow-up shot on the ground and the tonic posture intensifies: legs lift, back
+  curls.'
+strikes:
+- lever: strike.hook
+  name: ko_strike
+  i: 0.6
+  side: L
+  chosen: seed
+  mods:
+  - hit.jaw_tip
+- lever: follow.punch
+  name: followup_1
+  i: 0.5
+beats:
+- id: b1
+  'on': ko
+  say: A hook to the jaw. Her legs give out and she sits straight down as if into a chair, lands on her seat first,
+    then goes flat on her back.
+  levers:
+  - id: legs.buckle
+    i: 0.6
+    side: both
+  - id: fall.straight_down
+    i: 0.6
+  - id: fall.sit_then_back
+    i: 0.6
+  - id: rest.supine
+    i: 0.6
+- id: b2
+  'on': followup_1
+  say: 'A follow-up shot on the ground and the tonic posture intensifies: legs lift, back curls.'
+  levers:
+  - id: tone.intensify
+    i: 0.6
+  - id: legs.raise
+    i: 0.6
+    side: both
+  - id: trunk.back_curl
+    i: 0.6
+unmatched:
+- beat: b2
+  text: the tonic posture

@@ -104,6 +104,11 @@ levers:
      say: [arm draped over the rope, arms over the ropes, arm hooked on the rope, arms hang over],
      check: {pred: contact_time, part: arms, surface: rope, min: [0.3, 1.5]}, src: log}
 
+  - {id: arms.locked_unequal, label: 'Both arms locked straight but held at different angles (side = the higher arm)', side: LR,
+     say: [arms locked at different angles, arms at different angles, arms locked out at different, arms straight at different heights, arms lock out straight],
+     expands: [{id: elbow.lock, side: L}, {id: elbow.lock, side: R}, {id: shoulder.raise_arm, side: $S, i: 0.8}],
+     check: [{pred: joint, joint: forearm_L_flex, max: 20}, {pred: joint, joint: forearm_R_flex, max: 20},
+             {pred: joint_diff, a: upper_arm_$S_abd, b: upper_arm_$O_abd, min: 12}], src: log}
   # ---- wrists ----
   - {id: wrist.flex, label: Wrist bends down toward the palm, region: arm, side: LR, default_side: both,
      say: [wrists bend down, wrist flex, wrists curl, wrist drop, wrists bent, hands curl inward, wrists hooked],

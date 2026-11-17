@@ -4,6 +4,8 @@ Written in reply to "KO Sim: Organic Motion Design Study", then revised after th
 answered the open questions. Paste this whole file into a new Opus session, or commit it as
 `docs/OPUS_HANDOFF.md` and tell Opus to read it first.
 
+**Read next: `docs/BRAINSTORM_SOLUTIONS_2026-11-17.md`.** It answers the Brainstorm Brief's 23 problems, carries measured results from the three reference takes, lists owner decisions that override this file (muscle-driven posture, impact hold and kick allowed, full body first), and gives a session order that replaces section 4 below. `tools/probe.py` (this file's package P1) now exists.
+
 **The goal.** Final realism: a knockout that sells, at full-body distance and in face
 close-up. Process work exists only to serve that. It comes first for three sessions because
 no realism change can be measured, or reviewed cheaply, without it; after that, realism and

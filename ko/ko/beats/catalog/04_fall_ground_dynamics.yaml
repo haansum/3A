@@ -124,7 +124,7 @@ levers:
   - {id: ground.no_head_hit, label: Head never hits the canvas hard,
      say: [head doesn't hit, head never hits, head stays off, protects her head], check: {pred: contact_peak_bw, part: head, max: 0.3, when: take}, src: new}
   - {id: ground.slide, label: Slides along the canvas after landing,
-     say: [slides along, skids, slides across the canvas, slides back], check: {pred: travel, body: pelvis, toward: back, min: [0.1, 0.5], when: ground}, src: log}
+     say: [slides along, skids, slides across the canvas, slides back], check: {pred: travel, body: pelvis, toward: any, min: [0.1, 0.5], when: ground}, src: log}
   - {id: ground.roll_to_back, label: Is rolled over onto her back,
      say: [rolls her on to her back, roll her on her back, turn her on her back, rolls onto her back, rolled over],
      check: [{pred: roll_events, min: 1, when: ground}, {pred: facing, toward: up, min: 0.5, when: rest}], src: log}

@@ -1,0 +1,33 @@
+take: izzy_headkick_cross_002
+approved: false
+seed: 1
+prose: A head kick clips her as she throws a cross. She falls forward, hands don't break the fall, slides along
+  the canvas and ends face down.
+strikes:
+- lever: strike.cross
+  name: ko_strike
+  i: 0.6
+- lever: strike.head_kick
+  name: ko_strike
+  i: 0.6
+  side: L
+  chosen: seed
+  mods:
+  - hit.clip
+beats:
+- id: b1
+  'on': ko
+  say: A head kick clips her as she throws a cross. She falls forward, hands don't break the fall, slides along
+    the canvas and ends face down.
+  levers:
+  - id: setup.mid_punch
+    i: 0.6
+  - id: fall.forward
+    i: 0.6
+  - id: fall.hands_no_catch
+    i: 0.6
+  - id: ground.slide
+    i: 0.6
+  - id: rest.prone
+    i: 0.6
+unmatched: []

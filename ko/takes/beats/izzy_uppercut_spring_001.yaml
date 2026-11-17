@@ -1,0 +1,67 @@
+take: izzy_uppercut_spring_001
+approved: false
+seed: 1
+prose: 'An uppercut on the chin. She falls back with a springy collapse and ends on her back. When her head hits
+  the canvas the body stiffens. The follow-up shot whips her head to the side and the tonic posture intensifies:
+  tight fists, arms locked at different angles, upper back hunched, legs extended and pointed, ankles crossed, heels
+  lifted.'
+strikes:
+- lever: strike.uppercut
+  name: ko_strike
+  i: 0.6
+  mods:
+  - hit.jaw_tip
+- lever: follow.punch
+  name: followup_1
+  i: 0.5
+beats:
+- id: b1
+  'on': ko
+  say: An uppercut on the chin. She falls back with a springy collapse and ends on her back.
+  levers:
+  - id: fall.backward
+    i: 0.6
+  - id: rest.supine
+    i: 0.6
+- id: b2
+  'on': touch:head
+  say: When her head hits the canvas the body stiffens.
+  levers:
+  - id: ground.head_bounce
+    i: 0.6
+  - id: tier.stiff
+    i: 0.6
+- id: b3
+  'on': followup_1
+  say: 'The follow-up shot whips her head to the side and the tonic posture intensifies: tight fists, arms locked
+    at different angles, upper back hunched, legs extended and pointed, ankles crossed, heels lifted.'
+  levers:
+  - id: neck.turn
+    i: 0.6
+    chosen: seed
+    side: L
+  - id: tone.intensify
+    i: 0.6
+  - id: hand.fist
+    i: 0.6
+    side: both
+  - id: arms.locked_unequal
+    i: 0.6
+    chosen: seed
+    side: R
+  - id: trunk.upper_back_hunch
+    i: 0.6
+  - id: legs.extend_stiff
+    i: 0.6
+    side: both
+  - id: legs.ankles_cross
+    i: 0.6
+    side: L
+  - id: legs.heels_lifted
+    i: 0.6
+    side: both
+unmatched:
+- beat: b1
+  text: with a springy collapse
+- beat: b3
+  text: the tonic posture
