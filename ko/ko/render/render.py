@@ -666,6 +666,17 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
             w_, k_ = floor_chains(sc, skel_o, fc_['pattern'], root.matrix_world.translation.z,
                                   fc_.get('radius', 0.02), n)
             print(f'[render] floor chains ({fc_["pattern"]}): {k_} corrections, worst {w_:.0f} deg')
+    # cheek, hip and shoulder flatten where they meet the canvas instead of resting on a rigid point
+    # (handoff R7, owner 2026-11-17). On by default; render.canvas_flatten: false turns it off,
+    # or a dict sets band (m), sink (m) and bulge.
+    cf_ = R.get('canvas_flatten', True)
+    if cf_:
+        from . import flatten as FL
+        cf_ = cf_ if isinstance(cf_, dict) else {}
+        s_ = root.matrix_world.to_scale().z                 # sim metres -> world units
+        fl_ = FL.apply(root.matrix_world.translation.z, cf_.get('band', 0.008) * s_, cf_.get('bulge', 0.25),
+                       cf_.get('sink', 0.0015) * s_)
+        print(f'[render] canvas flatten on {len(fl_)} meshes, band {cf_.get("band", 0.008) * 1000:.0f} mm')
     shots = make_cameras(lock, fr, root, coll, fps)
     if 'face' in shots:
         rep_ = refine_face_cam(sc, shots['face'], root, fps, n)
