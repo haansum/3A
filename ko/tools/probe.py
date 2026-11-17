@@ -179,6 +179,15 @@ def ensemble(take, n=20, perturb=0.08):
     lock, dirs, _ = cli.build(take, to='body')
     sheet = sheet_for(take)
     rows = []
+    mh_ = [b['mass'] for b in json.load(open(os.path.join(dirs['body'], 'body.json')))['bodies'] if b['name'] == 'head'][0]
+
+    def head_support(o):
+        # share of the head's weight the canvas carries over the last 1.5 s: ~1 = resting on it,
+        # <1 = the neck holds part of it up, >1 = the neck pushes it down (props the trunk on it)
+        gn_ = [str(g) for g in o['geom_names']]; C_ = o['contacts']; t_ = o['t']
+        i0_ = int(np.searchsorted(t_, t_[-1] - 1.5)); cv_, hg_ = gn_.index('canvas'), gn_.index('g_head')
+        m_ = (C_[:, 0] >= i0_) & (((C_[:, 1] == cv_) & (C_[:, 2] == hg_)) | ((C_[:, 2] == cv_) & (C_[:, 1] == hg_)))
+        return round(float(C_[m_, 4].sum() / (len(t_) - i0_) / (mh_ * 9.81)), 2)
     for s in range(n):
         cfg = json.loads(json.dumps(lock, default=str))
         cfg['sim']['seed'] = 100 + s
@@ -192,6 +201,7 @@ def ensemble(take, n=20, perturb=0.08):
         o = outcomes(tr, sheet)
         rows.append({'seed': 100 + s, **endstate(tr), 'qa_fails': qfail,
                      'outcome_fails': len(o.get('fails', [])) if sheet else None,
+                     'head_support': head_support(out),
                      'peak_20ms_bw': load(tr)['total_peak_20ms_bw'], 'peak_step_bw': load(tr)['total_peak_step_bw'],
                      'auto_side': [v['side'] for k, v in json.loads(str(out['event_data'])).items() if k.startswith('auto_side')], **{k: settle(tr).get(k) for k in ('ko_to_down_s', 'pelvis_rebounds')}})
     from collections import Counter
@@ -204,6 +214,7 @@ def ensemble(take, n=20, perturb=0.08):
             'peak_20ms_bw': [round(float(np.percentile([r['peak_20ms_bw'] for r in rows], q)), 1) for q in (10, 50, 90)],
             'peak_step_bw': [round(float(np.percentile([r['peak_step_bw'] for r in rows], q)), 1) for q in (10, 50, 90)],
             'auto_side': dict(Counter(x for r in rows for x in r['auto_side'])),
+            'head_support': [round(float(np.percentile([r['head_support'] for r in rows], q)), 2) for q in (10, 50, 90)],
             'rows': rows}
 
 

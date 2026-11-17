@@ -30,23 +30,34 @@ def run(cfg, char_dir, out_dir=None, record=True):
     dt = sim.get('dt', 0.002)
     frag = gen_body.to_mjcf(spec, self_pairs=sim.get('self_pairs'), exclude_pairs=sim.get('exclude_pairs'))
     fc_ = sim.get('flesh_contact')
-    flesh_ = []
+    paired_ = {}                                # segment -> (friction, solref, solimp)
+    names_ = {b_['name'] for b_ in spec['bodies']}
+    ar_ = cfg['arena']
+    f0_ = max(ar_.get('canvas_friction', 0.9), 0.9)  # what MuJoCo's max-mix gave before
     if fc_:
         # soft flesh on the canvas (2026-11-17): a rigid hull meeting the canvas stopped in one 2 ms
         # step (38-51 BW single-step spikes, the 'furniture' landing). Fleshy segments get their own
         # canvas contact through explicit pairs: softer and wider, so a landing decelerates over tens
         # of ms. Only canvas contacts change; self contacts and bony segments keep the stiff contact.
         # The extra sink (<= 11 mm) is what the render-time flattening deformer shows. Off by default.
-        names_ = {b_['name'] for b_ in spec['bodies']}
-        flesh_ = [s_ for s_ in fc_.get('segments', scene.FLESH_SEGMENTS) if s_ in names_]
-        ar_ = cfg['arena']
-        f_ = ar_.get('canvas_friction', 0.9)
-        f_ = max(f_, 0.9)                       # MuJoCo mixes geom friction by max
-        pairs_ = ''.join(
+        for s_ in fc_.get('segments', scene.FLESH_SEGMENTS):
+            if s_ in names_:
+                paired_[s_] = (f0_, fc_.get('solref', '0.010 1'), fc_.get('solimp', '0.9 0.95 0.005'))
+    for s_, pc_ in (sim.get('canvas_pairs') or {}).items():
+        # per-segment canvas contact (2026-11-17): e.g. the head slides on its hair layer instead of
+        # gripping like rubber, so a face-first landing rolls onto a cheek instead of tucking under
+        if s_ in names_:
+            # default = what MuJoCo's equal-solmix average of body geom and canvas gave before
+            avg_ = lambda a, b: ' '.join(f'{(float(x) + float(y)) / 2:g}' for x, y in zip(a.split(), b.split()))
+            f_, r_, i_ = paired_.get(s_, (f0_, avg_('0.005 1', str(ar_.get('canvas_solref', '0.006 1'))),
+                                          avg_('0.95 0.99 0.001', str(ar_.get('canvas_solimp', '0.9 0.98 0.002')))))
+            paired_[s_] = (pc_.get('friction', f_), pc_.get('solref', r_), pc_.get('solimp', i_))
+    flesh_ = list(paired_)
+    if paired_:
+        frag = frag[:3] + (frag[3] + ''.join(
             f'<pair geom1="canvas" geom2="g_{s_}" condim="3" friction="{f_} {f_} 0.005 0.0001 0.0001" '
-            f'solref="{fc_.get("solref", "0.010 1")}" solimp="{fc_.get("solimp", "0.9 0.95 0.005")}" '
-            f'margin="{ar_.get("canvas_margin", 0)}"/>' for s_ in flesh_)
-        frag = frag[:3] + (frag[3] + pairs_,)
+            f'solref="{r_}" solimp="{i_}" margin="{ar_.get("canvas_margin", 0)}"/>'
+            for s_, (f_, r_, i_) in paired_.items()),)
     m = mujoco.MjModel.from_xml_string(scene.build(frag, cfg['arena'], dt))
     if flesh_:
         # filter the flesh segments' automatic canvas contact (the pair above replaces it): canvas
