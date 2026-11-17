@@ -17,6 +17,32 @@ TH = dict(limit_overshoot_deg=5.0, spike_rad_s=30.0, spike_window_s=0.033,
           assist_slack=1.02)
 
 
+def _band(q, dt, lo, hi, order=6):
+    """Joint angles (radians, time x joints) -> the part between lo and hi Hz, in degrees.
+    Zero-phase Butterworth (filtered forwards and backwards), so a large slow motion such as the
+    fall only rings locally instead of leaking into every frequency."""
+    from scipy.signal import butter, sosfiltfilt
+    nyq = 0.5 / dt
+    if hi >= nyq * 0.99:
+        sos = butter(order, lo / nyq, 'highpass', output='sos')
+    else:
+        sos = butter(order, [lo / nyq, hi / nyq], 'bandpass', output='sos')
+    return np.degrees(sosfiltfilt(sos, q, axis=0))
+
+
+def jitter_rms(q, dt, excused, cutoff=12.0):
+    """Worst joint's RMS of motion above `cutoff` Hz, over frames not excused by an impact."""
+    hf = _band(q, dt, cutoff, 1.0 / (2 * dt))
+    calm = ~excused[:len(hf)]
+    return float(np.sqrt((hf[calm] ** 2).mean(axis=0)).max()) if calm.any() else 0.0
+
+
+def band_rms(q, dt, excused, lo, hi):
+    b = _band(q, dt, lo, hi)
+    calm = ~excused[:len(b)]
+    return float(np.sqrt((b[calm] ** 2).mean(axis=0)).max()) if calm.any() else 0.0
+
+
 def _mask(names, pred):
     return np.array([pred(n) for n in names])
 
@@ -267,13 +293,12 @@ def check(sim_path, lock):
             slide, slide_note = sl, f'{f}, planted {planted.sum() * dt:.2f} s'
     add(2, 'foot_slide_while_planted_m', slide <= TH['foot_slide_m'], round(slide, 3), TH['foot_slide_m'], slide_note)
 
-    # jitter: joint-angle content above 10 Hz, outside +-0.2 s of contacts/strike
-    k = max(1, int(0.05 / dt))
-    sm = np.apply_along_axis(lambda x: np.convolve(x, np.ones(2 * k + 1) / (2 * k + 1), 'same'), 0, q)
-    hf = np.degrees(q - sm)[2 * k:-2 * k]
-    calm = ~excused[2 * k:-2 * k]
-    jit = float(np.sqrt((hf[calm] ** 2).mean(axis=0)).max()) if calm.any() else 0.0
+    # jitter: joint-angle content above 12 Hz, outside +-0.2 s of contacts/strike. Authored
+    # tremor (5-9.5 Hz) is reported separately, never counted as jitter (2026-11-17: the old
+    # 0.1 s moving-average residual passed ~77% of an 8 Hz tremor and failed tremor takes)
+    jit = jitter_rms(q, dt, excused)
     add(2, 'jitter_deg_rms', jit <= TH['jitter_deg_rms'], round(jit, 3), TH['jitter_deg_rms'])
+    rep['metrics']['tremor_band_deg_rms_max'] = round(band_rms(q, dt, excused, 5.0, 9.5), 3)
 
     for n in ('render_mesh_penetration', 'hair_cloth_stability', 'framing', 'occlusion'):
         rep['checks'].append({'gate': 3, 'name': n, 'pass': None, 'note': 'todo: not implemented'})
