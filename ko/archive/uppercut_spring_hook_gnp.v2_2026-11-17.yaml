@@ -1,0 +1,123 @@
+# Uppercut snaps the chin up -> springy collapse (owner note 2026-11-15: the limp body loads like a
+# spring and softly springs back, not a critically damped servo) -> flat on her back -> follow-up
+# that whips her head to the side (a soccer kick since 2026-11-17) -> arms lock out straight (owner 2026-11-16).
+# Springiness: tone bleeds out over ~200 ms (tau_down), and the load phases run on lightly damped
+# springs (zeta 0.3) with an overshoot shape: knees/trunk compress, rebound once, the rebound tips
+# her back over her hips, then let go. No rigid_trunk servo at zeta 1 anywhere.
+# Every impulse, tone level and timing here is tuned by eye; nothing is footage-validated.
+name: uppercut_spring_hook_gnp
+sim:
+  dt: 0.0015
+  duration: 9.5
+  settle: 0.6
+  exclude_pairs: [[thigh_L, thigh_R], [shin_L, shin_R]]   # lets the ankles cross (see gen_body); inner-thigh overlap measured below
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+bake:
+  fists: {stance: 1.0, relaxed: 0.25, release: 0.2,
+          tonic: {after: followup_1, t: 0.05, tau: 0.3, hold: 4.6, fade: 2.0, peak: 1.0}}   # tight fists (owner 2026-11-16)
+  toe_curl: {after: followup_1, rise: 0.3, deg: 15}
+  pointe: {after: followup_1, rise: 0.3, tarsal_deg: 28}
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:
+      - {t: 0.0, pose: stance, advance: 0.0}
+      - {t: 1.5, pose: stance, advance: 0.0}
+strikes:
+  - name: uppercut
+    t: 0.58
+    body: head
+    impulse: 11.0                # N s
+    duration: 0.012
+    dir: [0.0, 0.75, 0.65]       # from below and in front: snaps the chin up, drives the head back
+    frame: world
+    offset: [0.0, -0.085, -0.075]  # under the chin
+    prop: glove
+    ko: true
+  - name: followup_1
+    after: head_impact
+    t: 1.4                       # once she has settled on her back
+    body: head
+    impulse: 8.0                 # owner 2026-11-17: the follow-up is a soccer kick, not a hook (v1 in archive/)
+    duration: 0.02               # a shin stays in contact longer than a glove
+    dir: [-1.0, 0.15, -0.3]      # the shin sweeps across the face from her left, a little down
+    frame: world
+    offset: [0.06, -0.06, -0.03]   # left cheek / jaw
+    prop: shin
+    ko: false
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  consciousness:
+    driver: strike
+    ramp: 0.5
+    target: follow
+    assist: cut
+    t_relax: 0.5
+    curves:
+      neck: [[0.0, 0.0], [0.92, 0.0], [1.0, 1.0]]
+      arms: [[0.0, 0.0], [0.6, 0.05], [1.0, 1.0]]
+      trunk: [[0.0, 0.0], [0.5, 0.2], [1.0, 1.0]]
+      legs: [[0.0, 0.0], [0.4, 0.3], [0.8, 0.7], [1.0, 1.0]]
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.06, trunk: 0.06, arm: 0.03, leg: 0.03}
+    activation: {tau_up: 0.08, tau_down: 0.2}    # tone bleeds out (~200 ms) instead of cutting off
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.08, tau: 0.6}
+    # escalated posture after the follow-up (owner 2026-11-16 11:34): shoulders hunched forward,
+    # head kept turned from the hook; ankles crossed on locked knees; the core curl lifts the heels
+    pose_sets:
+      axial_hunch: {base: curl_core_hard, pick: [{from: upper_back_curl, joints: [spine_flex, chest_flex]},
+                                                 {from: head_whipped_R, joints: [neck_twist, neck_lat, head_lat]}]}
+    phases:
+      # 1. chin snaps up: the neck lets go at once and springs back a little (light spring, not limp)
+      - {t: 0.0, rise: 0.03, hold: 0.25, fade: 0.35, regions: [neck], tone: 0.9, zeta: 0.25,
+         pose: neck_neutral, depth: 1.0}
+      # 2. the load: weight drops onto shallow-bent knees, trunk folds a little; both on zeta 0.3
+      #    springs with an overshoot, so they compress, rebound once (the rebound tips her back over
+      #    her hips), then the tone bleeds out
+      - {t: 0.06, rise: 0.06, hold: 0.4, fade: 0.6, regions: [leg_L, leg_R], tone: 0.6, zeta: 0.3,
+         pose: knees_load, replace: true, shape: overshoot, shape_params: {fn: 1.5, zeta: 0.3}, depth: 1.0,
+         stagger: {leg_R: 0.04}, jitter: 0.1}
+      - {t: 0.06, rise: 0.06, hold: 0.4, fade: 0.7, regions: [trunk], tone: 0.45, zeta: 0.3,
+         pose: slump_forward, replace: true, shape: overshoot, shape_params: {fn: 1.7, zeta: 0.3}, depth: 1.0,
+         jitter: 0.1}
+      - {t: 0.05, rise: 0.1, hold: 0.6, fade: 0.5, regions: [arm_L, arm_R], tone: 0.2, pose: arms_drop,
+         stagger: {arm_R: 0.08}, jitter: 0.12}
+      # 3. on the canvas: soft elastic settle on light springs, then limp and splayed, head rolled
+      - {after: head_impact, t: 0.02, rise: 0.05, hold: 0.35, fade: 0.8, regions: [trunk], tone: 0.3, zeta: 0.3,
+         pose: rigid_trunk, replace: true, jitter: 0.06}
+      - {after: head_impact, t: 0.4, rise: 0.4, hold: 20.0, fade: 0.5, regions: [trunk], tone: 0.1, zeta: 0.35,
+         pose: rigid_trunk, jitter: 0.03}
+      - {after: head_impact, t: 0.05, rise: 0.15, hold: 1.0, fade: 0.8, regions: [leg_L, leg_R], tone: 0.22, zeta: 0.35,
+         pose: legs_limp_splay, replace: true, stagger: {leg_R: 0.1}, jitter: 0.1}
+      # 4. follow-up (hook): the neck is near-limp so the head whips to her right; a light spring
+      #    catches it with one small rebound, and it stays turned
+      - {after: followup_1, t: 0.0, rise: 0.04, hold: 0.3, fade: 0.6, regions: [neck], tone: 0.25, zeta: 0.25,
+         pose: head_whipped_R, replace: true, jitter: 0.08}
+      - {after: followup_1, t: 0.15, rise: 0.08, hold: 4.6, fade: 2.0, regions: [trunk, neck], tone: 1.5,
+         pose: '@axial_hunch', replace: true, shape: crescendo, shape_params: {tau: 0.5},
+         depth: {start: 0.3, end: 1.1, tau: 0.6}, variety: {depth: [0.85, 1.15], spread: 0.06}, jitter: 0.06}
+      # 5. arms lock out straight at different angles; legs lock, cross at the ankles and point (pointe added in the bake)
+      - {after: followup_1, t: 0.04, rise: 0.08, hold: 4.6, fade: 2.0, regions: [arm_L, arm_R], tone: 1.3,
+         pose: arms_extended_straight, replace: true, shape: crescendo, shape_params: {tau: 0.4},
+         depth: {start: 0.4, end: 1.05, tau: 0.5}, stagger: {arm_R: 0.08}, jitter: 0.06}
+      - {after: followup_1, t: 0.06, rise: 0.1, hold: 4.6, fade: 2.0, regions: [leg_L, leg_R], tone: 1.1,
+         pose: legs_crossed_high, replace: true, shape: crescendo, shape_params: {tau: 0.7},
+         depth: {start: 0.2, end: 1.05, tau: 0.8}, stagger: {leg_R: 0.1}, jitter: 0.05}
+      #    once across, the left ankle settles down onto the right shin: ankles stacked, crossed
+      - {after: followup_1, t: 1.2, rise: 0.3, hold: 3.5, fade: 2.0, regions: [leg_L, leg_R], tone: 1.1,
+         pose: legs_crossed_pike, replace: true, shape: crescendo, shape_params: {tau: 0.4}, jitter: 0.04}
+    tremor:
+      - {after: followup_1, link: true, mode: torque, amp_frac: 0.015, hz_hi: 8.0, hz_lo: 5.0,
+         over_gain: 1.5, onset: 0.9, regions: [arm_L, arm_R]}
+      - {after: followup_1, link: true, mode: torque, amp_frac: 0.008, hz_hi: 8.5, hz_lo: 5.0,
+         over_gain: 1.5, onset: 1.0, regions: [leg_L, leg_R]}
+outcome:
+  name: uppercut_spring_hook_gnp

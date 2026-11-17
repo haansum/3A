@@ -69,6 +69,9 @@ def build(body_frag, arena, dt=0.002):
     # sink less into the canvas (owner 2026-11-13: watch for clipping with the ground)
     c_ref = arena.get('canvas_solref', '0.006 1')
     c_imp = arena.get('canvas_solimp', '0.9 0.98 0.002')
+    # contact margin (m): the constraint engages this far before touching, so a resting body
+    # stays in contact instead of making and breaking it every few steps (default 0 = as before)
+    c_margin = arena.get('canvas_margin', 0)
     return f'''<mujoco model="ko_take">
   <option timestep="{dt}" integrator="implicitfast" cone="elliptic" impratio="10">
     <flag multiccd="enable"/>
@@ -78,7 +81,7 @@ def build(body_frag, arena, dt=0.002):
   <worldbody>
     <light pos="0 0 6" dir="0 0 -1"/>
     <geom name="canvas" type="plane" size="12 12 .1" friction="{fr}" solref="{c_ref}"
-          solimp="{c_imp}" rgba=".75 .78 .8 1"/>
+          solimp="{c_imp}" margin="{c_margin}" rgba=".75 .78 .8 1"/>
     {body}
     {''.join(world)}
   </worldbody>

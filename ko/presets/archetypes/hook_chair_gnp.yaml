@@ -7,6 +7,10 @@ sim:
   dt: 0.0015
   duration: 10.5
   settle: 0.6
+  # soft flesh on the canvas: pelvis, trunk, thighs, upper arms decelerate over ~20 ms instead of one
+  # step (20-seed median single-step peak 51 -> 20 BW on the uppercut); flesh sink <= 11 mm, drawn by the
+  # flattening deformer. One tissue stiffness for the body, not tuned per take.
+  flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
   self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
                [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
                [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]

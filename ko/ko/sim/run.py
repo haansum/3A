@@ -28,9 +28,36 @@ def run(cfg, char_dir, out_dir=None, record=True):
     spec = json.load(open(os.path.join(char_dir, 'body.json')))
     sim = cfg['sim']
     dt = sim.get('dt', 0.002)
-    m = mujoco.MjModel.from_xml_string(scene.build(gen_body.to_mjcf(spec, self_pairs=sim.get('self_pairs'),
-                                                                        exclude_pairs=sim.get('exclude_pairs')),
-                                                    cfg['arena'], dt))
+    frag = gen_body.to_mjcf(spec, self_pairs=sim.get('self_pairs'), exclude_pairs=sim.get('exclude_pairs'))
+    fc_ = sim.get('flesh_contact')
+    flesh_ = []
+    if fc_:
+        # soft flesh on the canvas (2026-11-17): a rigid hull meeting the canvas stopped in one 2 ms
+        # step (38-51 BW single-step spikes, the 'furniture' landing). Fleshy segments get their own
+        # canvas contact through explicit pairs: softer and wider, so a landing decelerates over tens
+        # of ms. Only canvas contacts change; self contacts and bony segments keep the stiff contact.
+        # The extra sink (<= 11 mm) is what the render-time flattening deformer shows. Off by default.
+        names_ = {b_['name'] for b_ in spec['bodies']}
+        flesh_ = [s_ for s_ in fc_.get('segments', scene.FLESH_SEGMENTS) if s_ in names_]
+        ar_ = cfg['arena']
+        f_ = ar_.get('canvas_friction', 0.9)
+        f_ = max(f_, 0.9)                       # MuJoCo mixes geom friction by max
+        pairs_ = ''.join(
+            f'<pair geom1="canvas" geom2="g_{s_}" condim="3" friction="{f_} {f_} 0.005 0.0001 0.0001" '
+            f'solref="{fc_.get("solref", "0.010 1")}" solimp="{fc_.get("solimp", "0.9 0.95 0.005")}" '
+            f'margin="{ar_.get("canvas_margin", 0)}"/>' for s_ in flesh_)
+        frag = frag[:3] + (frag[3] + pairs_,)
+    m = mujoco.MjModel.from_xml_string(scene.build(frag, cfg['arena'], dt))
+    if flesh_:
+        # filter the flesh segments' automatic canvas contact (the pair above replaces it): canvas
+        # moves to bit 4 (keeping rope affinity on bit 2), every other body geom gains bit 4
+        cv_ = m.geom('canvas').id
+        m.geom_contype[cv_], m.geom_conaffinity[cv_] = 4, 6
+        fid_ = {m.geom('g_' + s_).id for s_ in flesh_}
+        for g_ in range(m.ngeom):
+            if g_ != cv_ and m.geom_bodyid[g_] != 0 and g_ not in fid_ and m.geom_contype[g_] & 1:
+                m.geom_contype[g_] |= 4
+                m.geom_conaffinity[g_] |= 4
     if sim.get('limit_solref'):
         # soft end of range (owner 2026-11-17: joints spring at the end of their range; a hard
         # stop also chattered when limp feet rested on it): [time constant s, damping ratio] for
@@ -137,6 +164,7 @@ def run(cfg, char_dir, out_dir=None, record=True):
     fbuf, vbuf = np.zeros(6), np.zeros(6)
     canvas = m.geom('canvas').id
     ghead = m.geom('g_head').id
+    gchest = m.geom('g_chest').id
     Wt = spec['mass'] * 9.81
     gfl, gfr = m.geom('g_foot_L').id, m.geom('g_foot_R').id
     foot_geoms = {gfl, gfr}
@@ -179,6 +207,9 @@ def run(cfg, char_dir, out_dir=None, record=True):
             if (c.geom1 == canvas and c.geom2 in body_geoms and fbuf[0] > 0.05 * Wt
                     and 'down' not in ctl.events and ctl.t_ko is not None):
                 ctl.events['down'] = t             # first part other than a foot on the canvas
+            if (c.geom1 == canvas and c.geom2 == gchest and fbuf[0] > 0.1 * Wt
+                    and 'chest_down' not in ctl.events and ctl.t_ko is not None):
+                ctl.events['chest_down'] = t       # trunk landed: the body's roll is decided by now
             slip = 0.0
             if c.geom1 == canvas and c.geom2 in foot_geoms:      # slip speed of the sole point
                 b = m.geom_bodyid[c.geom2]

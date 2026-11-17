@@ -68,6 +68,8 @@ class Controller:
         self.cons = Consciousness(cfg.get('consciousness'), cfg.get('ko'), REGIONS)
         self.q_rel = None
         self._q_now = None
+        self._qd_now = None
+        self._auto = {}                   # phase index -> side picked for an '_auto' pose
         self._b = None                    # per-joint authority used to blend toward the command
         self.L = 1.0
         self.a_r = np.ones(len(REGIONS))
@@ -184,7 +186,7 @@ class Controller:
                 else:
                     tone_r[r] = max(tone_r[r], ph['tone'] * env)
             if ph.get('pose'):
-                pv = self.pose_vec(POSES[ph['pose']], base=target)
+                pv = self.pose_vec(POSES[self.auto_pose(ip, ph['pose'])], base=target)
                 sel = np.isin(self.reg, regs)
                 target[sel] = (1 - w) * target[sel] + w * pv[sel]
             for jn_, (a1, frac) in (ph.get('pose_rel') or {}).items():
@@ -211,6 +213,24 @@ class Controller:
             target = target + amp * np.sin(2 * np.pi * e['hz'] * t + self.tremor_phase)
         return tone, target, tone_r
 
+
+    def auto_pose(self, ip, name, lead=0.15):
+        """'<pose>_auto' -> '<pose>_R' or '<pose>_L', picked once when the phase starts, from the
+        way the head is already turning: neck twist now plus `lead` s of its current rate
+        (negative = toward her right -> _R). Owner 2026-11-17: the resting cheek follows the roll."""
+        if not name.endswith('_auto'):
+            return name
+        if ip not in self._auto:
+            tw = 0.0
+            for k in ('neck_twist', 'head_twist'):
+                if k in self.idx and self._q_now is not None:
+                    i = self.idx[k]
+                    tw += math.degrees(self._q_now[i]) + self.off[i]
+                    if self._qd_now is not None:
+                        tw += lead * math.degrees(self._qd_now[i])
+            self._auto[ip] = 'R' if tw < 0 else 'L'
+            self.event_data['auto_side_phase%d' % ip] = {'side': self._auto[ip], 'twist_deg': round(tw, 1)}
+        return name[:-len('auto')] + self._auto[ip]
 
     # -- shaped intensity (see intensity.py) ------------------------------------------------
     def resolve_pose(self, spec):
@@ -305,7 +325,8 @@ class Controller:
             P['d0'], P['d1'], P['tau'] = dp.get('start', 0.0), dp.get('end', 1.0), dp.get('tau', 0.4)
         else:
             P['d0'], P['d1'], P['tau'] = 0.0, float(dp), sp.get('tau', 0.5) * 1.2
-        pose = self.resolve_pose(ph['pose']) if ph.get('pose') else {}
+        pose = self.resolve_pose(self.auto_pose(ip, ph['pose']) if isinstance(ph.get('pose'), str)
+                                 else ph['pose']) if ph.get('pose') else {}
         P['pose'] = pose
         n = len(self.jn)
         s_j, jit = np.ones(n), np.zeros(n)
@@ -428,6 +449,7 @@ class Controller:
     def apply(self, d, t, q_ref, qd_ref, breath=0.0):
         c = self.cfg
         self._q_now = d.qpos[self.qadr]
+        self._qd_now = d.qvel[self.dadr]
         tone, target, tone_r = self.tone_and_target(t, q_ref)
         if self.t_ko is not None:
             self.cons.update_events(t, self.cons.level(t), self.events, self.event_data)

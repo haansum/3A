@@ -184,7 +184,7 @@ def ensemble(take, n=20, perturb=0.08):
         cfg['sim']['seed'] = 100 + s
         cfg['sim']['perturb'] = perturb
         out = simrun.run(cfg, dirs['body'], None, record=False)
-        tmp = os.path.join(ROOT, 'build', '_probe_tmp.npz')
+        tmp = os.path.join(ROOT, 'build', f'_probe_tmp_{os.getpid()}.npz')   # parallel runs
         np.savez(tmp, **out)
         tr = Trace.load(tmp)
         qa = gates.check(tmp, cfg)
@@ -192,7 +192,8 @@ def ensemble(take, n=20, perturb=0.08):
         o = outcomes(tr, sheet)
         rows.append({'seed': 100 + s, **endstate(tr), 'qa_fails': qfail,
                      'outcome_fails': len(o.get('fails', [])) if sheet else None,
-                     'peak_20ms_bw': load(tr)['total_peak_20ms_bw'], **{k: settle(tr).get(k) for k in ('ko_to_down_s', 'pelvis_rebounds')}})
+                     'peak_20ms_bw': load(tr)['total_peak_20ms_bw'], 'peak_step_bw': load(tr)['total_peak_step_bw'],
+                     'auto_side': [v['side'] for k, v in json.loads(str(out['event_data'])).items() if k.startswith('auto_side')], **{k: settle(tr).get(k) for k in ('ko_to_down_s', 'pelvis_rebounds')}})
     from collections import Counter
     st = Counter(r['state'] for r in rows)
     return {'take': lock['take'], 'n': n, 'perturb': perturb, 'end_states': dict(st),
@@ -201,6 +202,8 @@ def ensemble(take, n=20, perturb=0.08):
             'outcome_pass_rate': None if sheet is None else round(sum(r['outcome_fails'] == 0 for r in rows) / n, 2),
             'ko_to_down_s': [round(float(np.percentile([r['ko_to_down_s'] for r in rows if r['ko_to_down_s'] is not None], q)), 2) for q in (10, 50, 90)],
             'peak_20ms_bw': [round(float(np.percentile([r['peak_20ms_bw'] for r in rows], q)), 1) for q in (10, 50, 90)],
+            'peak_step_bw': [round(float(np.percentile([r['peak_step_bw'] for r in rows], q)), 1) for q in (10, 50, 90)],
+            'auto_side': dict(Counter(x for r in rows for x in r['auto_side'])),
             'rows': rows}
 
 
