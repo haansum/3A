@@ -47,6 +47,9 @@ class Jerks:
         while t < t_end:
             r = regs[rng.choice(len(regs), p=w)]
             js = np.nonzero(ctl.reg == REGIONS.index(r))[0]
+            # no pulses on the upper-arm twist: they rolled the shoulder forward and turned the
+            # elbow up and back, which read as hyperextension (2026-11-18)
+            js = np.array([j for j in js if ctl.jn[j] not in ('upper_arm_L_twist', 'upper_arm_R_twist')])
             pick = rng.choice(js, size=min(len(js), int(rng.integers(1, 4))), replace=False)
             fade = 1.0 - 0.6 * (t - t_out) / max(t_end - t_out, 1e-6)      # episode tapers off
             # elbows and knees only jerk into flexion: a pulse toward the straight stop read as

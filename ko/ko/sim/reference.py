@@ -247,8 +247,11 @@ POSES = {
     # tonic posturing while out in the hold (2026-11-18: 'arms_forward' at 8 deg read as
     # hyperextended elbows): arms lift forward with the elbows clearly bent
     # wrists flex hard like the strike takes' tonic posture (owner 2026-11-18)
-    'arms_forward_bent': {'upper_arm_L_abd': -25, 'upper_arm_L_flex': 70, 'forearm_L_flex': 35, 'hand_L_flex': 62,
-                          'upper_arm_R_abd': -28, 'upper_arm_R_flex': 64, 'forearm_R_flex': 42, 'hand_R_flex': 68},
+    # 2026-11-18 (owner: still read as hyperextended): the elbows were bent 34-84 deg; the look came
+    # from the shoulder rolling forward (upper-arm internal twist 41-68 deg turned the elbow up and
+    # back). Forward lift 70 -> 45, twist held near neutral, elbows a little more bent
+    'arms_forward_bent': {'upper_arm_L_abd': -40, 'upper_arm_L_flex': 45, 'upper_arm_L_twist': 8, 'forearm_L_flex': 45, 'hand_L_flex': 62,
+                          'upper_arm_R_abd': -42, 'upper_arm_R_flex': 42, 'upper_arm_R_twist': 10, 'forearm_R_flex': 50, 'hand_R_flex': 68},
     # standing hold: feet planted shoulder width, knees soft, same hand fight
     'stand_base': {'thigh_L_flex': 8, 'shin_L_flex': 14, 'foot_L_dorsi': 4, 'thigh_L_abd': 8,
                    'thigh_R_flex': 6, 'shin_R_flex': 12, 'foot_R_dorsi': 4, 'thigh_R_abd': 8,
