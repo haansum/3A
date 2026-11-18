@@ -191,8 +191,14 @@ for oi, opt, lock, sd, t_end in runs:
     for sh in shots:
         shutil.rmtree(os.path.join(od, f'clip_{sh}'), ignore_errors=True)
 
-# grid per shot: options side by side (2 rows when more than 3), padded to the longest
-for sh, ms in clips.items():
+# grid per shot: every option clip on disk for this segment (so options rendered in separate
+# runs, e.g. with --options, still land in one grid), side by side, padded to the longest
+import glob as _glob
+for sh in set(clips) | set(shots):
+    ms = sorted(_glob.glob(os.path.join(outd, 'opt*', f'seg{k}_opt*_{sh}.mp4')),
+                key=lambda p_: int(re.search(r'opt(\d+)_', os.path.basename(p_)).group(1)))
+    if not ms:
+        continue
     n = len(ms)
     cols = n if n <= 3 else (n + 1) // 2
     rows = 1 if n <= 3 else 2
