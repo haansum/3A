@@ -244,5 +244,25 @@ def make_boxing_glove(name, coll, rgb=(0.36, 0.012, 0.016)):
     return ob
 
 
+def make_attacker_segment(name, coll, kind, length, radius):
+    """one of his arm segments for a hold (track G): a capsule along local z centred on the
+    origin. Sleeves are a dark long-sleeve rash guard (reads at 640 px, and the cut at his
+    shoulder disappears into dark cloth); hands are skin. Original design."""
+    sleeve = _mat('KO_atk_sleeve', (0.025, 0.026, 0.03), 0.55)
+    skin = _mat('KO_atk_skin', (0.55, 0.36, 0.27), 0.5)
+    if kind == 'hand':
+        parts = [(lambda bm: _ellipsoid(bm, (radius * 1.05, radius * 0.8, radius * 1.25), (0, 0, 0), 20, 12), skin)]
+    else:
+        half = max(length / 2 - radius * 0.5, 0.01)
+        r0, r1 = (radius * 1.08, radius * 0.92) if kind == 'upper_arm' else (radius * 1.05, radius * 0.8)
+
+        def tube(bm):                           # tapered capsule: two end spheres + a cone
+            _ellipsoid(bm, (r0, r0, r0), (0, 0, -half), 18, 10)
+            _ellipsoid(bm, (r1, r1, r1), (0, 0, half), 18, 10)
+            _cyl(bm, r0, 2 * half, (0, 0, 0), segs=18, caps=False, radius2=r1)
+        parts = [(tube, sleeve)]
+    return _obj(name, parts, coll)
+
+
 PROPS = {'glove': make_boxing_glove, 'boxing_glove': make_boxing_glove, 'glove_box': make_glove, 'mma_glove': make_mma_glove,
          'shin': make_shin_guard}

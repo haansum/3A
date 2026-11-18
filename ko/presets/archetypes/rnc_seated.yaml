@@ -1,0 +1,82 @@
+# Rear-naked choke, both seated on the canvas (owner 2026-11-16, handoff track G, first try
+# 2026-11-18). Arc: hold closes, she fights the hands, fades, goes out, involuntary movement
+# (pronounced), his arms open and withdraw, she slumps; the take ends when she is still.
+# His arms and an unseen torso anchor are soft-welded to authored targets (ko/sim/grapple.py).
+# Every number here is an animation choice tuned by eye. The squeeze score and the deficit
+# rates are animation signals, not physiology, and are not calibrated to real forces.
+name: rnc_seated
+sim:
+  dt: 0.002
+  duration: 15.0
+  settle: 0.6
+  start: seated
+  flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
+  canvas_pairs: {head: {friction: 0.4}}
+  self_pairs: [[chest, forearm_L], [chest, forearm_R], [chest, hand_L], [chest, hand_R],
+               [bust_L, upper_arm_L], [bust_L, upper_arm_R], [bust_R, upper_arm_L], [bust_R, upper_arm_R],
+               [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
+grapple:
+  type: rnc
+  close_at: 0.3          # s: the hold starts closing
+  close_s: 0.7
+  squeeze_m: 0.02        # elbow draws in this far over squeeze_s
+  squeeze_s: 2.5
+  release_after: 2.5     # s after she goes out, his arms open
+  open_s: 0.6
+  away_s: 0.8
+  weld_solref: "0.04 1"  # give in his arms
+  jerks: pronounced      # quiet | mild | pronounced
+motion:
+  assist_cap: 0.15
+  reference:
+    type: procedural
+    keys:                # hand fight: alternating grips, fading with her authority
+      - {t: 0.0, pose: seated_long}
+      - {t: 0.5, pose: hand_fight_a}
+      - {t: 1.2, pose: hand_fight_b}
+      - {t: 1.9, pose: hand_fight_a}
+      - {t: 2.5, pose: hand_fight_b}
+      - {t: 3.3, pose: hand_fight_a}
+      - {t: 4.0, pose: hand_fight_b}
+      - {t: 4.8, pose: hand_fight_a}
+      - {t: 5.6, pose: hand_fight_b}
+      - {t: 6.5, pose: hand_fight_a}
+      - {t: 7.5, pose: hand_fight_b}
+      - {t: 8.5, pose: hand_fight_a}
+      - {t: 15.0, pose: hand_fight_a}
+controller:
+  track_hz: 3.0
+  zeta: 1.0
+  consciousness:
+    driver: choke
+    target: follow
+    assist: scale
+    t_relax: 0.6
+    score_on: 0.3        # score (2 x weaker-side neck force / her weight) where the deficit starts (measured hold: 1.0-1.4)
+    full: 1.0
+    rate: 0.16           # deficit per s at full squeeze: ~6-7 s to out
+    decay: 0.05
+    curves:
+      neck: [[0.0, 0.0], [0.4, 0.2], [1.0, 1.0]]
+      arms: [[0.0, 0.0], [0.25, 0.1], [0.7, 0.8], [1.0, 1.0]]
+      legs: [[0.0, 0.0], [0.5, 0.4], [1.0, 1.0]]
+  breath: {period: 4.0, amp_deg: 2.0}
+  ko:
+    tier: shaped
+    off_ramp: 0.04
+    residual: {neck: 0.04, trunk: 0.06, arm: 0.03, leg: 0.03}
+    activation: {tau_up: 0.08, tau_down: 0.18}
+    target_filter: {hz: 6.0, zeta: 1.0}
+    tone_wander: {sigma: 0.08, tau: 0.6}
+    phases:
+      # pronounced preset: brief tonic posturing while out in the hold, then it lets go
+      - {after: out, t: 0.4, rise: 0.25, hold: 0.8, fade: 0.8, regions: [arm_L, arm_R], tone: 0.7, zeta: 0.4,
+         pose: arms_forward, replace: true, stagger: {arm_R: 0.12}, jitter: 0.08}
+      - {after: out, t: 0.5, rise: 0.3, hold: 1.2, fade: 1.0, regions: [leg_L, leg_R], tone: 0.55, zeta: 0.4,
+         pose: extensor_legs, replace: true, stagger: {leg_L: 0.15}, jitter: 0.08}
+      # out in the hold: the head lolls onto his arm, slow and limp
+      - {after: out, t: 0.2, rise: 0.8, hold: 20.0, fade: 1.0, regions: [neck], tone: 0.12, zeta: 0.6,
+         pose: head_rolled_limp, replace: true, jitter: 0.05}
+    tremor:
+      - {after: out, link: true, mode: torque, amp_frac: 0.015, hz_hi: 8.0, hz_lo: 5.0,
+         over_gain: 1.5, onset: 0.5, regions: [arm_L, arm_R]}

@@ -19,7 +19,7 @@ import subprocess
 
 import bpy
 import numpy as np
-from mathutils import Matrix, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 RING = 6.0
 
@@ -453,6 +453,19 @@ def make_cameras(lock, fr, root, coll, fps):
         live_loc = (0.5 * (pel[0][0] + rest[0]) + abs(y0) + 1.0, mid[1] + 1.0, cz)
     else:
         live_loc = (5.8, mid[1] + 1.2, 4.0)
+    az_ = lock['render'].get('live_az', 0.0)
+    if az_:
+        # rotate the live camera about her start position (deg, + = counter-clockwise from above);
+        # e.g. a seated hold is filmed from the front three-quarter, not from behind (2026-11-18)
+        c_, s_ = math.cos(math.radians(az_)), math.sin(math.radians(az_))
+        ox_, oy_ = live_loc[0] - pel[0][0], live_loc[1] - pel[0][1]
+        live_loc = (pel[0][0] + c_ * ox_ - s_ * oy_, pel[0][1] + s_ * ox_ + c_ * oy_, live_loc[2])
+    if lock['render'].get('live_dist'):     # horizontal distance from her start (inside the ropes)
+        ox_, oy_ = live_loc[0] - pel[0][0], live_loc[1] - pel[0][1]
+        k_ = float(lock['render']['live_dist']) / max(math.hypot(ox_, oy_), 1e-6)
+        live_loc = (pel[0][0] + k_ * ox_, pel[0][1] + k_ * oy_, live_loc[2])
+    if lock['render'].get('live_z'):
+        live_loc = (live_loc[0], live_loc[1], float(lock['render']['live_z']))
     # full body fills ~75% of the frame (owner 2026-11-14): follow her, zoom keyed per frame.
     # Body points: head (+crown), pelvis, feet, padded for limb volume
     crown = head + np.array([0.0, 0.0, 0.12])
@@ -677,6 +690,24 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
         fl_ = FL.apply(root.matrix_world.translation.z, cf_.get('band', 0.008) * s_, cf_.get('bulge', 0.25),
                        cf_.get('sink', 0.0015) * s_)
         print(f'[render] canvas flatten on {len(fl_)} meshes, band {cf_.get("band", 0.008) * 1000:.0f} mm')
+    # a hold (track G): his arms only, keyed from the sim every frame; the torso anchor stays unseen
+    if 'grapple_pos' in fr:
+        from . import props as PR_
+        gp_, gq_ = np.asarray(fr['grapple_pos']), np.asarray(fr['grapple_quat'])
+        for k_, nm_ in enumerate(str(x) for x in fr['grapple_names']):
+            if nm_ == 'torso':
+                continue
+            kind_ = nm_.rsplit('_', 1)[0]
+            ob_ = PR_.make_attacker_segment('atk_' + nm_, coll, kind_, float(fr['grapple_len'][k_]),
+                                            float(fr['grapple_radius'][k_]))
+            ob_.parent = root
+            ob_.rotation_mode = 'QUATERNION'
+            for f_ in range(len(gp_)):
+                ob_.location = Vector(gp_[f_, k_])
+                ob_.rotation_quaternion = Quaternion(gq_[f_, k_])
+                ob_.keyframe_insert('location', frame=f_ + 1)
+                ob_.keyframe_insert('rotation_quaternion', frame=f_ + 1)
+        print(f'[render] hold: {len(gp_[0]) - 1} attacker segments keyed over {len(gp_)} frames')
     shots = make_cameras(lock, fr, root, coll, fps)
     if 'face' in shots:
         rep_ = refine_face_cam(sc, shots['face'], root, fps, n)

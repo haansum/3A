@@ -17,7 +17,11 @@ Drivers (controller.consciousness.driver):
   flash     L dips to L_min over `drop` s, holds `hold` s, recovers over `recover` s
             (smoothstep): stumble-and-recover knockdowns.
   scripted  L from keys [[t, L], ...] after the strike (linear), for tests and directing.
-The choke framework will add its own driver later; it is deliberately not here.
+  choke     L from a deficit D in [0, 1] fed every step with the hold's squeeze score (feed()):
+            D rises at `rate`/s scaled by how far the score is above `score_on` (full at `full`), and
+            falls at `decay`/s only while the score is below `score_on`, so L never rises while she is
+            squeezed. L = 1 - smoothstep(D). Events: fading (L < 0.95), out (L < 0.05).
+            The score and every rate are tuned animation signals, not physiology.
 
 Curves (controller.consciousness.curves): region or group name -> [[L, a], ...] (piecewise
 linear, must span L = 0..1). Names: neck, trunk, arm_L, arm_R, leg_L, leg_R, or the groups
@@ -60,6 +64,7 @@ class Consciousness:
         self.t0 = None
         self.t_rec = None
         self._min = (None, 1.0)
+        self.D = 0.0                       # choke deficit
 
     # -- driver ---------------------------------------------------------------------------
     def hit(self, t):
@@ -80,10 +85,23 @@ class Consciousness:
             if u < dr + hd:
                 return lm
             return lm + (1.0 - lm) * _smooth((u - dr - hd) / rc)
+        if self.driver == 'choke':
+            return 1.0 - _smooth(self.D)
         if self.driver == 'scripted':
             k = np.array(c['keys'], float)
             return float(np.interp(u, k[:, 0], k[:, 1]))
         raise ValueError(f'unknown consciousness driver {self.driver!r}')
+
+    def feed(self, t, score, dt):
+        """choke driver: integrate the squeeze score into the deficit"""
+        if self.driver != 'choke' or self.t0 is None or t < self.t0:
+            return
+        c = self.cfg
+        on, full = c.get('score_on', 0.05), c.get('full', 0.25)
+        if score >= on:
+            self.D = min(1.0, self.D + dt * c.get('rate', 0.16) * min(1.0, (score - on) / max(full - on, 1e-6)))
+        elif self.D < 1.0 or not c.get('latch', True):     # once out, out for good (no waking in v1)
+            self.D = max(0.0, self.D - dt * c.get('decay', 0.05))
 
     def authority(self, L):
         """per-region authority array (len REGIONS)."""
@@ -98,6 +116,11 @@ class Consciousness:
     def update_events(self, t, L, events, event_data):
         if self.t0 is None or t < self.t0:
             return
+        if self.driver == 'choke':
+            if L < 0.95 and 'fading' not in events:
+                events['fading'] = t
+            if L < 0.05 and 'out' not in events:
+                events['out'] = t
         if L < 0.5 and 'L_half' not in events:
             events['L_half'] = t
         if L < self._min[1] - 1e-12:

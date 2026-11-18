@@ -36,6 +36,23 @@ def resample(z, fps):
     return ft, pos, quat, rope, tone, i0
 
 
+def grapple_frames(z, ft):
+    """attacker segment poses (track G) resampled to the frame times; {} for strike takes"""
+    if 'grapple_seg' not in z:
+        return {}
+    dt, g = float(z['dt']), z['grapple_seg']
+    i0 = np.minimum((ft / dt).astype(int), len(g) - 1)
+    i1 = np.minimum(i0 + 1, len(g) - 1)
+    a = (ft / dt - i0)[:, None, None]
+    p = (1 - a) * g[i0, :, :3] + a * g[i1, :, :3]
+    q0, q1 = g[i0, :, 3:], g[i1, :, 3:]
+    q1 = np.where((q0 * q1).sum(-1, keepdims=True) < 0, -q1, q1)
+    q = (1 - a) * q0 + a * q1
+    q /= np.linalg.norm(q, axis=-1, keepdims=True)
+    return {'grapple_pos': p, 'grapple_quat': q, 'grapple_names': z['grapple_names'],
+            'grapple_len': z['grapple_len'], 'grapple_radius': z['grapple_radius']}
+
+
 FIST_DEG = {'01': 78.0, '02': 95.0, '03': 62.0}          # per finger segment, full fist (eyeballed)
 THUMB_DEG = {'01': 22.0, '02': 30.0, '03': 38.0}
 
@@ -390,7 +407,7 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
                         pelvis=pos[:, names.index('pelvis')], head=pos[:, names.index('head')],
                         head_quat=quat[:, names.index('head')],
                         foot_L=pos[:, names.index('foot_L')], foot_R=pos[:, names.index('foot_R')],
-                        t_ko=z['t_ko'], events=z['events'], strikes=z['strikes'])
+                        t_ko=z['t_ko'], events=z['events'], strikes=z['strikes'], **grapple_frames(z, ft))
     json.dump(rep, open(os.path.join(out_dir, 'bake.json'), 'w'), indent=1)
     sc.frame_set(1)
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(out_dir, 'take.blend'), compress=True)

@@ -14,6 +14,19 @@ from . import reference, scene
 from .control import REGIONS, Controller
 
 
+def lowest_z(m, d, names):
+    z = []
+    for f in names:
+        g = m.geom(f).id
+        if m.geom_type[g] != mujoco.mjtGeom.mjGEOM_MESH:
+            z.append(d.geom_xpos[g][2] - m.geom_size[g, 0])
+            continue
+        mid = m.geom_dataid[g]
+        v = m.mesh_vert[m.mesh_vertadr[mid]:m.mesh_vertadr[mid] + m.mesh_vertnum[mid]]
+        z.append((d.geom_xpos[g] + v @ d.geom_xmat[g].reshape(3, 3).T)[:, 2].min())
+    return min(z)
+
+
 def lowest_foot_z(m, d):
     z = []
     for f in ('g_foot_L', 'g_foot_R'):
@@ -58,7 +71,15 @@ def run(cfg, char_dir, out_dir=None, record=True):
             f'<pair geom1="canvas" geom2="g_{s_}" condim="3" friction="{f_} {f_} 0.005 0.0001 0.0001" '
             f'solref="{r_}" solimp="{i_}" margin="{ar_.get("canvas_margin", 0)}"/>'
             for s_, (f_, r_, i_) in paired_.items()),)
-    m = mujoco.MjModel.from_xml_string(scene.build(frag, cfg['arena'], dt))
+    G = None
+    xml = scene.build(frag, cfg['arena'], dt)
+    if cfg.get('grapple'):
+        # a hold (handoff track G): attacker arms + unseen torso anchor, soft-welded to targets
+        from .grapple import Grapple
+        G = Grapple(cfg['grapple'])
+        gb_, ge_ = G.mjcf()
+        xml = xml.replace('</worldbody>', gb_ + '</worldbody>', 1).replace('</mujoco>', f'<equality>{ge_}</equality></mujoco>', 1)
+    m = mujoco.MjModel.from_xml_string(xml)
     if flesh_:
         # filter the flesh segments' automatic canvas contact (the pair above replaces it): canvas
         # moves to bit 4 (keeping rope affinity on bit 2), every other body geom gains bit 4
@@ -102,8 +123,20 @@ def run(cfg, char_dir, out_dir=None, record=True):
     q0, _, _, _ = ref.sample(0.0)
     d.qpos[ctl.qadr] = ctl.pose_vec(q0)
     mujoco.mj_forward(m, d)
-    d.qpos[2] -= lowest_foot_z(m, d) - 0.002
+    if sim.get('start') == 'seated':        # sits on the canvas: lowest part of her, not the feet
+        d.qpos[2] -= lowest_z(m, d, [m.geom(g).name for g in range(m.ngeom) if m.geom(g).name.startswith('g_')
+                                     and m.geom_contype[g]]) - 0.002
+    else:
+        d.qpos[2] -= lowest_foot_z(m, d) - 0.002
     mujoco.mj_forward(m, d)
+    jerks = None
+    if G is not None:
+        G.bind(m)
+        G.start(m, d)
+        mujoco.mj_forward(m, d)
+        if cfg['grapple'].get('jerks', 'pronounced'):
+            from .jerks import Jerks
+            jerks = Jerks(cfg['grapple'].get('jerks', 'pronounced'), ctl, np.random.default_rng(sim.get('seed', 0) + 7))
     ctl.set_inertia(d)
     p0 = d.xpos[ctl.pelvis].copy()
 
@@ -151,6 +184,12 @@ def run(cfg, char_dir, out_dir=None, record=True):
             if st['ko'] and ctl.t_ko is None and t >= st['t0'] + st.get('ko_delay', 0.01):
                 ctl.trigger_ko(t, q_cmd)
                 mujoco.mj_forward(m, d)
+        if G is not None:
+            if not settle and ctl.t_ko is None and t >= cfg['grapple'].get('close_at', 0.3):
+                ctl.trigger_ko(t, q_cmd)        # the hold is on: the choke driver takes over L
+            G.step(d, t, ctl.events)
+            if jerks is not None and not settle:
+                jerks.apply(d, t, ctl.events)
         breath = np.radians(br['amp_deg']) * np.sin(2 * np.pi * t / br['period'])
         tone = ctl.apply(d, t, q_cmd, qd_cmd, breath)
         cap = 3.0 if settle else cfg['motion'].get('assist_cap', 0.15)
@@ -200,6 +239,10 @@ def run(cfg, char_dir, out_dir=None, record=True):
         rec['act'].append(d.actuator_force[ctl.aid].copy())
         rec['L'].append(ctl.cons.level(t))
         rec['authority'].append(ctl.cons.authority(ctl.cons.level(t)))
+        if G is not None:
+            fl_, fr_, sc_ = G.squeeze(d, Wt)
+            ctl.cons.feed(t, sc_, dt)
+            G.record(d, fl_, fr_, sc_)
         fl = {g: 0.0 for g in foot_geoms}
         head_f = 0.0
         for ci in range(d.ncon):
@@ -262,6 +305,8 @@ def run(cfg, char_dir, out_dir=None, record=True):
     out['event_data'] = np.array(json.dumps(ctl.event_data))
     out['strikes'] = np.array(json.dumps(strike_log))
     out['dt'] = np.array(dt)
+    if G is not None:
+        out.update(G.arrays())
     if out_dir and record:
         os.makedirs(out_dir, exist_ok=True)
         np.savez_compressed(os.path.join(out_dir, 'sim.npz'), **out)

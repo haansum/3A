@@ -235,9 +235,29 @@ POSES = {
                           'foot_R_dorsi': -40, 'foot_R_inv': 6},
     'knees_load': {'thigh_L_flex': 48, 'shin_L_flex': 78, 'foot_L_dorsi': 20, 'thigh_L_abd': 8,
                    'thigh_R_flex': 42, 'shin_R_flex': 70, 'foot_R_dorsi': 18, 'thigh_R_abd': 10},
+    # rear-naked choke, both seated (owner 2026-11-16, track G). Eyeballed.
+    # long sit leaning back into him, knees a little bent, feet relaxed
+    'seated_long': {'thigh_L_flex': 96, 'shin_L_flex': 22, 'foot_L_dorsi': -12, 'thigh_L_abd': 4,
+                    'thigh_R_flex': 98, 'shin_R_flex': 14, 'foot_R_dorsi': -10, 'thigh_R_abd': 3,
+                    'spine_flex': -4, 'chest_flex': 4, 'neck_flex': 18, 'head_flex': 8,
+                    'upper_arm_L_abd': -70, 'upper_arm_L_flex': 20, 'forearm_L_flex': 40,
+                    'upper_arm_R_abd': -70, 'upper_arm_R_flex': 20, 'forearm_R_flex': 40},
+    # hand fight: both hands on his forearm under her chin, chin tucked; (a) two-on-one pull down,
+    # (b) right hand peels at his wrist while the left pulls at the elbow
+    'hand_fight_a': {'upper_arm_L_abd': -52, 'upper_arm_L_flex': 38, 'forearm_L_flex': 104, 'hand_L_flex': -20,
+                     'upper_arm_R_abd': -52, 'upper_arm_R_flex': 38, 'forearm_R_flex': 104, 'hand_R_flex': -20,
+                     'neck_flex': 24, 'head_flex': 10, 'chest_flex': 6},
+    'hand_fight_b': {'upper_arm_L_abd': -46, 'upper_arm_L_flex': 46, 'forearm_L_flex': 112, 'hand_L_flex': -20,
+                     'upper_arm_R_abd': -62, 'upper_arm_R_flex': 26, 'forearm_R_flex': 92, 'hand_R_flex': 10,
+                     'neck_flex': 22, 'head_flex': 8, 'neck_twist': -10, 'chest_flex': 8, 'chest_twist': -6,
+                     'shin_L_flex': 36, 'shin_R_flex': 10},
     'arms_drop': {'upper_arm_L_abd': -72, 'upper_arm_L_flex': 22, 'forearm_L_flex': 38, 'hand_L_flex': 30,
                   'upper_arm_R_abd': -76, 'upper_arm_R_flex': 16, 'forearm_R_flex': 52, 'hand_R_flex': 35},
 }
+
+# hand-fight poses are full poses over the seated base (the blender reads a missing joint as 0)
+for _k in ('hand_fight_a', 'hand_fight_b'):
+    POSES[_k] = {**POSES['seated_long'], **POSES[_k]}
 
 
 def smooth(u):

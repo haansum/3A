@@ -97,9 +97,11 @@ def resolve(take_path, quality=None):
     if lock['character'].get('hull'):
         bk.append({'hull': lock['character']['hull']})
     k['body'] = sha(bk)[:12]
-    k['sim'] = sha([k['body'], lock['arena'], lock['sim'], lock['motion'], lock.get('strike'),
-                    lock.get('strikes'),
-                    lock['controller'], code_hash('sim')])[:12]
+    sk_ = [k['body'], lock['arena'], lock['sim'], lock['motion'], lock.get('strike'),
+           lock.get('strikes'), lock['controller'], code_hash('sim')]
+    if lock.get('grapple'):                         # appended only when set: old keys unchanged
+        sk_.append({'grapple': lock['grapple']})
+    k['sim'] = sha(sk_)[:12]
     sp_ = os.path.join(ROOT, 'takes', 'beats', lock['take'] + '.yaml')
     sheet_txt = open(sp_).read() if os.path.exists(sp_) else None     # a sheet edit re-runs QA
     k['qa'] = sha([k['sim'], lock.get('outcome'), sheet_txt, code_hash('qa')])[:12]
