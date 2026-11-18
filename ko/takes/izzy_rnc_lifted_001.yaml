@@ -11,6 +11,15 @@ overrides:
   arena: {rope_distance: 3.0, simulate_ropes: false}
   sim: {start: standing}
   grapple: {lift_m: 0.16, lift_s: 1.2}
+  # tonic posture as a ratchet that pulses while it climbs (owner 2026-11-18): 10 irregular
+  # notches over the 10 s to the release, tone pulsing at 2 Hz between notches, tapering out
+  # before the last notch; same poses and peaks as the archetype
+  controller:
+    ko:
+      phases:
+        - {after: out, t: 0.0, rise: 0.1, hold: 9.9, fade: 2.0, regions: [arm_L, arm_R], tone: 0.9, zeta: 0.4, pose: arms_forward_bent, replace: true, depth: {start: 0.0, end: 1.0}, stagger: {arm_R: 0.12}, jitter: 0.06, shape: ratchet_pulse, shape_params: {steps: 10, step_dt: 1.0, step_rise: 0.18, pulse_hz: 2.0, pulse_amp: 0.35, pulse_depth: 0.15}}
+        - {after: out, t: 0.0, rise: 0.1, hold: 9.9, fade: 2.0, regions: [leg_L, leg_R], tone: 0.6, zeta: 0.4, pose: extensor_legs, replace: true, depth: {start: 0.0, end: 1.0}, stagger: {leg_L: 0.15}, jitter: 0.06, shape: ratchet_pulse, shape_params: {steps: 10, step_dt: 1.0, step_rise: 0.18, pulse_hz: 2.0, pulse_amp: 0.35, pulse_depth: 0.15}}
+        - {after: out, t: 0.2, rise: 0.8, hold: 20.0, fade: 1.0, regions: [neck], tone: 0.12, zeta: 0.6, pose: head_rolled_limp, replace: true, jitter: 0.05}
   motion:
     reference:
       type: procedural

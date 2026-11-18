@@ -44,9 +44,13 @@ def attacker_arms(fr, root, coll, char_dir, fps, texture_dir=None):
         else:
             bpy.data.objects.remove(o)
     body.name, arm.name = 'ATK_body', 'ATK_skeleton'
-    # mask to the arms: every bone from the upper arm down (twist, hand, fingers)
+    # mask to the arms and shoulders: the clavicle and every bone from the upper arm down
     arm_bones = set()
     for sd in ('L', 'R'):
+        # owner 2026-11-18: include the shoulders (the clavicle bone the arm hangs from)
+        par_ = arm.data.bones[bm['upper_arm_' + sd]].parent
+        if par_ is not None:
+            arm_bones.add(par_.name)
         stack = [arm.data.bones[bm['upper_arm_' + sd]]]
         while stack:
             b_ = stack.pop()

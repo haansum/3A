@@ -313,7 +313,7 @@ class Controller:
             if cond['key'] in ed and ed[cond['key']] > cond['gt']:
                 shape, sp = cond['shape'], dict(cond.get('shape_params') or {})
                 break
-        if shape == 'ratchet':
+        if shape in ('ratchet', 'ratchet_pulse'):
             steps, sdt = sp.get('steps', 4), sp.get('step_dt', 0.22)
             gaps = sdt * np.clip(1 + 0.3 * rng.standard_normal(steps), 0.5, 1.6)
             sp['_times'] = np.concatenate([[0.0], np.cumsum(gaps[:-1])]).tolist()

@@ -28,7 +28,7 @@ import math
 
 import numpy as np
 
-SHAPES = ('trapezoid', 'crescendo', 'overshoot', 'ratchet', 'pulse')
+SHAPES = ('trapezoid', 'crescendo', 'overshoot', 'ratchet', 'pulse', 'ratchet_pulse')
 
 
 def _smooth(u):
@@ -51,6 +51,19 @@ def tone_env(shape, a, rise, hold, fade, sp):
             return 1.0 - math.exp(-a / tau)
         v = 1.0 - math.exp(-end / tau)
         return max(0.0, v * (1.0 - (a - end) / fade))
+    if shape == 'ratchet_pulse':
+        # owner 2026-11-18 (lifted RNC): the ratchet climbs in irregular notches and, while it
+        # is climbing, the tone pulses (a dip of `pulse_amp` at `pulse_hz`) between notches; once
+        # the last notch is in, it holds steady, then fades
+        v = _ratchet_level(a, sp)
+        if a < end:
+            t_last = (sp['_times'][-1] if '_times' in sp else (sp.get('steps', 4) - 1) * sp.get('step_dt', 0.22)) \
+                + sp.get('step_rise', 0.05)
+            if a < t_last:              # pulse tapers out over the last half second (no jump)
+                taper = 1.0 - _smooth((a - (t_last - 0.5)) / 0.5)
+                v *= 1.0 - taper * sp.get('pulse_amp', 0.3) * 0.5 * (1.0 - math.cos(2 * math.pi * sp.get('pulse_hz', 2.0) * a))
+            return min(v, 1.0)
+        return max(0.0, (1.0 - (a - end) / fade))
     if shape == 'ratchet':
         steps, sdt, srise = sp.get('steps', 4), sp.get('step_dt', 0.22), sp.get('step_rise', 0.05)
         lvl = sp.get('start', 0.35)
@@ -73,6 +86,17 @@ def tone_env(shape, a, rise, hold, fade, sp):
     return max(0.0, 1.0 - (a - end) / fade)
 
 
+def _ratchet_level(a, sp):
+    steps, sdt, srise = sp.get('steps', 4), sp.get('step_dt', 0.22), sp.get('step_rise', 0.05)
+    lvl = sp.get('start', 0.0)
+    v = lvl
+    for k in range(steps):
+        tk = sp['_times'][k] if '_times' in sp else k * sdt
+        sz = sp['_sizes'][k] if '_sizes' in sp else 1.0 / steps
+        v += (1.0 - lvl) * sz * _smooth((a - tk) / srise)
+    return min(v, 1.0)
+
+
 def depth_curve(shape, a, rise, hold, fade, sp, d0, d1, tau):
     """Pose blend fraction (can exceed 1: past the pose, toward its direction)."""
     if shape == 'overshoot':
@@ -81,6 +105,15 @@ def depth_curve(shape, a, rise, hold, fade, sp, d0, d1, tau):
         wd = wn * math.sqrt(1 - z * z)
         s = 1 - math.exp(-z * wn * a) * (math.cos(wd * a) + z / math.sqrt(1 - z * z) * math.sin(wd * a))
         return d0 + (d1 - d0) * s
+    if shape == 'ratchet_pulse':
+        # pose notches up with the tone; while climbing it also pulses (smaller than the tone)
+        v = _ratchet_level(a, dict(sp, start=0.0))
+        t_last = (sp['_times'][-1] if '_times' in sp else (sp.get('steps', 4) - 1) * sp.get('step_dt', 0.22)) \
+            + sp.get('step_rise', 0.05)
+        if a < t_last:
+            taper = 1.0 - _smooth((a - (t_last - 0.5)) / 0.5)
+            v *= 1.0 - taper * sp.get('pulse_depth', 0.15) * 0.5 * (1.0 - math.cos(2 * math.pi * sp.get('pulse_hz', 2.0) * a))
+        return d0 + (d1 - d0) * v
     if shape == 'ratchet':
         steps, sdt, srise = sp.get('steps', 4), sp.get('step_dt', 0.22), sp.get('step_rise', 0.05)
         v = 0.0
