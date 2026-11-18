@@ -134,6 +134,10 @@ def place(detail, f):
         eye_c = head + Quaternion(hq[f]).to_matrix() @ Vector((0, -0.07, 0.07))
         dist, cd.lens = (0.32, 105) if detail in ('eyes', 'fading') else (0.55, 85)
         aim(eye_c + fwd_h * dist + Vector((0, 0, 0.02)), eye_c)
+        zc = (cam.location - eye_c).normalized()               # roll: her head's up is up on screen
+        yc = Quaternion(hq[f]).to_matrix() @ Vector((0, 0, 1))
+        yc = (yc - yc.dot(zc) * zc).normalized()
+        cam.rotation_quaternion = Matrix((yc.cross(zc), yc, zc)).transposed().to_quaternion()
     elif detail == 'arms':
         pts = [B(k, f) for k in ('upper_arm_L', 'forearm_L', 'hand_L', 'upper_arm_R', 'forearm_R', 'hand_R')]
         c = sum(pts, Vector()) / len(pts)

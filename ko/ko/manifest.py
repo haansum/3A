@@ -121,6 +121,8 @@ def resolve(take_path, quality=None):
     rk = [k['bake'], lock['arena'], lock['render'], lock.get('strikes'), code_hash('render')]
     if lock.get('attacker'):                        # appended only when set: old keys unchanged
         rk.append({'attacker': lock['attacker']['key']})
+    if lock['character'].get('texture_overrides'):
+        rk.append({'texture_overrides': lock['character']['texture_overrides']})
     if lock['character'].get('floor_chains'):
         rk.append({'floor_chains': lock['character']['floor_chains']})
     k['render'] = sha(rk)[:12]

@@ -18,6 +18,11 @@ PRESETS = {
     'quiet': None,
     'mild': {'onset': (0.5, 1.5), 'episode': (3.0, 5.0), 'rate': 4.0, 'amp': 0.15},
     'pronounced': {'onset': (0.3, 1.0), 'episode': (5.0, 8.0), 'rate': 6.0, 'amp': 0.35},
+    # coming round (owner 2026-11-18: jitters and kicks as consciousness is regained): fast small
+    # jitters everywhere plus big leg kicks, tapering as she comes back
+    'waking': {'onset': (0.0, 0.3), 'episode': (3.0, 4.5), 'rate': 7.0, 'amp': 0.3, 'after': 'waking',
+               'weights': {'leg_L': 3.0, 'leg_R': 3.0, 'arm_L': 1.0, 'arm_R': 1.0, 'neck': 0.4, 'trunk': 0.6},
+               'kick': 0.45},
 }
 REGION_W = {'arm_L': 1.0, 'arm_R': 1.0, 'leg_L': 1.0, 'leg_R': 1.0, 'neck': 0.6, 'trunk': 0.5}
 
@@ -25,6 +30,7 @@ REGION_W = {'arm_L': 1.0, 'arm_R': 1.0, 'leg_L': 1.0, 'leg_R': 1.0, 'neck': 0.6,
 class Jerks:
     def __init__(self, preset, ctl, rng):
         self.p = PRESETS[preset] if isinstance(preset, str) else preset
+        self.after = (self.p or {}).get('after', 'out')
         self.ctl, self.rng = ctl, rng
         self.pulses = None              # [(t0, dur, {dof index: torque})]
 
@@ -33,8 +39,9 @@ class Jerks:
         from .control import REGIONS
         t = t_out + rng.uniform(*p['onset'])
         t_end = t + rng.uniform(*p['episode'])
-        regs = list(REGION_W)
-        w = np.array([REGION_W[r] for r in regs])
+        rw = p.get('weights', REGION_W)
+        regs = list(rw)
+        w = np.array([rw[r] for r in regs])
         w /= w.sum()
         out = []
         while t < t_end:
@@ -47,15 +54,22 @@ class Jerks:
             tq = {int(ctl.dadr[j]): float((1 if ctl.jn[j].split('_')[0] in ('forearm', 'shin')
                                            else rng.choice([-1, 1])) * p['amp'] * fade * ctl.tmax[j]
                                           * rng.uniform(0.5, 1.0)) for j in pick}
+            if p.get('kick') and r.startswith('leg'):
+                # a kick: hip and knee together, knee driven straight (bounded by the stop)
+                side = r[-1]
+                for jn_, sgn in ((f'thigh_{side}_flex', 1), (f'shin_{side}_flex', -1)):
+                    if jn_ in ctl.jn:
+                        j = ctl.jn.index(jn_)
+                        tq[int(ctl.dadr[j])] = sgn * p['kick'] * fade * ctl.tmax[j] * rng.uniform(0.6, 1.0)
             out.append((t, rng.uniform(0.05, 0.12), tq))
             t += rng.gamma(2.5, 1.0 / (2.5 * p['rate']))
         return out
 
     def apply(self, d, t, events):
-        if self.p is None or 'out' not in events:
+        if self.p is None or self.after not in events:
             return
         if self.pulses is None:
-            self.pulses = self._plan(events['out'])
+            self.pulses = self._plan(events[self.after])
         for t0, dur, tq in self.pulses:
             if t0 <= t < t0 + dur:
                 s = np.sin(np.pi * (t - t0) / dur)

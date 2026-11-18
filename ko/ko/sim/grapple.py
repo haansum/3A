@@ -96,10 +96,39 @@ def _quat_z_to(v):
 class Grapple:
     def __init__(self, cfg):
         self.cfg = dict(cfg)
+        self.locked = self._fit_lengths(LOCKED, self.cfg.get('upper_m'), self.cfg.get('forearm_m'))
         self.on = False
         self.frame = None                 # (C, f, l, u) once the hold starts
         self.t_out = None
         self.log = {'seg': [], 'force_L': [], 'force_R': [], 'score': [], 'phase': []}
+
+    @staticmethod
+    def _fit_lengths(base, upper, forearm):
+        """Resize the authored hold to the attacker's arms (2026-11-18): the wrap round her neck
+        (elbows) stays where it is; each shoulder moves back along its upper arm and each wrist
+        and hand moves along the forearm, and the torso anchor moves back with the shoulders."""
+        L = {k: tuple(np.array(p, float) for p in v) for k, v in base.items()}
+        if not upper and not forearm:
+            return {k: tuple(tuple(p) for p in v) for k, v in L.items()}
+        shift = []
+        for sd in ('R', 'L'):
+            sh, el = L['upper_arm_' + sd]
+            if upper:
+                d = (sh - el) / np.linalg.norm(sh - el)
+                sh2 = el + d * upper
+                shift.append(sh2 - sh)
+                L['upper_arm_' + sd] = (sh2, el)
+            el, wr = L['forearm_' + sd]
+            if forearm:
+                d = (wr - el) / np.linalg.norm(wr - el)
+                wr2 = el + d * forearm
+                h0, h1 = L['hand_' + sd]
+                L['forearm_' + sd] = (el, wr2)
+                L['hand_' + sd] = (wr2, h1 + (wr2 - wr))
+        if shift:
+            m = np.mean(shift, 0)
+            L['torso'] = tuple(p + np.array([m[0], 0.0, m[2]]) for p in L['torso'])
+        return {k: tuple(tuple(float(x) for x in p) for p in v) for k, v in L.items()}
 
     # -- model ------------------------------------------------------------------------------
     def mjcf(self):
@@ -154,7 +183,7 @@ class Grapple:
     def _ends(self, s, t):
         """segment end points (frame coords) at time t, by phase"""
         c = self.cfg
-        a, b = (np.array(x, float) for x in LOCKED[s])
+        a, b = (np.array(x, float) for x in self.locked[s])
         ls = LOOSE_SHIFT.get(s, ((0, 0, 0), (0, 0, 0)))
         sq = SQUEEZE_DIR.get(s, ((0, 0, 0), (0, 0, 0)))
         o1 = OPEN1.get(s, ((0, 0, 0), (0, 0, 0)))
@@ -175,6 +204,12 @@ class Grapple:
             q = q + (1 - w2) * w1 * np.array(o1[k]) + w2 * np.array(o2[k])
             side = 0.0 if s == 'torso' else (-1.0 if s.endswith('_R') else 1.0)
             q = q + w_away * (AWAY * (1.6 if s != 'torso' else 1.0) + np.array([0.0, side * AWAY_SIDE, 0.0]))
+            # lift (standing variant, toes off the canvas): the whole hold rises by lift_m once
+            # locked, and comes back down as it opens
+            lift = c.get('lift_m', 0.0)
+            if lift:
+                w_lift = _smooth((t - t_close - close_s) / c.get('lift_s', 1.2)) * (1.0 - w1)
+                q = q + np.array([0.0, 0.0, lift * w_lift])
             ends.append(q)
         return ends
 
@@ -195,7 +230,7 @@ class Grapple:
         """take her neck frame now, size the segments, snap everything to the loose targets"""
         self.frame = self._frame_now(d)
         for s in SEGS:
-            a, b = (self._w(p) for p in LOCKED[s])
+            a, b = (self._w(p) for p in self.locked[s])
             half = max(0.5 * np.linalg.norm(b - a), 0.02)
             g = self.gid[s]
             if s == 'torso':
@@ -213,6 +248,8 @@ class Grapple:
             return
         if self.t_out is None and 'out' in events:
             self.t_out = events['out']
+        if self.t_out is not None and 'release' not in events and t >= self.t_out + self.cfg.get('release_after', 2.5):
+            events['release'] = t
         for s in SEGS:
             self._set_target(d, s, t)
 
@@ -246,6 +283,6 @@ class Grapple:
         out = {'grapple_seg': np.array(self.log['seg']), 'grapple_force_L': np.array(self.log['force_L']),
                'grapple_force_R': np.array(self.log['force_R']), 'grapple_score': np.array(self.log['score']),
                'grapple_names': np.array(SEGS),
-               'grapple_len': np.array([np.linalg.norm(np.subtract(*map(np.array, LOCKED[s]))) for s in SEGS]),
+               'grapple_len': np.array([np.linalg.norm(np.subtract(*map(np.array, self.locked[s]))) for s in SEGS]),
                'grapple_radius': np.array([RADIUS[s] for s in SEGS])}
         return out

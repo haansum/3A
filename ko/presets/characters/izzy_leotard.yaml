@@ -49,3 +49,7 @@ outfit:
   hide_collections: []
   cover_groups: [KO_bust_apex, KO_crotch_outer]   # made by tools/prep_izzy.py
   min_coverage: 0.98
+# brandless swim-team uniform (owner 2026-11-18): tools/swim_uniform.py designs it on the body
+# (navy, lighter side panels, white piping, no marks); swapped in at render, original untouched
+texture_overrides:
+  Leotard.png: assets_cache/izzy/textures_uniform/Leotard.png

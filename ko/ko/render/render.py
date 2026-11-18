@@ -635,6 +635,24 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
     sc = bpy.context.scene
     n = len(fr['t'])
     sc.frame_start, sc.frame_end = 1, n
+    # texture overrides (character preset): replace an image by file name with a new file; the
+    # original asset stays untouched (2026-11-18: brandless swim-team uniform)
+    for nm_, path_ in ((lock['character'].get('texture_overrides') or {}).items()):
+        path_ = path_ if os.path.isabs(path_) else os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), path_)
+        olds_ = [im_ for im_ in bpy.data.images if os.path.basename(im_.filepath) == nm_ or im_.name == nm_]
+        if olds_ and os.path.exists(path_):
+            # a fresh image, swapped into every node that used the old one (the old one may be
+            # packed in the file, so reloading its path would keep the packed pixels)
+            new_ = bpy.data.images.load(path_, check_existing=False)
+            new_.colorspace_settings.name = olds_[0].colorspace_settings.name
+            k_ = 0
+            for m_ in bpy.data.materials:
+                if m_.use_nodes:
+                    for nd_ in m_.node_tree.nodes:
+                        if nd_.type == 'TEX_IMAGE' and nd_.image in olds_:
+                            nd_.image = new_
+                            k_ += 1
+            print(f'[render] texture override: {nm_} -> {path_} ({k_} nodes)')
     converted = [m.name for m in bpy.data.materials if principled(m)]
     # a character file brings its own scene baggage: none of it belongs in the locked look
     sc.render.use_compositing = False
@@ -694,7 +712,9 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
     if 'grapple_pos' in fr and lock.get('attacker'):
         # the arms come from another character (owner 2026-11-18: Mosin's)
         from . import attacker as AT_
-        _, _, nv_ = AT_.mosin_arms(fr, root, coll, lock['attacker']['dir'], fps)
+        td_ = (lock.get('grapple') or {}).get('arms_texture')
+        td_ = os.path.join(manifest.ROOT, td_) if td_ and not os.path.isabs(td_) else td_
+        _, _, nv_ = AT_.attacker_arms(fr, root, coll, lock['attacker']['dir'], fps, td_)
         print(f"[render] hold: {lock['attacker']['character']['name']}'s arms ({nv_} vertices) posed over {len(fr['grapple_pos'])} frames")
     elif 'grapple_pos' in fr:
         from . import props as PR_
@@ -713,6 +733,14 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
                 ob_.keyframe_insert('location', frame=f_ + 1)
                 ob_.keyframe_insert('rotation_quaternion', frame=f_ + 1)
         print(f'[render] hold: {len(gp_[0]) - 1} attacker segments keyed over {len(gp_)} frames')
+    fx_tl_ = (lock.get('bake') or {}).get('face_expr')
+    if fx_tl_ and bpy.data.objects.get('KO_skeleton') is not None:
+        # expression channels on the face bones (2026-11-18, choke): strain, worry, slack, tonic
+        # grimace, confused blinks; see face_expr.py
+        from . import face_expr as FE_
+        ev_fx = dict(json.loads(str(fr['events'])))
+        used_ = FE_.apply(sc, bpy.data.objects['KO_skeleton'], root, fx_tl_, ev_fx, fps, n)
+        print('[render] face expression channels:', {k: round(v, 2) for k, v in used_.items()})
     shots = make_cameras(lock, fr, root, coll, fps)
     if 'face' in shots:
         rep_ = refine_face_cam(sc, shots['face'], root, fps, n)

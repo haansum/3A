@@ -65,6 +65,7 @@ class Consciousness:
         self.t_rec = None
         self._min = (None, 1.0)
         self.D = 0.0                       # choke deficit
+        self.released = False              # choke: the hold has opened (set by the sim loop)
 
     # -- driver ---------------------------------------------------------------------------
     def hit(self, t):
@@ -100,7 +101,12 @@ class Consciousness:
         on, full = c.get('score_on', 0.05), c.get('full', 0.25)
         if score >= on:
             self.D = min(1.0, self.D + dt * c.get('rate', 0.16) * min(1.0, (score - on) / max(full - on, 1e-6)))
-        elif self.D < 1.0 or not c.get('latch', True):     # once out, out for good (no waking in v1)
+        elif self.released and c.get('wake'):
+            # after the release she comes round (owner 2026-11-18): the deficit drains at
+            # wake.decay/s toward wake.floor, so she ends groggy, not fully back
+            w = c['wake']
+            self.D = max(float(w.get('floor', 0.35)), self.D - dt * float(w.get('decay', 0.15)))
+        elif self.D < 1.0 or not c.get('latch', True):     # once out, out until released
             self.D = max(0.0, self.D - dt * c.get('decay', 0.05))
 
     def authority(self, L):
@@ -121,6 +127,10 @@ class Consciousness:
                 events['fading'] = t
             if L < 0.05 and 'out' not in events:
                 events['out'] = t
+            if 'out' in events and L > 0.08 and 'waking' not in events:
+                events['waking'] = t
+            if 'waking' in events and L > 0.5 and 'groggy' not in events:
+                events['groggy'] = t
         if L < 0.5 and 'L_half' not in events:
             events['L_half'] = t
         if L < self._min[1] - 1e-12:

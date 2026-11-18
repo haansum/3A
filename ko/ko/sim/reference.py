@@ -246,8 +246,22 @@ POSES = {
     # (b) right hand peels at his wrist while the left pulls at the elbow
     # tonic posturing while out in the hold (2026-11-18: 'arms_forward' at 8 deg read as
     # hyperextended elbows): arms lift forward with the elbows clearly bent
-    'arms_forward_bent': {'upper_arm_L_abd': -25, 'upper_arm_L_flex': 70, 'forearm_L_flex': 35, 'hand_L_flex': 25,
-                          'upper_arm_R_abd': -28, 'upper_arm_R_flex': 64, 'forearm_R_flex': 42, 'hand_R_flex': 30},
+    # wrists flex hard like the strike takes' tonic posture (owner 2026-11-18)
+    'arms_forward_bent': {'upper_arm_L_abd': -25, 'upper_arm_L_flex': 70, 'forearm_L_flex': 35, 'hand_L_flex': 62,
+                          'upper_arm_R_abd': -28, 'upper_arm_R_flex': 64, 'forearm_R_flex': 42, 'hand_R_flex': 68},
+    # standing hold: feet planted shoulder width, knees soft, same hand fight
+    'stand_base': {'thigh_L_flex': 8, 'shin_L_flex': 14, 'foot_L_dorsi': 4, 'thigh_L_abd': 8,
+                   'thigh_R_flex': 6, 'shin_R_flex': 12, 'foot_R_dorsi': 4, 'thigh_R_abd': 8,
+                   'spine_flex': -2, 'chest_flex': 2, 'neck_flex': 18, 'head_flex': 8,
+                   'upper_arm_L_abd': -70, 'upper_arm_L_flex': 20, 'forearm_L_flex': 40,
+                   'upper_arm_R_abd': -70, 'upper_arm_R_flex': 20, 'forearm_R_flex': 40},
+    # lifted onto her toes / off the ground: feet reach down for the canvas
+    'lifted_feet': {'foot_L_dorsi': -30, 'foot_R_dorsi': -26, 'shin_L_flex': 10, 'shin_R_flex': 16},
+    # coming round on the canvas: arms by her sides, legs loose, head free
+    'groggy_lying': {'upper_arm_L_abd': -72, 'upper_arm_L_flex': 10, 'forearm_L_flex': 30, 'hand_L_flex': 15,
+                     'upper_arm_R_abd': -70, 'upper_arm_R_flex': 14, 'forearm_R_flex': 36, 'hand_R_flex': 15,
+                     'thigh_L_flex': 18, 'thigh_L_abd': 10, 'shin_L_flex': 30, 'thigh_R_flex': 10, 'thigh_R_abd': 8,
+                     'shin_R_flex': 20, 'neck_flex': 4, 'neck_twist': 15},
     'hand_fight_a': {'upper_arm_L_abd': -40, 'upper_arm_L_flex': 58, 'forearm_L_flex': 122, 'hand_L_flex': 25,
                      'upper_arm_R_abd': -40, 'upper_arm_R_flex': 58, 'forearm_R_flex': 122, 'hand_R_flex': 25,
                      'neck_flex': 24, 'head_flex': 10, 'chest_flex': 6},
@@ -260,8 +274,12 @@ POSES = {
 }
 
 # hand-fight poses are full poses over the seated base (the blender reads a missing joint as 0)
+_HF = {k: dict(POSES[k]) for k in ('hand_fight_a', 'hand_fight_b')}
 for _k in ('hand_fight_a', 'hand_fight_b'):
-    POSES[_k] = {**POSES['seated_long'], **POSES[_k]}
+    POSES[_k] = {**POSES['seated_long'], **_HF[_k]}
+    _arms = {k: v for k, v in _HF[_k].items() if not k.startswith(('thigh', 'shin', 'foot'))}
+    POSES['stand_' + _k] = {**POSES['stand_base'], **_arms}                    # standing
+    POSES['lift_' + _k] = {**POSES['stand_base'], **_arms, **POSES['lifted_feet']}   # lifted
 
 
 def smooth(u):

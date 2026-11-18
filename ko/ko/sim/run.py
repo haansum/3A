@@ -136,7 +136,9 @@ def run(cfg, char_dir, out_dir=None, record=True):
         mujoco.mj_forward(m, d)
         if cfg['grapple'].get('jerks', 'pronounced'):
             from .jerks import Jerks
-            jerks = Jerks(cfg['grapple'].get('jerks', 'pronounced'), ctl, np.random.default_rng(sim.get('seed', 0) + 7))
+            jerks = [Jerks(cfg['grapple'].get('jerks', 'pronounced'), ctl, np.random.default_rng(sim.get('seed', 0) + 7))]
+            if cfg['grapple'].get('wake_jerks'):
+                jerks.append(Jerks(cfg['grapple']['wake_jerks'], ctl, np.random.default_rng(sim.get('seed', 0) + 11)))
     ctl.set_inertia(d)
     p0 = d.xpos[ctl.pelvis].copy()
 
@@ -188,8 +190,10 @@ def run(cfg, char_dir, out_dir=None, record=True):
             if not settle and ctl.t_ko is None and t >= cfg['grapple'].get('close_at', 0.3):
                 ctl.trigger_ko(t, q_cmd)        # the hold is on: the choke driver takes over L
             G.step(d, t, ctl.events)
+            ctl.cons.released = 'release' in ctl.events
             if jerks is not None and not settle:
-                jerks.apply(d, t, ctl.events)
+                for j_ in jerks:
+                    j_.apply(d, t, ctl.events)
         breath = np.radians(br['amp_deg']) * np.sin(2 * np.pi * t / br['period'])
         tone = ctl.apply(d, t, q_cmd, qd_cmd, breath)
         cap = 3.0 if settle else cfg['motion'].get('assist_cap', 0.15)

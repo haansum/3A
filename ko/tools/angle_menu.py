@@ -29,11 +29,16 @@ dt = float(z['dt'])
 T = z['t'][-1]
 bn = [str(b) for b in z['body_names']]
 X = z['xpos']
-hi = ev['head_impact']
-r0 = min(ev.get('head_impact_2', 1e9), ev.get('followup_1', 1e9), hi + 0.9) + 0.02
-MOM = [('whip', ev['ko_strike'] + 0.06), ('snap back', ev['ko_strike'] + 0.26),
-       ('fold', ev['ko_strike'] + 0.75), ('head impact', hi + 0.05), ('crescendo', hi + 0.5),
-       ('peak', hi + 1.3), ('ratchet', r0 + 0.7), ('fade', min(hi + 4.0, T - 0.05))]
+if 'out' in ev and 'ko_strike' not in ev:       # a hold (track G): the choke's own moments
+    MOM = [('fighting', 1.5), ('fading', ev.get('L_half', ev['out'] - 2.0)), ('out', ev['out'] + 1.0),
+           ('tonic peak', ev.get('release', ev['out'] + 5) - 0.3), ('release', ev.get('release', ev['out'] + 5) + 0.8),
+           ('waking', ev.get('waking', T - 3) + 0.5), ('groggy', min(ev.get('groggy', T - 1) + 2.0, T - 0.05))]
+else:
+    hi = ev['head_impact']
+    r0 = min(ev.get('head_impact_2', 1e9), ev.get('followup_1', 1e9), hi + 0.9) + 0.02
+    MOM = [('whip', ev['ko_strike'] + 0.06), ('snap back', ev['ko_strike'] + 0.26),
+           ('fold', ev['ko_strike'] + 0.75), ('head impact', hi + 0.05), ('crescendo', hi + 0.5),
+           ('peak', hi + 1.3), ('ratchet', r0 + 0.7), ('fade', min(hi + 4.0, T - 0.05))]
 
 bpy.ops.wm.open_mainfile(filepath=src, use_scripts=False)
 sc = bpy.context.scene

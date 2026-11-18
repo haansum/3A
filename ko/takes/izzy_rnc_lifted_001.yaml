@@ -1,0 +1,32 @@
+# Standing rear-naked choke, slightly lifted (owner 2026-11-18): once the hold is locked the
+# whole hold rises 16 cm (6 and 12 cm left the toes loaded: she sinks in the hold and the tonic legs reach), so her toes come off the canvas; it comes down as the arms open.
+character: izzy_leotard
+arena: gym
+archetype: rnc_seated
+seed: 1
+quality: draft
+shots: [live]
+render: {live_az: -60, live_dist: 2.6, live_z: 1.3, fps: 12, frame_step: 1, res: [480, 270], samples: 8}   # 12 fps preview (owner 2026-11-18)
+overrides:
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  sim: {start: standing}
+  grapple: {lift_m: 0.16, lift_s: 1.2}
+  motion:
+    reference:
+      type: procedural
+      keys:
+      - {t: 0.0, pose: stand_base}
+      - {t: 0.5, pose: lift_hand_fight_a}
+      - {t: 1.2, pose: lift_hand_fight_b}
+      - {t: 1.9, pose: lift_hand_fight_a}
+      - {t: 2.5, pose: lift_hand_fight_b}
+      - {t: 3.3, pose: lift_hand_fight_a}
+      - {t: 4.0, pose: lift_hand_fight_b}
+      - {t: 4.8, pose: lift_hand_fight_a}
+      - {t: 5.6, pose: lift_hand_fight_b}
+      - {t: 6.5, pose: lift_hand_fight_a}
+      - {t: 7.5, pose: lift_hand_fight_b}
+      - {t: 8.5, pose: lift_hand_fight_a}
+      - {t: 16.0, pose: lift_hand_fight_a}
+      - {t: 18.0, pose: groggy_lying}
+      - {t: 27.0, pose: groggy_lying}

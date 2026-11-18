@@ -7,7 +7,7 @@
 name: rnc_seated
 sim:
   dt: 0.002
-  duration: 16.0
+  duration: 27.0
   settle: 0.6
   start: seated
   flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
@@ -17,21 +17,47 @@ sim:
                [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
 grapple:
   type: rnc
-  arms_from: mosin       # owner 2026-11-18: the arms come from Mosin (render: her arm meshes, posed from the sim)
+  arms_from: izzy_leotard   # owner 2026-11-18: Izzy's arms (was Mosin's), with an alternate texture
+  arms_texture: assets_cache/izzy/textures_atk   # tools/alt_skin.py: warmer, deeper tan copies
+  upper_m: 0.256         # hold geometry fitted to the attacker's arms (her skeleton, measured)
+  forearm_m: 0.268
   close_at: 0.3          # s: the hold starts closing
   close_s: 0.7
   squeeze_m: 0.02        # elbow draws in this far over squeeze_s
   squeeze_s: 2.5
-  release_after: 2.5     # s after she goes out, his arms open
+  release_after: 10.0    # s after she goes out, the arms open (owner 2026-11-18: 10 s)
   open_s: 0.6
   away_s: 0.8
   weld_solref: "0.04 1"  # give in his arms
   jerks: pronounced      # quiet | mild | pronounced
+  wake_jerks: waking     # jitters and kicks as she comes round (owner 2026-11-18)
 bake:
   # face (2026-11-18): eyes level while she fights, small irregular drifts while fading, then at
   # going out the eyes roll up and to her left with a small overshoot and settle at the house
-  # value (~30% of the pupil showing); the jaw goes slack. gaze = [up_deg, side_deg], +side = her
+  # value (~30% of the pupil showing; 30 deg plus the lid droop hid the iris, 2026-11-18: 24); the jaw goes slack. gaze = [up_deg, side_deg], +side = her
   # left; jaw = opening deg. All by eye.
+  fists: {stance: 0.6, relaxed: 0.3, release: 0.4,
+          tonic: {after: out, t: 0.0, tau: 3.0, hold: 10.0, fade: 2.0, peak: 1.0}}   # tonic fists build with the posture
+  # expression channels (render stage, ko/render/face_expr.py), 0..1 each, by eye:
+  # strain while she fights, worry as she fades, half-lidded slack when out, a tonic grimace
+  # building with the posture, slack at the release, confused blinks as she comes round
+  face_expr:
+    - {at: start,            knit: 0.0, squint: 0.0, grimace: 0.0, press: 0.0, raise: 0.0, droop: 0.0, slack: 0.0}
+    - {at: start, dt: 0.6,   knit: 0.8, squint: 0.5, grimace: 0.7, press: 0.0}
+    - {at: fading,           knit: 0.9, squint: 0.6, grimace: 0.8}
+    - {at: fading, dt: 1.6,  knit: 0.6, squint: 0.3, grimace: 0.45, raise: 0.5, droop: 0.4}
+    - {at: fading, dt: 3.4,  knit: 0.2, squint: 0.0, grimace: 0.1, raise: 0.7, droop: 0.7}
+    - {at: out,              knit: 0.1, squint: 0.0, grimace: 0.0, raise: 0.3, droop: 0.2, slack: 0.5}
+    - {at: out, dt: 2.0,     knit: 0.2, grimace: 0.15, droop: 0.2, slack: 0.4}
+    - {at: release,          knit: 0.45, grimace: 0.5, droop: 0.2, slack: 0.2}      # tonic grimace, peak
+    - {at: release, dt: 1.0, knit: 0.0, grimace: 0.0, droop: 0.55, slack: 0.7, raise: 0.0}
+    - {at: waking,           droop: 0.6, slack: 0.7}
+    - {at: waking, dt: 0.25, droop: 0.95}                                           # blink
+    - {at: waking, dt: 0.5,  droop: 0.3, raise: 0.4}
+    - {at: waking, dt: 1.3,  droop: 0.9}                                            # blink
+    - {at: waking, dt: 1.55, droop: 0.25, raise: 0.5, slack: 0.4}
+    - {at: waking, dt: 3.0,  droop: 0.35, raise: 0.3, knit: 0.25, slack: 0.3}       # groggy, puzzled
+    - {at: waking, dt: 30.0, droop: 0.35, raise: 0.3, knit: 0.25, slack: 0.3}
   face_timeline:
     - {at: start,             gaze: [0, 0],   jaw: 0}
     - {at: fading,            gaze: [0, 0],   jaw: 0}
@@ -42,9 +68,14 @@ bake:
     - {at: out, dt: -0.6,     gaze: [5, 8],   jaw: 3}
     - {at: out,               gaze: [9, 11],  jaw: 4}
     - {at: out, dt: 0.4,      gaze: [22, 16], jaw: 7}
-    - {at: out, dt: 0.8,      gaze: [34, 21], jaw: 9}
-    - {at: out, dt: 1.3,      gaze: [30, 20], jaw: 9}
-    - {at: out, dt: 30.0,     gaze: [30, 20], jaw: 9}
+    - {at: out, dt: 0.8,      gaze: [28, 21], jaw: 9}
+    - {at: out, dt: 1.3,      gaze: [24, 19], jaw: 9}     # ~30% of the pupil showing (house rule)
+    - {at: waking,            gaze: [24, 19], jaw: 9}
+    - {at: waking, dt: 0.6,   gaze: [18, 12], jaw: 7}     # eyes come back down as she comes round
+    - {at: waking, dt: 1.4,   gaze: [6, -4],  jaw: 5}     # unfocused drift
+    - {at: waking, dt: 2.3,   gaze: [10, 6],  jaw: 4}
+    - {at: waking, dt: 3.4,   gaze: [2, -2],  jaw: 3}
+    - {at: waking, dt: 30.0,  gaze: [3, 1],   jaw: 3}
 motion:
   assist_cap: 0.15
   reference:
@@ -62,7 +93,9 @@ motion:
       - {t: 6.5, pose: hand_fight_a}
       - {t: 7.5, pose: hand_fight_b}
       - {t: 8.5, pose: hand_fight_a}
-      - {t: 15.0, pose: hand_fight_a}
+      - {t: 16.0, pose: hand_fight_a}
+      - {t: 18.0, pose: groggy_lying}    # authority is ~0 until she comes round after the release
+      - {t: 27.0, pose: groggy_lying}
 controller:
   track_hz: 3.0
   zeta: 1.0
@@ -75,6 +108,7 @@ controller:
     full: 0.7            # Mosin-sized arms squeeze 0.6-0.9 measured
     rate: 0.16           # deficit per s at full squeeze: ~6-7 s to out
     decay: 0.05
+    wake: {decay: 0.15, floor: 0.35}   # after the release she comes round to L ~0.7 (groggy), not fully
     curves:
       neck: [[0.0, 0.0], [0.4, 0.2], [1.0, 1.0]]
       arms: [[0.0, 0.0], [0.25, 0.1], [0.7, 0.8], [1.0, 1.0]]
@@ -88,11 +122,12 @@ controller:
     target_filter: {hz: 6.0, zeta: 1.0}
     tone_wander: {sigma: 0.08, tau: 0.6}
     phases:
-      # pronounced preset: brief tonic posturing while out in the hold, then it lets go
-      - {after: out, t: 0.4, rise: 0.25, hold: 0.8, fade: 0.8, regions: [arm_L, arm_R], tone: 0.7, zeta: 0.4,
-         pose: arms_forward_bent, replace: true, stagger: {arm_R: 0.12}, jitter: 0.08}
-      - {after: out, t: 0.5, rise: 0.3, hold: 1.2, fade: 1.0, regions: [leg_L, leg_R], tone: 0.55, zeta: 0.4,
-         pose: extensor_legs, replace: true, stagger: {leg_L: 0.15}, jitter: 0.08}
+      # pronounced preset: tonic posturing while out in the hold, escalating linearly 10% per
+      # second (owner 2026-11-18) to full at the release, wrists flexed hard; drains after
+      - {after: out, t: 0.0, rise: 10.0, hold: 0.0, fade: 2.0, regions: [arm_L, arm_R], tone: 0.9, zeta: 0.4,
+         pose: arms_forward_bent, replace: true, depth: {start: 0.0, end: 1.0, tau: 3.0}, stagger: {arm_R: 0.12}, jitter: 0.06}
+      - {after: out, t: 0.0, rise: 10.0, hold: 0.0, fade: 2.0, regions: [leg_L, leg_R], tone: 0.6, zeta: 0.4,
+         pose: extensor_legs, replace: true, depth: {start: 0.0, end: 1.0, tau: 3.0}, stagger: {leg_L: 0.15}, jitter: 0.06}
       # out in the hold: the head lolls onto his arm, slow and limp
       - {after: out, t: 0.2, rise: 0.8, hold: 20.0, fade: 1.0, regions: [neck], tone: 0.12, zeta: 0.6,
          pose: head_rolled_limp, replace: true, jitter: 0.05}
