@@ -66,6 +66,7 @@ class Consciousness:
         self._min = (None, 1.0)
         self.D = 0.0                       # choke deficit
         self.released = False              # choke: the hold has opened (set by the sim loop)
+        self.t_released = None
 
     # -- driver ---------------------------------------------------------------------------
     def hit(self, t):
@@ -97,10 +98,14 @@ class Consciousness:
         """choke driver: integrate the squeeze score into the deficit"""
         if self.driver != 'choke' or self.t0 is None or t < self.t0:
             return
+        if self.released and getattr(self, 't_released', None) is None:
+            self.t_released = t
         c = self.cfg
         on, full = c.get('score_on', 0.05), c.get('full', 0.25)
         if score >= on:
             self.D = min(1.0, self.D + dt * c.get('rate', 0.16) * min(1.0, (score - on) / max(full - on, 1e-6)))
+        elif self.released and c.get('wake') and t < (self.t_released or t) + float(c['wake'].get('delay', 0.0)):
+            pass                            # still out while she goes down (wake.delay after release)
         elif self.released and c.get('wake'):
             # after the release she comes round (owner 2026-11-18): the deficit drains at
             # wake.decay/s toward wake.floor, so she ends groggy, not fully back

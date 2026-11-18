@@ -1,0 +1,31 @@
+# Standing rear-naked choke (owner 2026-11-18): same hold and arc as the seated take, she
+# starts on her feet; her legs give when she goes out and his arms take her weight.
+character: izzy_leotard
+arena: gym
+archetype: rnc_seated
+seed: 1
+quality: draft
+shots: [live]
+render: {live_az: -60, live_dist: 2.6, live_z: 1.3, fps: 12, frame_step: 1, res: [480, 270], samples: 8}   # 12 fps preview (owner 2026-11-18)
+overrides:
+  arena: {rope_distance: 3.0, simulate_ropes: false}
+  sim: {start: standing}
+  motion:
+    reference:
+      type: procedural
+      keys:
+      - {t: 0.0, pose: stand_base}
+      - {t: 0.5, pose: stand_hand_fight_a}
+      - {t: 1.2, pose: stand_hand_fight_b}
+      - {t: 1.9, pose: stand_hand_fight_a}
+      - {t: 2.5, pose: stand_hand_fight_b}
+      - {t: 3.3, pose: stand_hand_fight_a}
+      - {t: 4.0, pose: stand_hand_fight_b}
+      - {t: 4.8, pose: stand_hand_fight_a}
+      - {t: 5.6, pose: stand_hand_fight_b}
+      - {t: 6.5, pose: stand_hand_fight_a}
+      - {t: 7.5, pose: stand_hand_fight_b}
+      - {t: 8.5, pose: stand_hand_fight_a}
+      - {t: 16.0, pose: stand_hand_fight_a}
+      - {t: 18.0, pose: groggy_lying}
+      - {t: 27.0, pose: groggy_lying}

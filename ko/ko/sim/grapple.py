@@ -162,6 +162,8 @@ class Grapple:
         self.qadr = {s: m.jnt_qposadr[m.joint('atk_' + s + '_free').id] for s in SEGS}
         self.dadr = {s: m.jnt_dofadr[m.joint('atk_' + s + '_free').id] for s in SEGS}
         self.her_neck = {m.geom('g_neck').id, m.geom('g_head').id}
+        self.eq = {s_: m.equality('atk_' + s_ + '_weld').id for s_ in SEGS}
+        self.eq_ref0 = {s_: m.eq_solref[self.eq[s_]].copy() for s_ in SEGS}
         self.neck_b, self.head_b, self.pelvis_b = m.body('neck').id, m.body('head').id, m.body('pelvis').id
         self._mj = mujoco
 
@@ -191,9 +193,14 @@ class Grapple:
         t_close, close_s = c.get('close_at', 0.3), c.get('close_s', 0.7)
         w_loose = 1.0 - _smooth((t - t_close) / close_s)
         w_sq = c.get('squeeze_m', 0.03) * _smooth((t - t_close - close_s) / c.get('squeeze_s', 2.5))
-        w1 = w2 = w_away = 0.0
+        w1 = w2 = w_away = w_low = 0.0
         if self.t_out is not None:
-            t_open, os_ = self.t_out + c.get('release_after', 2.5), c.get('open_s', 0.6)
+            t_rel = self.t_out + c.get('release_after', 2.5)
+            # standing holds (2026-11-18): he lowers her first (lower_m over lower_s) and only
+            # then opens his arms, so she ends sitting against him instead of dropping in a heap
+            lower_m, lower_s = c.get('lower_m', 0.0), c.get('lower_s', 1.2)
+            w_low = _smooth((t - t_rel) / lower_s) if lower_m else 0.0
+            t_open, os_ = t_rel + (lower_s if lower_m else 0.0), c.get('open_s', 0.6)
             w1 = _smooth((t - t_open) / os_)
             w2 = _smooth((t - t_open - os_) / os_)
             w_away = _smooth((t - t_open - 2 * os_) / c.get('away_s', 1.2))
@@ -203,6 +210,10 @@ class Grapple:
             q = p + w_loose * np.array(ls[k]) + w_sq * np.array(sq[k])
             q = q + (1 - w2) * w1 * np.array(o1[k]) + w2 * np.array(o2[k])
             side = 0.0 if s == 'torso' else (-1.0 if s.endswith('_R') else 1.0)
+            if s == 'torso' and self.t_out is not None and c.get('torso_delay'):
+                # his body stays behind her a little longer, so she sits back into it as her
+                # knees go instead of pitching forward when the arms open (2026-11-18)
+                w_away = _smooth((t - t_open - 2 * os_ - c['torso_delay']) / c.get('away_s', 1.2))
             q = q + w_away * (AWAY * (1.6 if s != 'torso' else 1.0) + np.array([0.0, side * AWAY_SIDE, 0.0]))
             # lift (standing variant, toes off the canvas): the whole hold rises by lift_m once
             # locked, and comes back down as it opens
@@ -210,6 +221,8 @@ class Grapple:
             if lift:
                 w_lift = _smooth((t - t_close - close_s) / c.get('lift_s', 1.2)) * (1.0 - w1)
                 q = q + np.array([0.0, 0.0, lift * w_lift])
+            if self.t_out is not None and c.get('lower_m'):
+                q = q + np.array([0.0, 0.0, -c['lower_m'] * w_low])
             ends.append(q)
         return ends
 
@@ -250,6 +263,16 @@ class Grapple:
             self.t_out = events['out']
         if self.t_out is not None and 'release' not in events and t >= self.t_out + self.cfg.get('release_after', 2.5):
             events['release'] = t
+        c = self.cfg
+        if self.t_out is not None and c.get('release_soft', 0.0):
+            # once his arms start to open they go loose (weld time constant -> release_soft s), so
+            # her slumped head pushes them aside instead of being lifted by them (2026-11-18)
+            t_open = self.t_out + c.get('release_after', 2.5) + (c.get('lower_s', 1.2) if c.get('lower_m') else 0.0)
+            w = _smooth((t - t_open) / c.get('open_s', 0.6))
+            for s_ in SEGS:
+                if s_ != 'torso':
+                    tc0 = float(self.eq_ref0[s_][0])
+                    self.m.eq_solref[self.eq[s_], 0] = tc0 + (float(c['release_soft']) - tc0) * w
         for s in SEGS:
             self._set_target(d, s, t)
 
