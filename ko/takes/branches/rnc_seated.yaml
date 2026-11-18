@@ -34,7 +34,7 @@ segments:
         set: {controller.consciousness.curves.neck: [[0.0, 0.0], [0.7, 0.2], [1.0, 1.0]]}
   - name: out in the hold (tonic posture, movement)
     until: {event: release, dt: 0.0}
-    shots: [tight]
+    shots: [live]
     options:
       - {label: as is (shoulder roll lowered)}
       - label: shoulder roll kept, elbows straight
