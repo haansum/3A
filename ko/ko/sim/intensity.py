@@ -36,6 +36,20 @@ def _smooth(u):
     return u * u * (3 - 2 * u)
 
 
+def timed(changes, t, base):
+    """Time-stamped changes (2026-11-18, segment-by-segment authoring): `changes` is a list of
+    [t0, value, ramp_s]; before the first t0 the value is `base` (which may itself vary with t),
+    from each t0 it ramps linearly to `value` over ramp_s. Nothing before a change's t0 is
+    touched, so a later segment can retune a knob without changing the past."""
+    v = base
+    for t0, val, ramp in sorted((list(c) + [1.0])[:3] for c in (changes or [])):
+        if t < t0:
+            break
+        u = min(1.0, (t - t0) / max(float(ramp), 1e-6))
+        v = v + (float(val) - v) * u
+    return v
+
+
 def interp_map(x, pts):
     xs = [p[0] for p in pts]
     ys = [p[1] for p in pts]

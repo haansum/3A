@@ -280,6 +280,17 @@ POSES = {
                   'upper_arm_R_abd': -76, 'upper_arm_R_flex': 16, 'forearm_R_flex': 52, 'hand_R_flex': 35},
 }
 
+# standing hand-fight variants for segment-by-segment authoring (2026-11-18), full poses over
+# stand_base: reach back over her shoulders for his head, two-on-one pull down on his forearm,
+# bend forward at the hips to drag him over. Eyeballed.
+POSES['stand_reach_back'] = {**POSES['stand_base'], 'upper_arm_L_abd': 10, 'upper_arm_L_flex': 130, 'forearm_L_flex': 95,
+                             'upper_arm_R_abd': 5, 'upper_arm_R_flex': 125, 'forearm_R_flex': 100, 'neck_flex': 12, 'chest_flex': -6}
+POSES['stand_pull_down'] = {**POSES['stand_base'], 'upper_arm_L_abd': -60, 'upper_arm_L_flex': 35, 'forearm_L_flex': 120, 'hand_L_flex': 35,
+                            'upper_arm_R_abd': -62, 'upper_arm_R_flex': 30, 'forearm_R_flex': 125, 'hand_R_flex': 35,
+                            'neck_flex': 26, 'head_flex': 12, 'chest_flex': 8}
+POSES['stand_lean_forward'] = {**POSES['stand_pull_down'], 'spine_flex': 18, 'chest_flex': 14, 'thigh_L_flex': 30, 'shin_L_flex': 30,
+                               'thigh_R_flex': 24, 'shin_R_flex': 26}
+
 # hand-fight poses are full poses over the seated base (the blender reads a missing joint as 0)
 _HF = {k: dict(POSES[k]) for k in ('hand_fight_a', 'hand_fight_b')}
 for _k in ('hand_fight_a', 'hand_fight_b'):

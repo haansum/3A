@@ -139,6 +139,8 @@ def run(cfg, char_dir, out_dir=None, record=True):
             jerks = [Jerks(cfg['grapple'].get('jerks', 'pronounced'), ctl, np.random.default_rng(sim.get('seed', 0) + 7))]
             if cfg['grapple'].get('wake_jerks'):
                 jerks.append(Jerks(cfg['grapple']['wake_jerks'], ctl, np.random.default_rng(sim.get('seed', 0) + 11)))
+            for j_ in jerks:
+                j_.gain_changes = cfg['grapple'].get('jerk_changes')
     ctl.set_inertia(d)
     p0 = d.xpos[ctl.pelvis].copy()
 

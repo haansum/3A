@@ -193,6 +193,9 @@ class Grapple:
         t_close, close_s = c.get('close_at', 0.3), c.get('close_s', 0.7)
         w_loose = 1.0 - _smooth((t - t_close) / close_s)
         w_sq = c.get('squeeze_m', 0.03) * _smooth((t - t_close - close_s) / c.get('squeeze_s', 2.5))
+        if c.get('squeeze_changes'):         # [[t0, metres, ramp]]: retune the squeeze from t0 on
+            from .intensity import timed
+            w_sq = timed(c['squeeze_changes'], t, w_sq)
         w1 = w2 = w_away = w_low = 0.0
         if self.t_out is not None:
             t_rel = self.t_out + c.get('release_after', 2.5)

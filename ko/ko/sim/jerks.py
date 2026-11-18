@@ -31,6 +31,7 @@ class Jerks:
     def __init__(self, preset, ctl, rng):
         self.p = PRESETS[preset] if isinstance(preset, str) else preset
         self.after = (self.p or {}).get('after', 'out')
+        self.gain_changes = None             # [[t0, gain, ramp]]: scale the pulses from t0 on
         self.ctl, self.rng = ctl, rng
         self.pulses = None              # [(t0, dur, {dof index: torque})]
 
@@ -76,5 +77,8 @@ class Jerks:
         for t0, dur, tq in self.pulses:
             if t0 <= t < t0 + dur:
                 s = np.sin(np.pi * (t - t0) / dur)
+                if self.gain_changes:
+                    from .intensity import timed
+                    s *= timed(self.gain_changes, t, 1.0)
                 for k, v in tq.items():
                     d.qfrc_applied[k] += v * s

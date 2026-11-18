@@ -103,14 +103,18 @@ class Consciousness:
         c = self.cfg
         on, full = c.get('score_on', 0.05), c.get('full', 0.25)
         if score >= on:
-            self.D = min(1.0, self.D + dt * c.get('rate', 0.16) * min(1.0, (score - on) / max(full - on, 1e-6)))
+            from .intensity import timed
+            rate = timed(c.get('rate_changes'), t, c.get('rate', 0.16))
+            self.D = min(1.0, self.D + dt * rate * min(1.0, (score - on) / max(full - on, 1e-6)))
         elif self.released and c.get('wake') and t < (self.t_released or t) + float(c['wake'].get('delay', 0.0)):
             pass                            # still out while she goes down (wake.delay after release)
         elif self.released and c.get('wake'):
             # after the release she comes round (owner 2026-11-18): the deficit drains at
             # wake.decay/s toward wake.floor, so she ends groggy, not fully back
+            from .intensity import timed
             w = c['wake']
-            self.D = max(float(w.get('floor', 0.35)), self.D - dt * float(w.get('decay', 0.15)))
+            dec = timed(w.get('decay_changes'), t, float(w.get('decay', 0.15)))
+            self.D = max(float(w.get('floor', 0.35)), self.D - dt * dec)
         elif self.D < 1.0 or not c.get('latch', True):     # once out, out until released
             self.D = max(0.0, self.D - dt * c.get('decay', 0.05))
 

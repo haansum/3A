@@ -196,6 +196,14 @@ class Controller:
                     goal = np.clip(np.radians(a1 - self.off[i_]), self.lo[i_] + 0.01, self.hi[i_] - 0.01)
                     target[i_] += w * frac * (goal - target[i_])
         tone_r, target = self._post_filters(ko, t, tone_r, target, res)
+        if ko.get('tone_changes'):
+            # {region or group: [[t0, gain, ramp]]}: scale a region's tone from t0 on (2026-11-18)
+            from .intensity import timed
+            grp = {'arms': ('arm_L', 'arm_R'), 'legs': ('leg_L', 'leg_R'), 'all': tuple(REGIONS)}
+            for key, ch in ko['tone_changes'].items():
+                for rn in grp.get(key, (key,)):
+                    if rn in REGIONS:
+                        tone_r[REGIONS.index(rn)] *= timed(ch, t, 1.0)
         tone = tone_r[self.reg]
         tr = ko.get('tremor')
         self._trem_tau = None                      # torque tremor accumulates over entries
