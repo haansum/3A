@@ -244,11 +244,15 @@ POSES = {
                     'upper_arm_R_abd': -70, 'upper_arm_R_flex': 20, 'forearm_R_flex': 40},
     # hand fight: both hands on his forearm under her chin, chin tucked; (a) two-on-one pull down,
     # (b) right hand peels at his wrist while the left pulls at the elbow
-    'hand_fight_a': {'upper_arm_L_abd': -52, 'upper_arm_L_flex': 38, 'forearm_L_flex': 104, 'hand_L_flex': -20,
-                     'upper_arm_R_abd': -52, 'upper_arm_R_flex': 38, 'forearm_R_flex': 104, 'hand_R_flex': -20,
+    # tonic posturing while out in the hold (2026-11-18: 'arms_forward' at 8 deg read as
+    # hyperextended elbows): arms lift forward with the elbows clearly bent
+    'arms_forward_bent': {'upper_arm_L_abd': -25, 'upper_arm_L_flex': 70, 'forearm_L_flex': 35, 'hand_L_flex': 25,
+                          'upper_arm_R_abd': -28, 'upper_arm_R_flex': 64, 'forearm_R_flex': 42, 'hand_R_flex': 30},
+    'hand_fight_a': {'upper_arm_L_abd': -40, 'upper_arm_L_flex': 58, 'forearm_L_flex': 122, 'hand_L_flex': 25,
+                     'upper_arm_R_abd': -40, 'upper_arm_R_flex': 58, 'forearm_R_flex': 122, 'hand_R_flex': 25,
                      'neck_flex': 24, 'head_flex': 10, 'chest_flex': 6},
-    'hand_fight_b': {'upper_arm_L_abd': -46, 'upper_arm_L_flex': 46, 'forearm_L_flex': 112, 'hand_L_flex': -20,
-                     'upper_arm_R_abd': -62, 'upper_arm_R_flex': 26, 'forearm_R_flex': 92, 'hand_R_flex': 10,
+    'hand_fight_b': {'upper_arm_L_abd': -34, 'upper_arm_L_flex': 64, 'forearm_L_flex': 128, 'hand_L_flex': 30,
+                     'upper_arm_R_abd': -50, 'upper_arm_R_flex': 46, 'forearm_R_flex': 112, 'hand_R_flex': 35,
                      'neck_flex': 22, 'head_flex': 8, 'neck_twist': -10, 'chest_flex': 8, 'chest_twist': -6,
                      'shin_L_flex': 36, 'shin_R_flex': 10},
     'arms_drop': {'upper_arm_L_abd': -72, 'upper_arm_L_flex': 22, 'forearm_L_flex': 38, 'hand_L_flex': 30,

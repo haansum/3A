@@ -230,7 +230,9 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
     # face timeline (character preset): expression + gaze keyed to sim events, so the face
     # tracks her state (focused -> flinch -> slack -> tonic grimace -> fade). Replaces the
     # take-level gaze and the legacy KO-ramped keys when present.
-    tl = face_cfg.get('timeline') or []
+    # a take/archetype can bring its own face timeline (e.g. a choke: fading -> out), which
+    # replaces the character's strike timeline
+    tl = bcfg.get('face_timeline') or face_cfg.get('timeline') or []
     tl_pts = []
     for ent in tl:
         t0_ = 0.0 if ent.get('at', 'start') == 'start' else events.get(ent['at'])
@@ -250,6 +252,23 @@ def run(lock, char_dir, sim_dir, out_dir, fps=None):
                     u = u * u * (3 - 2 * u)
                     return [ga[0] + (gb[0] - ga[0]) * u, ga[1] + (gb[1] - ga[1]) * u]
             return pts[-1][1]
+        def tl_val(tt, key):
+            pts = [(t_, float(e[key])) for t_, e in tl_pts if key in e]
+            if not pts:
+                return 0.0
+            if tt <= pts[0][0]:
+                return pts[0][1]
+            for (ta, a_), (tb, b_) in zip(pts, pts[1:]):
+                if tt <= tb:
+                    u = (tt - ta) / max(tb - ta, 1e-6)
+                    return a_ + (b_ - a_) * u * u * (3 - 2 * u)
+            return pts[-1][1]
+        jaw_ = next(iter(((face_cfg.get('impact') or {}).get('open_bones') or {'lowerJaw': 0})), 'lowerJaw')
+        if any('jaw' in e for _, e in tl_pts) and jaw_ in pbs:
+            def fj(tt):                               # jaw opening (deg) about her left axis
+                return local_delta(jaw_, (1, 0, 0), math.radians(tl_val(tt, 'jaw')))
+            extra[jaw_] = fj
+            layers_used.append({'face_timeline_jaw': jaw_})
         if eye_bones:
             for eb_ in eye_bones:
                 def f(tt, eb_=eb_):

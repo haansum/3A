@@ -23,22 +23,24 @@ weight. Nothing here is calibrated to real force or pressure values.
 import numpy as np
 
 SEGS = ('torso', 'upper_arm_R', 'forearm_R', 'hand_R', 'upper_arm_L', 'forearm_L', 'hand_L')
-RADIUS = {'torso': 0.11, 'upper_arm_R': 0.052, 'forearm_R': 0.043, 'hand_R': 0.042,
-          'upper_arm_L': 0.052, 'forearm_L': 0.043, 'hand_L': 0.042}
-MASS = {'torso': 20.0, 'upper_arm_R': 2.4, 'forearm_R': 1.5, 'hand_R': 0.5,
-        'upper_arm_L': 2.4, 'forearm_L': 1.5, 'hand_L': 0.5}
+RADIUS = {'torso': 0.11, 'upper_arm_R': 0.042, 'forearm_R': 0.035, 'hand_R': 0.034,
+          'upper_arm_L': 0.042, 'forearm_L': 0.035, 'hand_L': 0.034}      # Mosin's arms, measured by eye
+MASS = {'torso': 20.0, 'upper_arm_R': 1.6, 'forearm_R': 0.9, 'hand_R': 0.3,
+        'upper_arm_L': 1.6, 'forearm_L': 0.9, 'hand_L': 0.3}
 
 # segment end points in her neck frame (f, l, u) metres. His right arm chokes: biceps along the
 # right side of her neck, elbow in front of her throat, forearm back along the left side, right
 # hand on his left biceps; his left forearm folds up behind her head. Eyeballed.
 LOCKED = {
-    'torso': ((-0.27, 0.0, -0.30), (-0.23, 0.0, -0.02)),
-    'upper_arm_R': ((-0.17, -0.19, -0.08), (0.075, -0.01, -0.035)),
-    'forearm_R': ((0.075, -0.01, -0.035), (-0.06, 0.155, -0.045)),
-    'hand_R': ((-0.06, 0.155, -0.045), (-0.10, 0.175, -0.05)),
-    'upper_arm_L': ((-0.17, 0.20, -0.08), (0.0, 0.20, -0.02)),
-    'forearm_L': ((0.0, 0.20, -0.02), (-0.10, 0.04, 0.10)),
-    'hand_L': ((-0.10, 0.04, 0.10), (-0.11, -0.03, 0.14)),
+    # sized to Mosin's arms (owner 2026-11-18: "the arms come from mosin"): upper arm 0.20 m,
+    # forearm 0.20 m, shoulders tucked in close behind her (petite arms have to reach round)
+    'torso': ((-0.27, 0.0, -0.30), (-0.24, 0.0, -0.04)),
+    'upper_arm_R': ((-0.12, -0.10, -0.05), (0.06, -0.01, -0.035)),
+    'forearm_R': ((0.06, -0.01, -0.035), (-0.08, 0.13, -0.04)),
+    'hand_R': ((-0.08, 0.13, -0.04), (-0.06, 0.165, -0.06)),
+    'upper_arm_L': ((-0.12, 0.10, -0.05), (0.04, 0.20, -0.08)),
+    'forearm_L': ((0.04, 0.20, -0.08), (-0.09, 0.08, 0.04)),
+    'hand_L': ((-0.09, 0.08, 0.04), (-0.11, 0.04, 0.09)),
 }
 # loose: the same shape with the elbow lower and further out, grip not yet closed
 LOOSE_SHIFT = {'upper_arm_R': ((0, 0, 0), (0.05, -0.03, -0.06)), 'forearm_R': ((0.05, -0.03, -0.06), (0.0, 0.05, -0.08)),

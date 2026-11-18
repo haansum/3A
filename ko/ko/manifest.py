@@ -59,6 +59,13 @@ def code_hash(stage):
     return h.hexdigest()[:16]
 
 
+def character_key(char):
+    ck = [char['source'], char.get('bone_map'), char.get('outfit'), code_hash('character')]
+    if char.get('hull_hair'):          # appended only when set: old keys unchanged
+        ck.append({'hull_hair': char['hull_hair']})
+    return sha(ck)[:12]
+
+
 def resolve(take_path, quality=None):
     take = yaml.safe_load(open(take_path))
     char = _yaml('presets', 'characters', take['character'] + '.yaml')
@@ -88,11 +95,14 @@ def resolve(take_path, quality=None):
     if os.path.exists(src):
         lock['character']['source']['sha256'] = hashlib.sha256(open(src, 'rb').read()).hexdigest()
     k = {}
-    ck = [lock['character']['source'], lock['character'].get('bone_map'),
-          lock['character'].get('outfit'), code_hash('character')]
-    if lock['character'].get('hull_hair'):          # appended only when set: old keys unchanged
-        ck.append({'hull_hair': lock['character']['hull_hair']})
-    k['character'] = sha(ck)[:12]
+    k['character'] = character_key(lock['character'])
+    if (lock.get('grapple') or {}).get('arms_from'):   # a hold's attacker: rendered arms only
+        ach = _yaml('presets', 'characters', lock['grapple']['arms_from'] + '.yaml')
+        asrc = os.path.join(ROOT, ach['source']['file'])
+        if os.path.exists(asrc):
+            ach['source']['sha256'] = hashlib.sha256(open(asrc, 'rb').read()).hexdigest()
+        ak = character_key(ach)
+        lock['attacker'] = {'character': ach, 'key': ak, 'dir': os.path.join(ROOT, 'build', 'character', ak)}
     bk = [k['character'], lock['character']['mass'], code_hash('body')]
     if lock['character'].get('hull'):
         bk.append({'hull': lock['character']['hull']})
@@ -109,6 +119,8 @@ def resolve(take_path, quality=None):
                      lock['character'].get('face'),
                      code_hash('bake')])[:12]
     rk = [k['bake'], lock['arena'], lock['render'], lock.get('strikes'), code_hash('render')]
+    if lock.get('attacker'):                        # appended only when set: old keys unchanged
+        rk.append({'attacker': lock['attacker']['key']})
     if lock['character'].get('floor_chains'):
         rk.append({'floor_chains': lock['character']['floor_chains']})
     k['render'] = sha(rk)[:12]

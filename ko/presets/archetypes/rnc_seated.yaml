@@ -7,7 +7,7 @@
 name: rnc_seated
 sim:
   dt: 0.002
-  duration: 15.0
+  duration: 16.0
   settle: 0.6
   start: seated
   flesh_contact: {solref: "0.010 1", solimp: "0.9 0.95 0.005"}
@@ -17,6 +17,7 @@ sim:
                [bust_L, forearm_R], [bust_R, forearm_L], [bust_L, hand_R], [bust_R, hand_L]]
 grapple:
   type: rnc
+  arms_from: mosin       # owner 2026-11-18: the arms come from Mosin (render: her arm meshes, posed from the sim)
   close_at: 0.3          # s: the hold starts closing
   close_s: 0.7
   squeeze_m: 0.02        # elbow draws in this far over squeeze_s
@@ -26,6 +27,24 @@ grapple:
   away_s: 0.8
   weld_solref: "0.04 1"  # give in his arms
   jerks: pronounced      # quiet | mild | pronounced
+bake:
+  # face (2026-11-18): eyes level while she fights, small irregular drifts while fading, then at
+  # going out the eyes roll up and to her left with a small overshoot and settle at the house
+  # value (~30% of the pupil showing); the jaw goes slack. gaze = [up_deg, side_deg], +side = her
+  # left; jaw = opening deg. All by eye.
+  face_timeline:
+    - {at: start,             gaze: [0, 0],   jaw: 0}
+    - {at: fading,            gaze: [0, 0],   jaw: 0}
+    - {at: fading, dt: 0.5,   gaze: [-3, 4],  jaw: 0}
+    - {at: fading, dt: 1.3,   gaze: [2, -5],  jaw: 1}
+    - {at: fading, dt: 2.2,   gaze: [-2, 6],  jaw: 1}
+    - {at: fading, dt: 3.4,   gaze: [3, 2],   jaw: 2}
+    - {at: out, dt: -0.6,     gaze: [5, 8],   jaw: 3}
+    - {at: out,               gaze: [9, 11],  jaw: 4}
+    - {at: out, dt: 0.4,      gaze: [22, 16], jaw: 7}
+    - {at: out, dt: 0.8,      gaze: [34, 21], jaw: 9}
+    - {at: out, dt: 1.3,      gaze: [30, 20], jaw: 9}
+    - {at: out, dt: 30.0,     gaze: [30, 20], jaw: 9}
 motion:
   assist_cap: 0.15
   reference:
@@ -53,7 +72,7 @@ controller:
     assist: scale
     t_relax: 0.6
     score_on: 0.3        # score (2 x weaker-side neck force / her weight) where the deficit starts (measured hold: 1.0-1.4)
-    full: 1.0
+    full: 0.7            # Mosin-sized arms squeeze 0.6-0.9 measured
     rate: 0.16           # deficit per s at full squeeze: ~6-7 s to out
     decay: 0.05
     curves:
@@ -71,7 +90,7 @@ controller:
     phases:
       # pronounced preset: brief tonic posturing while out in the hold, then it lets go
       - {after: out, t: 0.4, rise: 0.25, hold: 0.8, fade: 0.8, regions: [arm_L, arm_R], tone: 0.7, zeta: 0.4,
-         pose: arms_forward, replace: true, stagger: {arm_R: 0.12}, jitter: 0.08}
+         pose: arms_forward_bent, replace: true, stagger: {arm_R: 0.12}, jitter: 0.08}
       - {after: out, t: 0.5, rise: 0.3, hold: 1.2, fade: 1.0, regions: [leg_L, leg_R], tone: 0.55, zeta: 0.4,
          pose: extensor_legs, replace: true, stagger: {leg_L: 0.15}, jitter: 0.08}
       # out in the hold: the head lolls onto his arm, slow and limp

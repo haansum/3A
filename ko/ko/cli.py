@@ -34,9 +34,39 @@ def fetch_character(char):
     return dst
 
 
+def build_character(char, d):
+    """character stage: import the rig into d (skeleton, skin, character.blend)"""
+    from .character import import_rig
+    argv = [os.path.join(manifest.ROOT, char['source']['file']), '--out', d, '--name', char['name']]
+    if char.get('bone_map'):
+        mp = os.path.join(d, 'map.json')
+        json.dump(char['bone_map'], open(mp, 'w'))
+        argv += ['--map', mp]
+    if char.get('outfit'):
+        oc = dict(char['outfit'])
+        if oc.get('file'):
+            oc['file'] = os.path.join(manifest.ROOT, oc['file'])
+        op = os.path.join(d, 'outfit.json')
+        json.dump(oc, open(op, 'w'))
+        argv += ['--outfit', op]
+    if char.get('hull_hair'):
+        hp_ = os.path.join(d, 'hull_hair.json')
+        json.dump(char['hull_hair'], open(hp_, 'w'))
+        argv += ['--hull-hair', hp_]
+    import_rig.main(argv)
+
+
 def build(take, quality=None, to='render', force=()):
     fetch_character(manifest.resolve(take, quality)['character'])
     lock = manifest.resolve(take, quality)
+    if lock.get('attacker'):              # a hold's attacker (track G): her rig is only rendered
+        ad_ = lock['attacker']['dir']
+        if not done(ad_):
+            fetch_character(lock['attacker']['character'])
+            os.makedirs(ad_, exist_ok=True)
+            build_character(lock['attacker']['character'], ad_)
+            open(os.path.join(ad_, 'DONE'), 'w').write(lock['attacker']['key'])
+            print(f'[attacker] built {lock["attacker"]["key"]} ({lock["attacker"]["character"]["name"]})')
     dirs = {s: manifest.stage_dir(lock, s) for s in STAGES}
     for s in STAGES:
         d = dirs[s]
@@ -46,25 +76,7 @@ def build(take, quality=None, to='render', force=()):
             os.makedirs(d, exist_ok=True)
             t0 = time.time()
             if s == 'character':
-                from .character import import_rig
-                argv = [os.path.join(manifest.ROOT, lock['character']['source']['file']),
-                        '--out', d, '--name', lock['character']['name']]
-                if lock['character'].get('bone_map'):
-                    mp = os.path.join(d, 'map.json')
-                    json.dump(lock['character']['bone_map'], open(mp, 'w'))
-                    argv += ['--map', mp]
-                if lock['character'].get('outfit'):
-                    oc = dict(lock['character']['outfit'])
-                    if oc.get('file'):
-                        oc['file'] = os.path.join(manifest.ROOT, oc['file'])
-                    op = os.path.join(d, 'outfit.json')
-                    json.dump(oc, open(op, 'w'))
-                    argv += ['--outfit', op]
-                if lock['character'].get('hull_hair'):
-                    hp_ = os.path.join(d, 'hull_hair.json')
-                    json.dump(lock['character']['hull_hair'], open(hp_, 'w'))
-                    argv += ['--hull-hair', hp_]
-                import_rig.main(argv)
+                build_character(lock['character'], d)
             elif s == 'body':
                 from .body import gen_body
                 import shutil

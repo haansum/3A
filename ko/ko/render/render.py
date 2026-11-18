@@ -691,7 +691,12 @@ def run(lock, bake_dir, sim_dir, out_dir, stills=False):
                        cf_.get('sink', 0.0015) * s_)
         print(f'[render] canvas flatten on {len(fl_)} meshes, band {cf_.get("band", 0.008) * 1000:.0f} mm')
     # a hold (track G): his arms only, keyed from the sim every frame; the torso anchor stays unseen
-    if 'grapple_pos' in fr:
+    if 'grapple_pos' in fr and lock.get('attacker'):
+        # the arms come from another character (owner 2026-11-18: Mosin's)
+        from . import attacker as AT_
+        _, _, nv_ = AT_.mosin_arms(fr, root, coll, lock['attacker']['dir'], fps)
+        print(f"[render] hold: {lock['attacker']['character']['name']}'s arms ({nv_} vertices) posed over {len(fr['grapple_pos'])} frames")
+    elif 'grapple_pos' in fr:
         from . import props as PR_
         gp_, gq_ = np.asarray(fr['grapple_pos']), np.asarray(fr['grapple_quat'])
         for k_, nm_ in enumerate(str(x) for x in fr['grapple_names']):

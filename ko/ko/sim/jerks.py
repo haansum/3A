@@ -42,7 +42,10 @@ class Jerks:
             js = np.nonzero(ctl.reg == REGIONS.index(r))[0]
             pick = rng.choice(js, size=min(len(js), int(rng.integers(1, 4))), replace=False)
             fade = 1.0 - 0.6 * (t - t_out) / max(t_end - t_out, 1e-6)      # episode tapers off
-            tq = {int(ctl.dadr[j]): float(rng.choice([-1, 1]) * p['amp'] * fade * ctl.tmax[j]
+            # elbows and knees only jerk into flexion: a pulse toward the straight stop read as
+            # hyperextension (2026-11-18)
+            tq = {int(ctl.dadr[j]): float((1 if ctl.jn[j].split('_')[0] in ('forearm', 'shin')
+                                           else rng.choice([-1, 1])) * p['amp'] * fade * ctl.tmax[j]
                                           * rng.uniform(0.5, 1.0)) for j in pick}
             out.append((t, rng.uniform(0.05, 0.12), tq))
             t += rng.gamma(2.5, 1.0 / (2.5 * p['rate']))
