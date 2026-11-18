@@ -62,6 +62,13 @@ LAYOUTS = {
         [(12, 1.0, 'Out flat.', None), (14, 1.5, None, 'BAP!'), (16, 1.0, 'Insurance.', None)],
         [(17, 1.0, None, None), (19, 1.15, 'Locked up: hips folded, heels up, toes pointed.', None)],
     ]),
+    'izzy_headkick_cross_002_v2': ('IZZY  ·  HEAD KICK', [
+        [(2, 1.0, 'Never saw the shin.', None), (3, 1.15, None, 'WHUMP!')],
+        [(5, 1.0, 'Gone before her knees know it.', None), (6, 1.0, None, None), (8, 1.0, 'Pitching forward...', None)],
+        [(10, 1.15, '...hands too slow to matter.', None), (12, 1.0, None, 'THUD')],
+        [(13, 1.0, 'Face first. Then the slide.', None), (14, 1.5, None, 'SKRRT'), (16, 1.0, 'The head rolls onto a cheek.', None)],
+        [(17, 1.0, None, None), (19, 1.15, 'Lights out, cheek to the canvas.', None)],
+    ]),
 }
 lay = a[a.index('--layout') + 1] if '--layout' in a else 'izzy_uppercut_spring_001'
 TITLE, ROWS = LAYOUTS[lay]
