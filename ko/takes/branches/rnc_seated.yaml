@@ -1,0 +1,77 @@
+# Branching authoring of the seated rear-naked choke (owner 2026-11-18): five options per
+# segment; `python3 tools/branch.py takes/branches/rnc_seated.yaml run K` renders segment K's
+# options from the picks so far, `... pick K N` records the pick. Every option is by eye.
+take: takes/izzy_rnc_001.yaml
+render: {res: [480, 270], samples: 8, clip_fps: 12, lead_s: 0.5, shots: [live]}
+segments:
+  - name: hold locks in, she fights the hands
+    until: {event: fading, dt: 0.0}
+    options:
+      - {label: as is}
+      - label: tighter, faster lock
+        set: {grapple.close_s: 0.45, grapple.squeeze_m: 0.03}
+      - label: slow, loose lock
+        set: {grapple.close_s: 1.2, grapple.squeeze_m: 0.012}
+      - label: frantic hand fight
+        set: {motion.reference.keys: [{t: 0.0, pose: seated_long}, {t: 0.35, pose: hand_fight_a}, {t: 0.75, pose: hand_fight_b},
+                                      {t: 1.1, pose: hand_fight_a}, {t: 1.5, pose: hand_fight_b}, {t: 1.9, pose: hand_fight_a},
+                                      {t: 2.3, pose: hand_fight_b}, {t: 2.7, pose: hand_fight_a}, {t: 3.1, pose: hand_fight_b},
+                                      {t: 3.6, pose: hand_fight_a}, {t: 4.2, pose: hand_fight_b}, {t: 5.0, pose: hand_fight_a},
+                                      {t: 16.0, pose: hand_fight_a}, {t: 18.0, pose: groggy_lying}, {t: 27.0, pose: groggy_lying}]}
+      - label: weaker resistance
+        set: {controller.consciousness.curves.arms: [[0.0, 0.0], [0.6, 0.15], [1.0, 0.7]]}
+  - name: she fades and goes out
+    until: {event: out, dt: 0.0}
+    options:
+      - {label: as is}
+      - label: goes fast
+        set: {controller.consciousness.rate: 0.24}
+      - label: long fade
+        set: {controller.consciousness.rate: 0.11}
+      - label: arms drop first
+        set: {controller.consciousness.curves.arms: [[0.0, 0.0], [0.5, 0.1], [0.8, 0.5], [1.0, 1.0]]}
+      - label: head drops first
+        set: {controller.consciousness.curves.neck: [[0.0, 0.0], [0.7, 0.2], [1.0, 1.0]]}
+  - name: out in the hold (tonic posture, movement)
+    until: {event: release, dt: 0.0}
+    shots: [tight]
+    options:
+      - {label: as is (shoulder roll lowered)}
+      - label: shoulder roll kept, elbows straight
+        set: {'controller.ko.phases[0].pose': arms_forward_straight_roll}
+      - label: ratchet that pulses
+        set: {'controller.ko.phases[0].shape': ratchet_pulse, 'controller.ko.phases[0].rise': 0.1, 'controller.ko.phases[0].hold': 9.9,
+              'controller.ko.phases[0].shape_params': {steps: 10, step_dt: 1.0, step_rise: 0.18, pulse_hz: 2.0, pulse_amp: 0.35, pulse_depth: 0.15},
+              'controller.ko.phases[1].shape': ratchet_pulse, 'controller.ko.phases[1].rise': 0.1, 'controller.ko.phases[1].hold': 9.9,
+              'controller.ko.phases[1].shape_params': {steps: 10, step_dt: 1.0, step_rise: 0.18, pulse_hz: 2.0, pulse_amp: 0.35, pulse_depth: 0.15}}
+      - label: crescendo (fast early)
+        set: {'controller.ko.phases[0].shape': crescendo, 'controller.ko.phases[0].rise': 0.1, 'controller.ko.phases[0].hold': 9.9,
+              'controller.ko.phases[0].shape_params': {tau: 3.0}, 'controller.ko.phases[1].shape': crescendo,
+              'controller.ko.phases[1].rise': 0.1, 'controller.ko.phases[1].hold': 9.9, 'controller.ko.phases[1].shape_params': {tau: 3.0}}
+      - label: mild movement, no posture build
+        set: {grapple.jerks: mild, 'controller.ko.phases[0].tone': 0.2, 'controller.ko.phases[1].tone': 0.15}
+  - name: release and going down
+    until: {event: waking, dt: 0.0}
+    options:
+      - {label: as is}
+      - label: lowered, then released
+        set: {grapple.lower_m: 0.35, grapple.lower_s: 1.0, grapple.release_soft: 0.4, grapple.torso_delay: 0.6}
+      - label: dropped fast
+        set: {grapple.open_s: 0.3, grapple.away_s: 0.5}
+      - label: he holds her longer
+        set: {grapple.release_after: 13.0}
+      - label: rolled off to her side
+        set: {grapple.torso_delay: 1.2, grapple.release_soft: 0.4}
+  - name: coming round
+    until: {t: 27.0}
+    options:
+      - {label: as is}
+      - label: big kicks
+        set: {controller.consciousness.wake: {decay: 0.15, floor: 0.35}, grapple.wake_jerks: {onset: [0.0, 0.2], episode: [4.0, 5.5], rate: 6.0, amp: 0.35, after: waking, weights: {leg_L: 4.0, leg_R: 4.0, arm_L: 1.0, arm_R: 1.0, neck: 0.3, trunk: 0.5}, kick: 0.7}}
+      - label: quiet, slow return
+        set: {controller.consciousness.wake: {decay: 0.07, floor: 0.4}, grapple.wake_jerks: {onset: [0.2, 0.6], episode: [1.5, 2.5], rate: 3.0, amp: 0.15, after: waking, weights: {leg_L: 1.0, leg_R: 1.0, arm_L: 1.0, arm_R: 1.0, neck: 0.4, trunk: 0.6}, kick: 0.2}}
+      - label: comes back almost fully
+        set: {controller.consciousness.wake: {decay: 0.2, floor: 0.1}}
+      - label: stays out longer
+        set: {controller.consciousness.wake: {decay: 0.15, floor: 0.35, delay: 3.0}}
+chosen: []

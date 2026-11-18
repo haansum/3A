@@ -250,6 +250,10 @@ POSES = {
     # 2026-11-18 (owner: still read as hyperextended): the elbows were bent 34-84 deg; the look came
     # from the shoulder rolling forward (upper-arm internal twist 41-68 deg turned the elbow up and
     # back). Forward lift 70 -> 45, twist held near neutral, elbows a little more bent
+    # the owner's comparison (2026-11-18): the earlier forward shoulder roll kept (lift ~70, inward
+    # roll ~50), elbows nearly straight (12 deg: not driven into the 0 deg stop)
+    'arms_forward_straight_roll': {'upper_arm_L_abd': -25, 'upper_arm_L_flex': 70, 'upper_arm_L_twist': 50, 'forearm_L_flex': 12, 'hand_L_flex': 62,
+                                   'upper_arm_R_abd': -28, 'upper_arm_R_flex': 64, 'upper_arm_R_twist': 48, 'forearm_R_flex': 14, 'hand_R_flex': 68},
     'arms_forward_bent': {'upper_arm_L_abd': -40, 'upper_arm_L_flex': 45, 'upper_arm_L_twist': 8, 'forearm_L_flex': 45, 'hand_L_flex': 62,
                           'upper_arm_R_abd': -42, 'upper_arm_R_flex': 42, 'upper_arm_R_twist': 10, 'forearm_R_flex': 50, 'hand_R_flex': 68},
     # standing hold: feet planted shoulder width, knees soft, same hand fight
