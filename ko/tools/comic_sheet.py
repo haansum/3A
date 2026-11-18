@@ -47,6 +47,21 @@ LAYOUTS = {
     [(12, 1.0, 'Flat out.', None), (13, 1.0, None, 'WHAP!'), (15, 1.0, None, None)],
     [(16, 1.0, None, None), (18, 1.15, 'Locked up: fists clenched, toes pointed, ankles crossed.', None)],
     ]),
+    # 2026-11-18 re-render (soft flesh contact, flattening deformer, glove + shin props), 20 tiles
+    'izzy_uppercut_spring_001_v2': ('IZZY  ·  UPPERCUT', [
+        [(2, 1.0, 'No tell. Then the uppercut.', None), (3, 1.15, None, 'KRAK!')],
+        [(5, 1.0, 'Chin up. Lights out.', None), (6, 1.0, None, None), (7, 1.0, 'The knees fold...', None)],
+        [(8, 1.15, '...and spring her backward.', None), (10, 1.0, None, 'THUD')],
+        [(11, 1.0, 'Flat out.', None), (13, 1.5, None, 'WHAP!'), (15, 1.0, 'One more for the road.', None)],
+        [(16, 1.0, None, None), (19, 1.15, 'Locked up: fists clenched, toes pointed, ankles crossed.', None)],
+    ]),
+    'izzy_hook_chair_001_v2': ('IZZY  ·  HOOK  ·  THE CHAIR', [
+        [(2, 1.0, 'The hook lands clean.', None), (3, 1.15, None, 'POP!')],
+        [(5, 1.0, 'Nobody home.', None), (6, 1.0, None, None), (7, 1.0, 'She sits down where she stands...', None)],
+        [(9, 1.15, '...folded into a chair nobody brought.', None), (11, 1.0, None, 'THUD')],
+        [(12, 1.0, 'Out flat.', None), (14, 1.5, None, 'BAP!'), (16, 1.0, 'Insurance.', None)],
+        [(17, 1.0, None, None), (19, 1.15, 'Locked up: hips folded, heels up, toes pointed.', None)],
+    ]),
 }
 lay = a[a.index('--layout') + 1] if '--layout' in a else 'izzy_uppercut_spring_001'
 TITLE, ROWS = LAYOUTS[lay]
