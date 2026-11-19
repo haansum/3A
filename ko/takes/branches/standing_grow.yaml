@@ -1,8 +1,12 @@
-# Standing RNC grown 2 s at a time (owner 2026-11-18). tools/grow.py writes this file back:
-# `sets` are the accumulated sim overrides of the picked options, `camera` the current camera.
 take: takes/izzy_rnc_standing_001.yaml
 window_s: 2.0
-render: {res: [480, 270], samples: 8, fps: 12}
+render:
+  res: [480, 270]
+  samples: 8
+  fps: 12
 camera: {live_az: -60, live_dist: 2.6, live_z: 1.3}
-sets: {}
-picks: []
+sets:
+  grapple.squeeze_changes:
+  - [0.0, 0.034, 0.8]
+picks:
+- {window: 0, option: 1, label: he tightens the squeeze, camera_label: front-left 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win0/opt1/win0_opt1_clean.mp4}
