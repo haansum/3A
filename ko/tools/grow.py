@@ -97,6 +97,50 @@ def assemble():
     return out
 
 
+
+def make_grid(k, ms):
+    """grid of the options for window k: each tile plays the whole clip so far, then that
+    option's new window (owner 2026-11-19: "ensure that the videos are added on to each
+    other"), all tiles in sync; the so-far part is unlabelled, the new window labelled"""
+    outd = os.path.join(root, f'win{k}')
+    so_far = assemble()
+    cfps = int((st.get('render') or {}).get('fps', 12))
+    full = []
+    for i, m in enumerate(ms):
+        if so_far:
+            fm = os.path.join(outd, f'opt{i}', f'win{k}_opt{i}_with_history.mp4')
+            subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-i', so_far, '-i', m, '-filter_complex',
+                            '[0:v][1:v]concat=n=2:v=1:a=0[o]', '-map', '[o]', '-r', str(cfps),
+                            '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', fm], check=True)
+            full.append(fm)
+        else:
+            full.append(m)
+    dur = (k + 1) * W
+    tiles = full[:]
+    inputs, filt = [], []
+    for i, m in enumerate(tiles):
+        inputs += ['-i', m]
+        filt.append(f'[{i}:v]tpad=stop_mode=clone:stop_duration=5[v{i}]')
+    while len(tiles) < 6:
+        inputs += ['-f', 'lavfi', '-t', str(dur), '-i', f'color=c=black:s=480x270:r={cfps}']
+        filt.append(f'[{len(tiles)}:v]null[v{len(tiles)}]')
+        tiles.append(None)
+    lay = '0_0|w0_0|w0+w0_0|0_h0|w0_h0|w0+w0_h0'
+    grid = os.path.join(outd, f'{name}_window{k}_options_from_0s.mp4')
+    fc = ';'.join(filt) + ';' + ''.join(f'[v{i}]' for i in range(6)) + f'xstack=inputs=6:layout={lay}[out]'
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error'] + inputs + ['-filter_complex', fc, '-map', '[out]', '-t', str(dur),
+                    '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', grid], check=True)
+    print('[grow] grid', grid)
+    print('[grow] so far', so_far)
+    return grid
+
+
+if cmd == 'regrid':                # rebuild the current window's grid from the clips on disk
+    kk = len(st.get('picks') or [])
+    oj = json.load(open(os.path.join(root, f'win{kk}', 'options.json')))
+    make_grid(kk, [o['clip'] for o in oj])
+    sys.exit(0)
+
 if cmd == 'pick':
     n = int(a[2])
     opt = json.load(open(os.path.join(root, f'win{k}', 'options.json')))[n]
@@ -272,22 +316,5 @@ for oi, o in enumerate(opts):
     print(f'[grow] rendered option {oi}', flush=True)
 
 json.dump([{kk: v for kk, v in o.items() if kk != 'lock'} for o in opts], open(os.path.join(outd, 'options.json'), 'w'), indent=1, default=str)
-# grid: 3 + 2 (+ the clip so far in the sixth tile when there is one)
-ms = [o['clip'] for o in opts]
-so_far = assemble()
-tiles = ms[:]
-inputs, filt = [], []
-for i, m in enumerate(tiles):
-    inputs += ['-i', m]
-    filt.append(f'[{i}:v]tpad=stop_mode=clone:stop_duration=5[v{i}]')
-while len(tiles) < 6:
-    inputs += ['-f', 'lavfi', '-t', str(W), '-i', f'color=c=black:s=480x270:r={cfps}']
-    filt.append(f'[{len(tiles)}:v]null[v{len(tiles)}]')
-    tiles.append(None)
-lay = '0_0|w0_0|w0+w0_0|0_h0|w0_h0|w0+w0_h0'
-grid = os.path.join(outd, f'{name}_window{k}_options.mp4')
-fc = ';'.join(filt) + ';' + ''.join(f'[v{i}]' for i in range(6)) + f'xstack=inputs=6:layout={lay}[out]'
-subprocess.run(['ffmpeg', '-y', '-loglevel', 'error'] + inputs + ['-filter_complex', fc, '-map', '[out]', '-t', str(W),
-                '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '20', grid], check=True)
-print('[grow] grid', grid)
-print('[grow] so far', so_far)
+make_grid(k, [o['clip'] for o in opts])
+
