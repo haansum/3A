@@ -191,8 +191,10 @@ L0 = make_lock(sets0, cam0, t1)
 # ---- candidate sim changes for this phase, all starting at t0 -------------------------------
 cands = []
 if phase == 'fight':
-    rate = getp(L0, 'controller.consciousness.rate', 0.16)
-    sq = getp(L0, 'grapple.squeeze_m', 0.02)
+    # scale from the value in effect at t0 (earlier picks' changes included), not the original
+    from ko.sim.intensity import timed
+    rate = timed(sets0.get('controller.consciousness.rate_changes'), t0, getp(L0, 'controller.consciousness.rate', 0.16))
+    sq = timed(sets0.get('grapple.squeeze_changes'), t0, getp(L0, 'grapple.squeeze_m', 0.02))
     cands += [('he tightens the squeeze', with_change(sets0, 'grapple.squeeze_changes', [t0, sq + 0.014, 0.8])),
               ('he loosens a little', with_change(sets0, 'grapple.squeeze_changes', [t0, max(0.0, sq - 0.012), 0.8])),
               ('she fades faster', with_change(sets0, 'controller.consciousness.rate_changes', [t0, rate * 1.7, 0.4])),
@@ -232,7 +234,8 @@ elif phase == 'out':
     s2['grapple.release_after'] = rel + 2.0
     cands.append(('he holds her 2 s longer', s2))
 else:
-    dec = getp(L0, 'controller.consciousness.wake.decay', 0.15)
+    from ko.sim.intensity import timed
+    dec = timed(sets0.get('controller.consciousness.wake.decay_changes'), t0, getp(L0, 'controller.consciousness.wake.decay', 0.15))
     cands += [('limper, heavier', with_change(sets0, 'controller.ko.tone_changes.all', [t0, 0.5, 0.6])),
               ('bigger kicks / jitters', with_change(sets0, 'grapple.jerk_changes', [t0, 2.0, 0.3])),
               ('calmer', with_change(sets0, 'grapple.jerk_changes', [t0, 0.3, 0.3])),
