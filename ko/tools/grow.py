@@ -81,6 +81,13 @@ k = len(picks)
 W = float(st.get('window_s', 2.0))
 
 
+def clip_end():
+    """where the approved clip ends: the last pick's window end (windows may differ in length;
+    picks from before this was recorded were 2 s each)"""
+    ps = st.get('picks') or []
+    return float(ps[-1].get('t1', 2.0 * len(ps))) if ps else 0.0
+
+
 def save_state():
     yaml.safe_dump(st, open(sp, 'w'), sort_keys=False, default_flow_style=None, width=140)
 
@@ -92,7 +99,7 @@ def assemble():
         return None
     lst = os.path.join(root, 'so_far.txt')
     open(lst, 'w').write(''.join(f"file '{p}'\n" for p in parts))
-    out = os.path.join(root, f'{name}_so_far_{len(parts) * W:.0f}s.mp4')
+    out = os.path.join(root, f'{name}_so_far_{clip_end():.0f}s.mp4')
     subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-f', 'concat', '-safe', '0', '-i', lst, '-c', 'copy', out], check=True)
     return out
 
@@ -115,7 +122,7 @@ def make_grid(k, ms):
             full.append(fm)
         else:
             full.append(m)
-    dur = (k + 1) * W
+    dur = clip_end() + W
     tiles = full[:]
     inputs, filt = [], []
     for i, m in enumerate(tiles):
@@ -146,14 +153,15 @@ if cmd == 'pick':
     opt = json.load(open(os.path.join(root, f'win{k}', 'options.json')))[n]
     st['sets'] = opt['sets']
     st['camera'] = opt['camera']
-    st.setdefault('picks', []).append({'window': k, 'option': n, 'label': opt['label'],
+    st.setdefault('picks', []).append({'window': k, 'option': n, 't0': opt.get('t0'), 't1': opt.get('t1'), 'label': opt['label'],
                                        'camera_label': opt['camera_label'], 'clip': opt['clean_clip']})
     save_state()
     print('[grow] clip so far:', assemble())
     sys.exit(0)
 
 # ---- next: five options for window k ---------------------------------------------------------
-t0, t1 = k * W, (k + 1) * W
+t0 = clip_end()
+t1 = t0 + W
 outd = os.path.join(root, f'win{k}')
 os.makedirs(outd, exist_ok=True)
 base_lock, dirs, _ = cli.build(st['take'], None, 'body', ['noqa'])
@@ -260,7 +268,7 @@ for oi, (lab, sets, clab, cam) in enumerate(plan):
     os.makedirs(sd, exist_ok=True)
     np.savez_compressed(os.path.join(sd, 'sim.npz'), **out)
     L['keys'] = dict(L['keys'], sim=f'grow_{name}_w{k}_o{len(opts)}')
-    opts.append({'label': lab, 'camera_label': clab, 'camera': cam, 'sets': sets, 'dir': od, 'lock': L,
+    opts.append({'label': lab, 'camera_label': clab, 'camera': cam, 'sets': sets, 'dir': od, 'lock': L, 't0': t0, 't1': t1,
                  'events': {e: round(v, 2) for e, v in json.loads(str(out['events'])).items()}})
     print(f'[grow] window {k} ({t0:.1f}-{t1:.1f} s, {phase}) option {len(opts) - 1}: {lab} / {clab}', flush=True)
 

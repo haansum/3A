@@ -1,5 +1,5 @@
 take: takes/izzy_rnc_standing_001.yaml
-window_s: 2.0
+window_s: 4.0
 render:
   res: [480, 270]
   samples: 8
@@ -12,6 +12,9 @@ sets:
   - [2.0, 0.08800000000000001, 0.4]
   - [4.0, 0.08800000000000001, 0.4]
 picks:
-- {window: 0, option: 1, label: he tightens the squeeze, camera_label: front-left 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win0/opt1/win0_opt1_clean.mp4}
-- {window: 1, option: 3, label: she holds on longer, camera_label: closer 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win1/opt3/win1_opt3_clean.mp4}
-- {window: 2, option: 2, label: she holds on longer, camera_label: closer 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win2/opt2/win2_opt2_clean.mp4}
+- {window: 0, option: 1, label: he tightens the squeeze, camera_label: front-left 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win0/opt1/win0_opt1_clean.mp4,
+  t0: 0.0, t1: 2.0}
+- {window: 1, option: 3, label: she holds on longer, camera_label: closer 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win1/opt3/win1_opt3_clean.mp4,
+  t0: 2.0, t1: 4.0}
+- {window: 2, option: 2, label: she holds on longer, camera_label: closer 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win2/opt2/win2_opt2_clean.mp4,
+  t0: 4.0, t1: 6.0}
