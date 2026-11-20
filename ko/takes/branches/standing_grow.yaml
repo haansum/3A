@@ -4,13 +4,30 @@ render:
   res: [480, 270]
   samples: 8
   fps: 12
-camera: {live_az: -55, live_dist: 1.7, live_z: 1.45}
+camera: {live_az: -150, live_dist: 2.6, live_z: 2.1}
 sets:
   grapple.squeeze_changes:
   - [0.0, 0.034, 0.8]
   controller.consciousness.rate_changes:
   - [2.0, 0.08800000000000001, 0.4]
   - [4.0, 0.08800000000000001, 0.4]
+  motion.reference.keys:
+  - {t: 0.0, pose: stand_base}
+  - {t: 0.5, pose: stand_hand_fight_a}
+  - {t: 1.2, pose: stand_hand_fight_b}
+  - {t: 1.9, pose: stand_hand_fight_a}
+  - {t: 2.5, pose: stand_hand_fight_b}
+  - {t: 3.3, pose: stand_hand_fight_a}
+  - {t: 4.0, pose: stand_hand_fight_b}
+  - {t: 4.8, pose: stand_hand_fight_a}
+  - {t: 5.6, pose: stand_hand_fight_b}
+  - {t: 6.5, pose: stand_hand_fight_a}
+  - {t: 7.1, pose: stand_pull_down}
+  - {t: 7.7, pose: stand_pull_down}
+  - {t: 8.5, pose: stand_hand_fight_a}
+  - {t: 16.0, pose: stand_hand_fight_a}
+  - {t: 18.0, pose: groggy_lying}
+  - {t: 27.0, pose: groggy_lying}
 picks:
 - {window: 0, option: 1, label: he tightens the squeeze, camera_label: front-left 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win0/opt1/win0_opt1_clean.mp4,
   t0: 0.0, t1: 2.0}
@@ -18,3 +35,4 @@ picks:
   t0: 2.0, t1: 4.0}
 - {window: 2, option: 2, label: she holds on longer, camera_label: closer 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win2/opt2/win2_opt2_clean.mp4,
   t0: 4.0, t1: 6.0}
+- {window: 3, option: 3, t0: 6.0, t1: 10.0, label: two-on-one pull on his forearm, camera_label: 'high, front-right', clip: /home/user/3A/ko/build/grow/standing_grow/win3/opt3/win3_opt3_clean.mp4}
