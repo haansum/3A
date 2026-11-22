@@ -150,7 +150,20 @@ if cmd == 'regrid':                # rebuild the current window's grid from the 
 
 if cmd == 'pick':
     n = int(a[2])
-    opt = json.load(open(os.path.join(root, f'win{k}', 'options.json')))[n]
+    allo = json.load(open(os.path.join(root, f'win{k}', 'options.json')))
+    opt = dict(allo[n])
+    if '--camera-from' in a:
+        # owner 2026-11-22: "3 but with high front right cam": option n's sim, option m's camera.
+        # Allowed only when the two sims match through the window, so m's render shows n exactly
+        m = int(a[a.index('--camera-from') + 1])
+        sa = np.load(os.path.join(allo[n]['dir'], 'sim', 'sim.npz'))
+        sb = np.load(os.path.join(allo[m]['dir'], 'sim', 'sim.npz'))
+        i1 = int(np.searchsorted(sa['t'], float(opt.get('t1', 0))))
+        dev = float(np.degrees(np.abs(sa['qpos'][:i1, 7:] - sb['qpos'][:i1, 7:]).max()))
+        if dev > 1e-6:
+            sys.exit(f'[grow] option {n} and {m} differ by {dev:.3f} deg inside the window: render option {n} with that camera instead')
+        opt.update(camera=allo[m]['camera'], camera_label=allo[m]['camera_label'], clean_clip=allo[m]['clean_clip'])
+        opt['label'] = opt['label'] + f' (camera from option {m})'
     st['sets'] = opt['sets']
     st['camera'] = opt['camera']
     st.setdefault('picks', []).append({'window': k, 'option': n, 't0': opt.get('t0'), 't1': opt.get('t1'), 'label': opt['label'],
@@ -226,13 +239,18 @@ elif phase == 'out':
               ('more involuntary movement', with_change(sets0, 'grapple.jerk_changes', [t0, 1.9, 0.3])),
               ('she goes still', with_change(sets0, 'grapple.jerk_changes', [t0, 0.25, 0.3])),
               ('head lolls harder', with_change(sets0, 'controller.ko.tone_changes.neck', [t0, 0.3, 0.6]))]
-    if ev['out'] + rel - 2.0 > t0 + 0.3:
+    # release timing only when the change lands inside this window (otherwise the option looks
+    # identical to 'as is' here; owner feedback 2026-11-22)
+    for dr, lab in ((-2.0, 'he lets go 2 s sooner'), (2.0, 'he holds her 2 s longer')):
+        t_new, t_old = ev['out'] + rel + dr, ev['out'] + rel
+        if t0 + 0.3 < min(t_new, t_old) and min(t_new, t_old) < t1:
+            s2 = copy.deepcopy(sets0)
+            s2['grapple.release_after'] = rel + dr
+            cands.append((lab, s2))
+    if t0 + 0.3 < ev['out'] + rel - 3.0 < t1 - 0.5:
         s2 = copy.deepcopy(sets0)
-        s2['grapple.release_after'] = rel - 2.0
-        cands.append(('he lets go 2 s sooner', s2))
-    s2 = copy.deepcopy(sets0)
-    s2['grapple.release_after'] = rel + 2.0
-    cands.append(('he holds her 2 s longer', s2))
+        s2['grapple.release_after'] = max(0.5, (t0 + 0.6) - ev['out'])
+        cands.append(('he lets go now', s2))
 else:
     from ko.sim.intensity import timed
     dec = timed(sets0.get('controller.consciousness.wake.decay_changes'), t0, getp(L0, 'controller.consciousness.wake.decay', 0.15))

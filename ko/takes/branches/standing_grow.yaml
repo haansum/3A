@@ -28,6 +28,7 @@ sets:
   - {t: 16.0, pose: stand_hand_fight_a}
   - {t: 18.0, pose: groggy_lying}
   - {t: 27.0, pose: groggy_lying}
+  grapple.release_after: 12.0
 picks:
 - {window: 0, option: 1, label: he tightens the squeeze, camera_label: front-left 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win0/opt1/win0_opt1_clean.mp4,
   t0: 0.0, t1: 2.0}
@@ -36,3 +37,4 @@ picks:
 - {window: 2, option: 2, label: she holds on longer, camera_label: closer 3/4, clip: /home/user/3A/ko/build/grow/standing_grow/win2/opt2/win2_opt2_clean.mp4,
   t0: 4.0, t1: 6.0}
 - {window: 3, option: 3, t0: 6.0, t1: 10.0, label: two-on-one pull on his forearm, camera_label: 'high, front-right', clip: /home/user/3A/ko/build/grow/standing_grow/win3/opt3/win3_opt3_clean.mp4}
+- {window: 4, option: 3, t0: 10.0, t1: 14.0, label: he holds her 2 s longer (camera from option 0), camera_label: 'high, front-right', clip: /home/user/3A/ko/build/grow/standing_grow/win4/opt0/win4_opt0_clean.mp4}
