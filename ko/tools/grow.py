@@ -122,7 +122,7 @@ def make_grid(k, ms):
             full.append(fm)
         else:
             full.append(m)
-    dur = clip_end() + W
+    dur = clip_end() + float(st.get('next_window_s', W))
     tiles = full[:]
     inputs, filt = [], []
     for i, m in enumerate(tiles):
