@@ -198,7 +198,7 @@ class Grapple:
         if c.get('squeeze_changes'):         # [[t0, metres, ramp]]: retune the squeeze from t0 on
             from .intensity import timed
             w_sq = timed(c['squeeze_changes'], t, w_sq)
-        w1 = w2 = w_away = w_low = w_tip = 0.0
+        w1 = w2 = w_away = w_low = w_tip = w_pull = 0.0
         if self.t_out is not None:
             t_rel = self.t_out + c.get('release_after', 2.5)
             # standing holds (2026-11-18): he lowers her first (lower_m over lower_s) and only
@@ -208,7 +208,12 @@ class Grapple:
             t_tip = t_rel + (lower_s if lower_m else 0.0)
             tip_s = c.get('tip_s', 1.0) if c.get('tip_back_deg') else 0.0
             w_tip = _smooth((t - t_tip) / tip_s) if tip_s else 0.0
-            t_open, os_ = t_tip + tip_s, c.get('open_s', 0.6)
+            # pull back (owner 2026-11-24: "the arms do not drop with her, they move back and
+            # release"): the hold draws straight back at its height by pull_back_m over pull_s,
+            # then opens; her knees go as he lets go and she falls back away from his arms
+            pull_s = c.get('pull_s', 0.7) if c.get('pull_back_m') else 0.0
+            w_pull = _smooth((t - t_tip - tip_s) / pull_s) if pull_s else 0.0
+            t_open, os_ = t_tip + tip_s + pull_s, c.get('open_s', 0.6)
             w1 = _smooth((t - t_open) / os_)
             w2 = _smooth((t - t_open - os_) / os_)
             w_away = _smooth((t - t_open - 2 * os_) / c.get('away_s', 1.2))
@@ -240,6 +245,8 @@ class Grapple:
                 th = np.radians(c['tip_back_deg']) * w_tip
                 r = c.get('tip_r', 0.55)
                 q = q + np.array([-r * np.sin(th), 0.0, -r * (1.0 - np.cos(th))])
+            if c.get('pull_back_m'):
+                q = q + np.array([-c['pull_back_m'] * w_pull, 0.0, 0.0])
             ends.append(q)
         return ends
 
@@ -285,7 +292,8 @@ class Grapple:
             # once his arms start to open they go loose (weld time constant -> release_soft s), so
             # her slumped head pushes them aside instead of being lifted by them (2026-11-18)
             t_open = (self.t_out + c.get('release_after', 2.5) + (c.get('lower_s', 1.2) if c.get('lower_m') else 0.0)
-                      + (c.get('tip_s', 1.0) if c.get('tip_back_deg') else 0.0))
+                      + (c.get('tip_s', 1.0) if c.get('tip_back_deg') else 0.0)
+                      + (c.get('pull_s', 0.7) if c.get('pull_back_m') else 0.0))
             w = _smooth((t - t_open) / c.get('open_s', 0.6))
             for s_ in SEGS:
                 if s_ != 'torso':
