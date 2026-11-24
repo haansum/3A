@@ -166,6 +166,8 @@ if cmd == 'pick':
         opt['label'] = opt['label'] + f' (camera from option {m})'
     st['sets'] = opt['sets']
     st['camera'] = opt['camera']
+    st.pop('next_options', None)
+    st.pop('next_window_s', None)
     st.setdefault('picks', []).append({'window': k, 'option': n, 't0': opt.get('t0'), 't1': opt.get('t1'), 'label': opt['label'],
                                        'camera_label': opt['camera_label'], 'clip': opt['clean_clip']})
     save_state()
@@ -174,7 +176,7 @@ if cmd == 'pick':
 
 # ---- next: five options for window k ---------------------------------------------------------
 t0 = clip_end()
-t1 = t0 + W
+t1 = t0 + float(st.get('next_window_s', W))      # one-off longer window (e.g. to land a fall)
 outd = os.path.join(root, f'win{k}')
 os.makedirs(outd, exist_ok=True)
 base_lock, dirs, _ = cli.build(st['take'], None, 'body', ['noqa'])
@@ -273,6 +275,18 @@ for lab, s2 in cands:
 if len(cands) > 2:
     plan.append((cands[2][0], cands[2][1], cams[0][0], cams[0][1]))
 plan.append(('as is', sets0, cams[1][0], cams[1][1]))
+
+# owner-directed options (owner 2026-11-24: "drop slightly behind her, so she falls backward"):
+# `next_options` in the state replaces the generated plan for this window: each entry is
+# {label, set: {dotted path: value}, camera: <CAMERAS label>}; cleared when a pick is made
+if st.get('next_options'):
+    plan = []
+    for o_ in st['next_options']:
+        s2 = copy.deepcopy(sets0)
+        s2.update(o_.get('set') or {})
+        clab = o_.get('camera', cam0_label)
+        cam = cam0 if clab == cam0_label else dict(CAMERAS)[clab]
+        plan.append((o_['label'], s2, clab, cam))
 
 # ---- simulate, check the past, keep five --------------------------------------------------
 i0 = int(np.searchsorted(parent['t'], t0))

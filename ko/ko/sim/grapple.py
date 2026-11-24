@@ -15,6 +15,8 @@ Phases (seconds, all authored, tuned by eye):
   squeeze  locked, the elbow and grip draw in by `squeeze_m` over `squeeze_s`
   open     `release_after` s after she goes out: the arms open, the elbow comes off the neck
   away     then every target withdraws back and up out of frame; the torso anchor backs off
+  (standing: `lower_m` lowers her over `lower_s` before the open; then `tip_back_deg`
+  swings the hold back and down about her hips over `tip_s`, so she goes over backward)
 
 The squeeze score is an animation signal, not physiology: the normal contact force from his
 arms on her neck and head, split by side in her neck frame, score = 2 * min(left, right) / her
@@ -196,14 +198,17 @@ class Grapple:
         if c.get('squeeze_changes'):         # [[t0, metres, ramp]]: retune the squeeze from t0 on
             from .intensity import timed
             w_sq = timed(c['squeeze_changes'], t, w_sq)
-        w1 = w2 = w_away = w_low = 0.0
+        w1 = w2 = w_away = w_low = w_tip = 0.0
         if self.t_out is not None:
             t_rel = self.t_out + c.get('release_after', 2.5)
             # standing holds (2026-11-18): he lowers her first (lower_m over lower_s) and only
             # then opens his arms, so she ends sitting against him instead of dropping in a heap
             lower_m, lower_s = c.get('lower_m', 0.0), c.get('lower_s', 1.2)
             w_low = _smooth((t - t_rel) / lower_s) if lower_m else 0.0
-            t_open, os_ = t_rel + (lower_s if lower_m else 0.0), c.get('open_s', 0.6)
+            t_tip = t_rel + (lower_s if lower_m else 0.0)
+            tip_s = c.get('tip_s', 1.0) if c.get('tip_back_deg') else 0.0
+            w_tip = _smooth((t - t_tip) / tip_s) if tip_s else 0.0
+            t_open, os_ = t_tip + tip_s, c.get('open_s', 0.6)
             w1 = _smooth((t - t_open) / os_)
             w2 = _smooth((t - t_open - os_) / os_)
             w_away = _smooth((t - t_open - 2 * os_) / c.get('away_s', 1.2))
@@ -226,6 +231,15 @@ class Grapple:
                 q = q + np.array([0.0, 0.0, lift * w_lift])
             if self.t_out is not None and c.get('lower_m'):
                 q = q + np.array([0.0, 0.0, -c['lower_m'] * w_low])
+            if self.t_out is not None and c.get('tip_back_deg'):
+                # backward fall (owner 2026-11-24: "drop slightly behind her, so she falls
+                # backward"): once she has sat down, the hold swings back and down on an arc of
+                # radius tip_r about her hips (her trunk reclines tip_back_deg), then opens, so she
+                # goes down onto her back. Pulling back while she was still on her feet only dragged
+                # her whole body back and she still folded forward (probe 2026-11-24).
+                th = np.radians(c['tip_back_deg']) * w_tip
+                r = c.get('tip_r', 0.55)
+                q = q + np.array([-r * np.sin(th), 0.0, -r * (1.0 - np.cos(th))])
             ends.append(q)
         return ends
 
@@ -270,7 +284,8 @@ class Grapple:
         if self.t_out is not None and c.get('release_soft', 0.0):
             # once his arms start to open they go loose (weld time constant -> release_soft s), so
             # her slumped head pushes them aside instead of being lifted by them (2026-11-18)
-            t_open = self.t_out + c.get('release_after', 2.5) + (c.get('lower_s', 1.2) if c.get('lower_m') else 0.0)
+            t_open = (self.t_out + c.get('release_after', 2.5) + (c.get('lower_s', 1.2) if c.get('lower_m') else 0.0)
+                      + (c.get('tip_s', 1.0) if c.get('tip_back_deg') else 0.0))
             w = _smooth((t - t_open) / c.get('open_s', 0.6))
             for s_ in SEGS:
                 if s_ != 'torso':
