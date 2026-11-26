@@ -45,6 +45,10 @@ def setp(d, path, val):
     cur = d
     for k, tok in enumerate(toks):
         key = int(tok[1:-1]) if tok.startswith('[') else tok
+        if isinstance(cur, list) and isinstance(key, int) and key == len(cur):
+            cur.append({} if k < len(toks) - 1 else val)       # [n] one past the end appends
+            if k == len(toks) - 1:
+                break
         if k == len(toks) - 1:
             cur[key] = val
         else:

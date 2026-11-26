@@ -90,6 +90,17 @@ def run(cfg, char_dir, out_dir=None, record=True):
             if g_ != cv_ and m.geom_bodyid[g_] != 0 and g_ not in fid_ and m.geom_contype[g_] & 1:
                 m.geom_contype[g_] |= 4
                 m.geom_conaffinity[g_] |= 4
+    slide_ = None
+    if sim.get('slide'):
+        # {after: event, t: s after it, ramp: s, friction: value, segments: [...]}; see the step loop
+        sl_ = sim['slide']
+        cvs_ = m.geom('canvas').id
+        bids_ = {m.body(s_).id for s_ in sl_.get('segments', ('foot_L', 'foot_R', 'shin_L', 'shin_R'))}
+        sg_ = [g_ for g_ in range(m.ngeom) if m.geom_bodyid[g_] in bids_]
+        rz_ = [g_ for g_ in range(m.ngeom) if g_ != cvs_ and m.geom_bodyid[g_] != 0 and g_ not in sg_]
+        slide_ = {'after': sl_.get('after', 'release'), 't': float(sl_.get('t', 0.0)), 'ramp': float(sl_.get('ramp', 0.3)),
+                  'friction': float(sl_['friction']), 'canvas': cvs_, 'f0': float(m.geom_friction[cvs_, 0]),
+                  'geoms': sg_, 'raise': rz_, 'own': {g_: float(m.geom_friction[g_, 0]) for g_ in range(m.ngeom)}}
     if sim.get('limit_solref'):
         # soft end of range (owner 2026-11-17: joints spring at the end of their range; a hard
         # stop also chattered when limp feet rested on it): [time constant s, damping ratio] for
@@ -193,6 +204,21 @@ def run(cfg, char_dir, out_dir=None, record=True):
                 ctl.trigger_ko(t, q_cmd)        # the hold is on: the choke driver takes over L
             G.step(d, t, ctl.events)
             ctl.cons.released = 'release' in ctl.events
+        if slide_ is not None and slide_['after'] in ctl.events:
+            # heels slide (owner 2026-11-26: "the legs slide down and extend, limp"): from an
+            # event on, the listed segments meet the canvas at a lower friction, ramped in.
+            # Contact friction is the max of the two geoms, so the canvas geom drops to the slide
+            # value and every other body geom is raised to the canvas value it met before: only
+            # the listed segments' canvas contacts change (self contacts between body geoms
+            # already at >= that value are unchanged). Explicit pairs keep their own friction.
+            w_ = min(1.0, max(0.0, (t - ctl.events[slide_['after']] - slide_['t']) / max(slide_['ramp'], 1e-6)))
+            if w_ > 0.0:
+                fs_ = slide_['f0'] + (slide_['friction'] - slide_['f0']) * w_
+                m.geom_friction[slide_['canvas'], 0] = fs_
+                for g_ in slide_['raise']:
+                    m.geom_friction[g_, 0] = max(slide_['own'][g_], slide_['f0'])
+                for g_ in slide_['geoms']:
+                    m.geom_friction[g_, 0] = min(slide_['own'][g_], fs_)
             if jerks is not None and not settle:
                 for j_ in jerks:
                     j_.apply(d, t, ctl.events)
