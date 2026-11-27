@@ -208,14 +208,17 @@ class WakeMotor:
             lapse = rng.random() < mv['lapse_p']
             if name == 'head_lift':        # lifting the head is effortful: brief, usually drops back (v3 review)
                 hold, lapse = rng.uniform(0.2, 0.6), rng.random() < 0.65
-            ret = rng.uniform(0.15, 0.3) if lapse else rng.uniform(0.7, 1.2) * slow
-            ret_frac = 1.0 if lapse else rng.uniform(0.35, 0.9)
+            kick = name == 'knee_draw' and not lapse and rng.random() < mv.get('kick_p', 0.6)
+            ret = rng.uniform(0.15, 0.3) if lapse else rng.uniform(0.35, 0.5) if kick else rng.uniform(0.7, 1.2) * slow
+            ret_frac = 1.0 if (lapse or kick) else rng.uniform(0.35, 0.9)
+            if kick:                       # the drawn-up leg pushes back out (a kick), tone kept (v5 review)
+                hold = rng.uniform(0.15, 0.5)
             pv = ctl.pose_vec(pose, base=np.zeros(len(ctl.jn)))
             mask = np.array([n in pose for n in ctl.jn])
             ridx = [REGIONS.index(r) for r in regs]
             tk = (mv.get('tone_move') or {}).get(name, (mv.get('tone_kind') or {}).get(kind, mv['tone']))
             self.moves.append((t0, rise, hold, ret, ret_frac, pv, mask, ridx, tk * rng.uniform(0.8, 1.2), name, lapse, False))
-            self.log.append({'t0': round(t0, 2), 'move': name, 'side': side if 'head' not in name else '-',
+            self.log.append({'t0': round(t0, 2), 'move': name + (' + kick out' if kick else ''), 'side': side if 'head' not in name else '-',
                              'rise': round(rise, 2), 'hold': round(hold, 2), 'lapse': bool(lapse)})
             t = t0 + min(rng.gamma(3.0, mv['gap'] / 3.0), 1.6 * mv['gap'])    # no long dead gaps (v3 review)
             if 'head' not in name and rng.random() < 0.65:
