@@ -228,7 +228,10 @@ def run(cfg, char_dir, out_dir=None, record=True):
             if jerks is not None and not settle:
                 for j_ in jerks:
                     j_.apply(d, t, ctl.events)
-        breath = np.radians(br['amp_deg']) * np.sin(2 * np.pi * t / br['period'])
+        if getattr(ctl, 'wake_motor', None) is not None:
+            breath = ctl.wake_motor.breath(t, br['amp_deg'], br['period'])
+        else:
+            breath = np.radians(br['amp_deg']) * np.sin(2 * np.pi * t / br['period'])
         tone = ctl.apply(d, t, q_cmd, qd_cmd, breath)
         cap = 3.0 if settle else cfg['motion'].get('assist_cap', 0.15)
         wrench = ctl.root_assist(d, t, p0 + fwd * adv, fwd * vadv, cap)

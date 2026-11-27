@@ -16,9 +16,9 @@ clinical; every number below is an animation choice, tuned by eye against render
                 and small lifts, a knee drawing up with the heel sliding, a leg rolling out, a
                 hand going to the face or chest, fingers opening and closing. Each has a rise,
                 a hold and a return; some returns are lapses (fast, the limb or head sags back)
-  5. rest pose  while she is lying, the relaxed target is a supine rest pose (arms by her sides,
-                legs long), so earlier standing postures (the tonic arms) never drive her limbs
-                against gravity once tone returns
+  5. rest pose  while she is lying, the relaxed target is where her limbs lie at arousal, so
+                earlier standing postures (the tonic arms) never drive her limbs against gravity
+                once tone returns (rest: pose uses SUPINE_REST instead)
 
 Config (controller.ko.wake_motor), all optional:
   after: waking            event that is the arousal moment
@@ -28,6 +28,7 @@ Config (controller.ko.wake_motor), all optional:
   startle: {amp: 0.18, dur: 0.18}            (amp: fraction of each joint's torque limit)
   moves: {gap: 0.9, tone: 0.22, lapse_p: 0.35, until: <s after arousal>}
   tremor: {hz: 7.0, deg: 1.5}
+  breath: {amp: 3.0, rate: 1.7, tau: 4.0}   deeper, faster breathing after arousal (x base)
   tone_delay: {neck: 0.0, trunk: 0.3, arm: 0.9, leg: 0.5}  (s after arousal)
   gasp: {amp: 0.14, dur: 0.35}   fidget: {gap: 0.55, start: 0.6, tone: 0.12}
 """
@@ -98,6 +99,8 @@ class WakeMotor:
         self.pulses = []                  # (t0, dur, {dof: torque})
         self.moves = []                   # (t0, rise, hold, ret, ret_frac, pose_vec, mask, region idx, tone, name)
         self.log = []
+        self.q_rest = None
+        self._ph = self._tb = None
 
     # -- planning ---------------------------------------------------------------------------
     def _plan(self, t_w):
@@ -230,10 +233,14 @@ class WakeMotor:
         nb = float(c.get('not_before', -1e9))
         if t < max(t_w - float(c.get('pre_s', 0.8)), nb):
             return tone_r, target
-        # rest pose takes over from earlier postures over 0.5 s from the arousal
+        # rest pose takes over from earlier postures over 0.5 s from the arousal. Default: where
+        # her limbs lie at that moment (v4 review: a guessed supine pose stood her forearms up off
+        # the canvas once tone came back); rest: pose uses SUPINE_REST instead
+        if self.q_rest is None and ctl._q_now is not None and t >= t_w - 0.2:
+            self.q_rest = np.array(ctl._q_now, float).copy()
         wr = mj((t - t_w + 0.2) / 0.5)
-        if wr > 0:
-            rest = ctl.pose_vec(SUPINE_REST, base=target)
+        if wr > 0 and self.q_rest is not None:
+            rest = ctl.pose_vec(SUPINE_REST, base=target) if c.get('rest') == 'pose' else self.q_rest
             sel = np.isin(ctl.reg, [REGIONS.index(r) for r in ('arm_L', 'arm_R', 'leg_L', 'leg_R')])
             target = target.copy()
             target[sel] = (1 - wr) * target[sel] + wr * rest[sel]
@@ -280,3 +287,18 @@ class WakeMotor:
                 s = np.sin(np.pi * (t - t0) / dur)
                 for k, v in tq.items():
                     d.qfrc_applied[k] += v * s
+
+    # -- breathing (called from the sim loop) ------------------------------------------------
+    def breath(self, t, amp_deg, period):
+        """chest breathing target offset (rad). Unchanged until the arousal; then deeper, faster
+        breaths that settle back (recovering after being out), phase-continuous."""
+        base = np.radians(amp_deg) * np.sin(2 * np.pi * t / period)
+        if self.t_w is None or t < self.t_w:
+            return base
+        b = dict({'amp': 3.0, 'rate': 1.7, 'tau': 4.0}, **(self.c.get('breath') or {}))
+        if self._ph is None:
+            self._ph, self._tb = 2 * np.pi * t / period, t
+        k = np.exp(-(t - self.t_w) / b['tau'])
+        self._ph += 2 * np.pi / period * (1 + (b['rate'] - 1) * k) * (t - self._tb)
+        self._tb = t
+        return np.radians(amp_deg) * (1 + (b['amp'] - 1) * k) * np.sin(self._ph)
