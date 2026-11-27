@@ -37,6 +37,7 @@ CAMERAS = [
     ('her left side', {'live_az': -5, 'live_dist': 2.5, 'live_z': 1.2}),
     ('high, front-right', {'live_az': -150, 'live_dist': 2.6, 'live_z': 2.1}),
     ('her right side, low', {'live_az': -175, 'live_dist': 2.2, 'live_z': 0.7}),
+    ('high front-right, closer', {'live_az': -150, 'live_dist': 2.0, 'live_z': 1.7}),   # lying: whole body + face
 ]
 
 

@@ -20,7 +20,7 @@ clinical; every number below is an animation choice, tuned by eye against render
                 earlier standing postures (the tonic arms) never drive her limbs against gravity
                 once tone returns (rest: pose uses SUPINE_REST instead)
 
-Config (controller.ko.wake_motor), all optional:
+Config (controller.ko.wake_motor), all optional (variant: n re-rolls the random draws):
   after: waking            event that is the arousal moment
   pre_s: 0.8               twitches start this long before it (never before `not_before`)
   not_before: <t>          absolute time guard (grow: keep the approved past untouched)

@@ -156,7 +156,8 @@ def run(cfg, char_dir, out_dir=None, record=True):
                 # organic coming-round model (waking.py, owner 2026-11-27)
                 from .waking import WakeMotor
                 ctl.wake_motor = WakeMotor(cfg['controller']['ko']['wake_motor'], ctl,
-                                           np.random.default_rng(sim.get('seed', 0) + 13))
+                                           np.random.default_rng(sim.get('seed', 0) + 13
+                                                                 + int(cfg['controller']['ko']['wake_motor'].get('variant', 0))))
                 jerks.append(ctl.wake_motor)
     ctl.set_inertia(d)
     p0 = d.xpos[ctl.pelvis].copy()
