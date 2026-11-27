@@ -247,6 +247,13 @@ class WakeMotor:
             sel = np.isin(ctl.reg, [REGIONS.index(r) for r in ('arm_L', 'arm_R', 'leg_L', 'leg_R')])
             target = target.copy()
             target[sel] = (1 - wr) * target[sel] + wr * rest[sel]
+            # the head comes off its arched, chin-up rest toward neutral as neck tone returns
+            # (v6 review), over neck_settle s
+            wn = mj((t - t_w) / float(c.get('neck_settle', 2.5)))
+            for nm, v in (('neck_flex', c.get('neck_rest', 2.0)), ('head_flex', 0.0)):
+                if nm in ctl.idx:
+                    i = ctl.idx[nm]
+                    target[i] = (1 - wn) * target[i] + wn * np.radians(v - ctl.off[i])
         tr = dict({'hz': 7.0, 'deg': 1.5}, **(c.get('tremor') or {}))
         L = getattr(ctl, 'L', 0.0)
         for (t0, rise, hold, ret, ret_frac, pv, mask, ridx, tone, name, lapse, rel) in self.moves:
