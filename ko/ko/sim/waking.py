@@ -76,8 +76,8 @@ def _moves_library(side, rng, head_to=0.0):
                       f'shin_{side}_flex': rng.uniform(10, 25), f'foot_{side}_inv': rng.uniform(-8, 8)}, (f'leg_{side}',)),
         # hand to the face: elbow folds deep, upper arm only half raised and drawn across, so the
         # hand lands on the forehead/eyes instead of reaching up past the face (v1 review)
-        'hand_to_face': ({f'upper_arm_{side}_flex': rng.uniform(40, 55), f'upper_arm_{side}_abd': rng.uniform(-55, -40),
-                          f'upper_arm_{side}_twist': rng.uniform(40, 60), f'forearm_{side}_flex': rng.uniform(130, 145),
+        'hand_to_face': ({f'upper_arm_{side}_flex': rng.uniform(50, 62), f'upper_arm_{side}_abd': rng.uniform(-55, -40),
+                          f'upper_arm_{side}_twist': rng.uniform(40, 60), f'forearm_{side}_flex': rng.uniform(135, 148),
                           f'hand_{side}_flex': rng.uniform(10, 30)}, (f'arm_{side}',)),
         'hand_to_chest': ({f'upper_arm_{side}_flex': rng.uniform(30, 45), f'upper_arm_{side}_abd': rng.uniform(-55, -40),
                            f'upper_arm_{side}_twist': rng.uniform(20, 40), f'forearm_{side}_flex': rng.uniform(95, 115),
@@ -173,7 +173,9 @@ class WakeMotor:
             t += rng.gamma(2.0, fd['gap'] / 2.0)
         # 3./4. movements: head first, then legs, then arms/hands; asymmetric, with lapses
         mv = dict({'gap': 0.9, 'tone': 0.22, 'lapse_p': 0.35, 'until': 6.0,
-                   'tone_kind': {'neck': 0.22, 'trunk': 0.22, 'arm': 0.25, 'leg': 0.35}}, **(c.get('moves') or {}))
+                   'tone_kind': {'neck': 0.22, 'trunk': 0.22, 'arm': 0.25, 'leg': 0.35},
+                   # carrying the hand up to the face against gravity needs more (v3: stopped 0.35 m short)
+                   'tone_move': {'hand_to_face': 0.42, 'hand_to_chest': 0.32}}, **(c.get('moves') or {}))
         td = dict({'neck': 0.0, 'trunk': 0.3, 'arm': 0.9, 'leg': 0.5}, **(c.get('tone_delay') or {}))
         seq = c.get('sequence') or ['head_turn', 'knee_draw', 'head_lift', 'hand_to_face', 'leg_roll', 'head_turn',
                                      'hand_to_chest', 'knee_draw', 'arm_slide', 'fist', 'head_turn']
@@ -201,12 +203,14 @@ class WakeMotor:
             rise = rng.uniform(0.6, 1.1) * slow
             hold = rng.uniform(0.3, 1.4)
             lapse = rng.random() < mv['lapse_p']
+            if name == 'head_lift':        # lifting the head is effortful: brief, usually drops back (v3 review)
+                hold, lapse = rng.uniform(0.2, 0.6), rng.random() < 0.65
             ret = rng.uniform(0.15, 0.3) if lapse else rng.uniform(0.7, 1.2) * slow
             ret_frac = 1.0 if lapse else rng.uniform(0.35, 0.9)
             pv = ctl.pose_vec(pose, base=np.zeros(len(ctl.jn)))
             mask = np.array([n in pose for n in ctl.jn])
             ridx = [REGIONS.index(r) for r in regs]
-            tk = (mv.get('tone_kind') or {}).get(kind, mv['tone'])
+            tk = (mv.get('tone_move') or {}).get(name, (mv.get('tone_kind') or {}).get(kind, mv['tone']))
             self.moves.append((t0, rise, hold, ret, ret_frac, pv, mask, ridx, tk * rng.uniform(0.8, 1.2), name, lapse, False))
             self.log.append({'t0': round(t0, 2), 'move': name, 'side': side if 'head' not in name else '-',
                              'rise': round(rise, 2), 'hold': round(hold, 2), 'lapse': bool(lapse)})
