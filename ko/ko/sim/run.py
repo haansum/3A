@@ -152,6 +152,12 @@ def run(cfg, char_dir, out_dir=None, record=True):
                 jerks.append(Jerks(cfg['grapple']['wake_jerks'], ctl, np.random.default_rng(sim.get('seed', 0) + 11)))
             for j_ in jerks:
                 j_.gain_changes = cfg['grapple'].get('jerk_changes')
+            if (cfg['controller'].get('ko') or {}).get('wake_motor'):
+                # organic coming-round model (waking.py, owner 2026-11-27)
+                from .waking import WakeMotor
+                ctl.wake_motor = WakeMotor(cfg['controller']['ko']['wake_motor'], ctl,
+                                           np.random.default_rng(sim.get('seed', 0) + 13))
+                jerks.append(ctl.wake_motor)
     ctl.set_inertia(d)
     p0 = d.xpos[ctl.pelvis].copy()
 
@@ -334,6 +340,8 @@ def run(cfg, char_dir, out_dir=None, record=True):
     out['rope_names'] = np.array([m.body(b).name for b in rope_ids])
     out['mass'] = np.array(spec['mass'])
     out['events'] = np.array(json.dumps(ctl.events))
+    if getattr(ctl, 'wake_motor', None) is not None:
+        ctl.event_data['wake_motor'] = {'moves': ctl.wake_motor.log, 'twitches': len(ctl.wake_motor.pulses)}
     out['event_data'] = np.array(json.dumps(ctl.event_data))
     out['strikes'] = np.array(json.dumps(strike_log))
     out['dt'] = np.array(dt)

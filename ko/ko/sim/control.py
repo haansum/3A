@@ -195,6 +195,8 @@ class Controller:
                     i_ = self.idx[jn_]
                     goal = np.clip(np.radians(a1 - self.off[i_]), self.lo[i_] + 0.01, self.hi[i_] - 0.01)
                     target[i_] += w * frac * (goal - target[i_])
+        if getattr(self, 'wake_motor', None) is not None:     # coming round (waking.py)
+            tone_r, target = self.wake_motor.modify(t, self.events, tone_r, target)
         tone_r, target = self._post_filters(ko, t, tone_r, target, res)
         if ko.get('tone_changes'):
             # {region or group: [[t0, gain, ramp]]}: scale a region's tone from t0 on (2026-11-18)
